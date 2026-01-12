@@ -3,10 +3,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public int moveSpeed = 500;
     private Rigidbody rb;
-
     private PlayerControls controls;
+    private int moveSpeed;
     private Vector2 moveInput;
 
     private void Awake()
@@ -31,14 +30,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnMove(InputAction.CallbackContext context)
     {
-        moveInput = context.ReadValue<Vector2>();
+        moveInput = context.ReadValue<Vector2>().normalized;
     }
 
-    public void CalcMovement()
+    public void CalcMovement(int moveSpeed)
     {
-        
-        Vector3 movement = new Vector3(moveInput.x, 0f, moveInput.y);
-        //rb.linearVelocity = movement;
-        rb.AddForce(movement, ForceMode.VelocityChange);
+
+        Vector3 moveDir = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
+        rb.linearVelocity = moveDir;
     }
+    void Start()
+    {
+
+    }
+
+    public void Init(int speed)
+    {
+        moveSpeed = speed;
+    }
+
+    void FixedUpdate()
+    {
+
+        CalcMovement(moveSpeed);
+    }
+    
 }

@@ -3,8 +3,9 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour {
     public PlayerMovement movement;
     public PlayerAim aim;
+    public int moveSpeed = 20;
     void Start() {
-        
+        movement.Init(moveSpeed);
     }
 
     void Update() {
@@ -12,7 +13,6 @@ public class PlayerManager : MonoBehaviour {
     }
 
     private void FixedUpdate() {
-        movement.CalcMovement();
-        
+       
     }
 }
