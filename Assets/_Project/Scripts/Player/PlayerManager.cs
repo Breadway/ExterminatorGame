@@ -3,9 +3,9 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour {
     public PlayerMovement movement;
     public PlayerAim aim;
-    public int moveSpeed = 20;
+    public int MoveSpeed = 20;
     void Start() {
-        movement.Init(moveSpeed);
+        movement.SetMoveSpeed(MoveSpeed);
     }
 
     void Update() {
