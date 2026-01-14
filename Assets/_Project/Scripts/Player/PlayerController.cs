@@ -6,9 +6,7 @@ using UnityEngine;
 /// Does NOT do work itself—tells other systems to act.
 /// </summary>
 public class PlayerController : MonoBehaviour
-{
-    [SerializeField] private float moveSpeed = 20f;
-    
+{   
     private PlayerMovement movement;
     private PlayerAim aim;
     private Health health;
@@ -29,9 +27,5 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         // Initialize subsystems
-        if (movement != null)
-        {
-            movement.SetMoveSpeed(moveSpeed);
-        }
     }
 }

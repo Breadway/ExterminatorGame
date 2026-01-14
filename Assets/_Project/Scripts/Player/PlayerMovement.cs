@@ -118,12 +118,6 @@ public class PlayerMovement : MonoBehaviour
 
         GameEvents.OnPlayerDash?.Invoke(dashDirection);
     }
-
-    public void SetMoveSpeed(float speed)
-    {
-        moveSpeed = speed;
-    }
-
     private void FixedUpdate()
     {
         if (isDashing)
