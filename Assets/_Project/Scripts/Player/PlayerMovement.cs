@@ -33,6 +33,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Collision")]
     [SerializeField] private LayerMask obstacleMask = ~0;
     [SerializeField] private float skinWidth = 0.05f;
+    
+    [Header("References")]
+    [SerializeField] private Transform cameraTransform;
 
     private Collider col;
     private bool isCapsule = false;
@@ -55,6 +58,11 @@ public class PlayerMovement : MonoBehaviour
             // approximate radius/height from bounds
             capsuleRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
             capsuleHeight = Mathf.Max(col.bounds.size.y, 0.01f);
+        }
+
+        if (cameraTransform == null && Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform;
         }
     }
 
@@ -114,8 +122,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void PerformDash()
     {
-        // Use player's current facing direction for dash
-        dashDirection = transform.forward;
+        // Use camera-relative input direction for dash when input exists, otherwise player's forward
+        if (cameraTransform != null && moveInput.sqrMagnitude > 0.0001f)
+        {
+            Vector3 camForward = cameraTransform.forward;
+            camForward.y = 0f;
+            camForward.Normalize();
+            Vector3 camRight = cameraTransform.right;
+            camRight.y = 0f;
+            camRight.Normalize();
+            dashDirection = (camRight * moveInput.x + camForward * moveInput.y).normalized;
+        }
+        else
+        {
+            dashDirection = transform.forward;
+        }
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
         isDashing = true;
@@ -161,7 +182,22 @@ public class PlayerMovement : MonoBehaviour
     public void Move()
     {
         // Normal movement via velocity to ensure collision response
-        Vector3 horizontalDesired = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
+        Vector3 horizontalDesired;
+        if (cameraTransform != null)
+        {
+            Vector3 camForward = cameraTransform.forward;
+            camForward.y = 0f;
+            camForward.Normalize();
+            Vector3 camRight = cameraTransform.right;
+            camRight.y = 0f;
+            camRight.Normalize();
+
+            horizontalDesired = (camRight * moveInput.x + camForward * moveInput.y) * moveSpeed;
+        }
+        else
+        {
+            horizontalDesired = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
+        }
 
         // If no input, zero horizontal velocity
         if (horizontalDesired.sqrMagnitude < 0.0001f)

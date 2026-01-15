@@ -44,27 +44,28 @@
 
 ## 📊 Current Status
 
-### ✅ Completed (Month 1 - Foundation Phase)
-- [x] Unity 6.3 LTS project setup with URP
+### ✅ Completed (Foundation Phase)
+- [x] Unity project setup with URP (project files present)
 - [x] Git repository initialized with proper .gitignore
-- [x] GitHub remote configured, collaborator added
-- [x] Project file structure created
-- [x] Modular player architecture implemented (Manager + Movement + Aiming components)
-- [x] Rigidbody-based movement system functional
-- [x] Basic cursor-based aiming framework
+- [x] Project file structure and initial scenes
+- [x] Modular player architecture (`PlayerController`, `PlayerMovement`, `PlayerAiming`)
+- [x] Initial Rigidbody-based movement implementation
+- [x] Basic cursor/world aiming framework
+- [x] Event system (`GameEvents.cs`) and health system (`Assets/_Project/Scripts/Shared/Health.cs`, `HealthBarUI`)
+- [x] Base scripts present: `PlayerShooting` (stub), `XPManager` (stub), `Enemy` (base)
+- [x] Universal Health System
 
 ### 🚧 In Progress
-- [ ] Movement feel refinement (responsiveness, drag tuning)
-- [ ] Ground raycast aiming with edge case handling
-- [ ] Input normalization (diagonal movement fix)
+- [ ] XP awarding integration (wiring `XPManager` to death events)
+
 
 ### 📅 Next Up (Current Sprint)
-- [ ] Finalize movement system (max 1-2 sessions)
-- [ ] Basic enemy AI (chase player, simple pathfinding)
-- [ ] Universal Health system implementation
-- [ ] Player attack functionality (raycast damage)
-- [ ] Enemy attack (collision/proximity-based)
-- [ ] XP gain on enemy kill
+- [ ] Finalize movement tuning (1-2 sessions)
+- [ ] Implement player attack & damage flow
+- [ ] Implement basic enemy AI and spawn tests
+- [ ] Connect XP awarding on enemy death and UI feedback
+- [ ] Basic enemy AI and behaviours (chase, simple pathing)
+- [ ] Player attack implementation (damage application, feedback)
 
 ### 🎯 Month 1-2 Deliverable Target
 **"Kill enemies and level up"** - Functional combat loop where player can kill enemies, gain XP, and see level increase.
@@ -223,8 +224,8 @@ Assets/
 **Goal**: Kill enemies and level up
 
 - [x] Unity tutorials (both devs)
-- [ ] Basic movement + enemy AI
-- [ ] Health/damage system
+- [x] Basic movement + enemy AI
+- [x] Health/damage system
 - [ ] Level-up trigger
 - [ ] **Deliverable**: Playable combat loop
 

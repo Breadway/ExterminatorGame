@@ -302,6 +302,29 @@ public static class GameEvents
     {
         OnPlayerStatsChanged?.Invoke(stats);
     }
+
+    // ========================================
+    // CAMERA EVENTS
+    // ========================================
+
+    /// <summary>
+    /// Fired to request the camera rotate by a delta Euler angle (degrees).
+    /// Parameter: Vector3 deltaEuler (x=pitch,y=yaw,z=roll)
+    /// Listeners: PlayerCamera
+    /// </summary>
+    public static event Action<Vector3> OnCameraRotateBy;
+
+    public static void CameraRotateBy(Vector3 deltaEuler)
+    {
+        try
+        {
+            OnCameraRotateBy?.Invoke(deltaEuler);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error in OnCameraRotateBy listeners: {e.Message}");
+        }
+    }
     
     // Add more helper methods as needed for frequently used events
     
