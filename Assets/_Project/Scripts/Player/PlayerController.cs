@@ -1,6 +1,18 @@
 using System;
 using UnityEngine;
-
+/// <summary>
+/// Central controller for the player character.
+/// Responsibilities:
+/// - Initialize and hold references to player components (movement, aiming, shooting, health, stats, etc)
+/// - Orchestrate interactions between components
+/// - Handle player-specific events (damage reactions, death behavior, level up effects, etc)
+/// - Expose public API for other systems to interact with the player
+/// </summary>
+/// 
+[RequireComponent(typeof(Health))]
+[RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(PlayerAiming))]
+[RequireComponent(typeof(PlayerShooting))]
 public class PlayerController : MonoBehaviour {
     [Header("Components")]
     private Health health;
