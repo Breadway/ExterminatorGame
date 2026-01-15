@@ -94,6 +94,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void UpdateSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+    }
     private void OnMoveInput(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>().normalized;
