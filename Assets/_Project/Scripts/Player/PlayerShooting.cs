@@ -41,27 +41,17 @@ public class PlayerShooting : MonoBehaviour {
 
     void Update()
     {
-        if (isFiring)
-        {
-            Fire();
-        }
+       
     }
 
     void OnAttackStarted(InputAction.CallbackContext context)
     {
-        isFiring = true;
-        Fire(); // attempt immediate fire on press
+        currentWeapon.Attack();
     }
 
     void OnAttackCanceled(InputAction.CallbackContext context)
     {
-        isFiring = false;
-    }
-
-
-    private void Fire()
-    {
-        currentWeapon.Attack();
+        currentWeapon.StopAttack();
     }
 
 }
