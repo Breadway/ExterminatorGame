@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 /// Responsibility: Read mouse input → Raycast to ground → Rotate player to face direction
 /// Fires aiming events for other systems to react to (animation, UI, etc).
 /// </summary>
-public class PlayerAim : MonoBehaviour
+public class PlayerAiming : MonoBehaviour
 {
     [SerializeField] private float rotationLerpSpeed = 20f;
     
