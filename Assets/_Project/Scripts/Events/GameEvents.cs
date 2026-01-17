@@ -403,3 +403,10 @@ public enum GameState {
     Victory,
     Loading
 }
+
+public enum EnemyMovementType
+{
+    ChaseMovement,
+    FlyingMovement,
+    SwarmMovement
+}
