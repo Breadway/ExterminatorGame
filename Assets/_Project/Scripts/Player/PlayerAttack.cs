@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerShooting : MonoBehaviour {
+public class PlayerAttack : MonoBehaviour {
     [Header("Components")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerAiming aiming;

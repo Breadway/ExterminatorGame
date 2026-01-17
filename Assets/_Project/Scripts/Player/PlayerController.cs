@@ -12,13 +12,13 @@ using UnityEngine;
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerAiming))]
-[RequireComponent(typeof(PlayerShooting))]
+[RequireComponent(typeof(PlayerAttack))]
 public class PlayerController : MonoBehaviour {
     [Header("Components")]
     private Health health;
     private PlayerMovement movement;
     private PlayerAiming aiming;
-    private PlayerShooting shooting;
+    private PlayerAttack shooting;
     // Add more as needed
     
     [Header("Stats")]
@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour {
         health = GetComponent<Health>();
         movement = GetComponent<PlayerMovement>();
         aiming = GetComponent<PlayerAiming>();
-        shooting = GetComponent<PlayerShooting>();
+        shooting = GetComponent<PlayerAttack>();
         
         // Initialize stats
         stats = new PlayerStats();
