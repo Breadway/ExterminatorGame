@@ -22,7 +22,17 @@ public class PlayerAttack : MonoBehaviour {
         playerController = GetComponent<PlayerController>();
         aiming = GetComponent<PlayerAiming>();
         health = GetComponent<Health>();
+        // Try to find any component that implements IWeaponAttack safely
         currentWeapon = GetComponent<IWeaponAttack>();
+        if (currentWeapon == null) {
+            // Try non-generic lookup and cast (covers some Unity versions)
+            var comp = GetComponent(typeof(IWeaponAttack));
+            if (comp is IWeaponAttack casted) currentWeapon = casted;
+        }
+        if (currentWeapon == null) {
+            // Try children as a fallback
+            currentWeapon = GetComponentInChildren<IWeaponAttack>();
+        }
     }
 
     void OnEnable()
@@ -41,17 +51,42 @@ public class PlayerAttack : MonoBehaviour {
 
     void Update()
     {
-       
+        // Handle simple auto-fire behavior when holding the attack
+        if (isFiring && Time.time >= nextFireTime)
+        {
+            nextFireTime = Time.time + (baseFireRate > 0f ? 1f / baseFireRate : 0.5f);
+            if (currentWeapon != null)
+            {
+                currentWeapon.Attack();
+            }
+            else
+            {
+                // Safe fallback: no weapon component found — record attempt
+                Debug.Log("PlayerAttack: attack attempted (no weapon found)");
+            }
+        }
     }
 
     void OnAttackStarted(InputAction.CallbackContext context)
     {
-        currentWeapon.Attack();
+        isFiring = true;
+        if (currentWeapon != null)
+        {
+            currentWeapon.Attack();
+        }
+        else
+        {
+            Debug.Log("PlayerAttack: Attack started (no weapon found)");
+        }
     }
 
     void OnAttackCanceled(InputAction.CallbackContext context)
     {
-        currentWeapon.StopAttack();
+        isFiring = false;
+        if (currentWeapon != null)
+        {
+            currentWeapon.StopAttack();
+        }
     }
 
 }

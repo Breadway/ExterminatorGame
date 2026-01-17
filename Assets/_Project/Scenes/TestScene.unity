@@ -231,6 +231,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 29.448, z: 0}
+--- !u!1 &230639548 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5739413182247801, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
+  m_PrefabInstance: {fileID: 715189575}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &253670118
 GameObject:
   m_ObjectHideFlags: 0
@@ -343,6 +348,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 43.505, z: 0}
+--- !u!4 &299493080 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2490815014344531945, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
+  m_PrefabInstance: {fileID: 715189575}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -645,6 +655,25 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8289573190684448068, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
   m_PrefabInstance: {fileID: 715189575}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &445438575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230639548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b631b2671aaae3b4d9b3d92cd09d739d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlamethrowerAttack
+  damage: 5
+  range: 6
+  coneAngle: 45
+  tickRate: 0.1
+  raysPerFrame: 5
+  firePoint: {fileID: 299493080}
+  flameParticles: {fileID: 0}
 --- !u!1 &639533311
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,6 +798,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 222146338987494025, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
+      propertyPath: firePoint
+      value: 
+      objectReference: {fileID: 299493080}
     - target: {fileID: 5275282247356014102, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -820,7 +853,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5739413182247801, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 445438575}
   m_SourcePrefab: {fileID: 100100000, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
 --- !u!1 &832575517
 GameObject:
