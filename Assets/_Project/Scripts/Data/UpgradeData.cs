@@ -5,7 +5,7 @@ using UnityEngine;
 /// Create instances in Assets/_Project/Data/Upgrades/
 /// Right-click → Create → Game → Upgrade Data
 /// </summary>
-[CreateAssetMenu(fileName = "New Upgrade", menuName = "Game/Upgrade Data")]
+[CreateAssetMenu(fileName = "New Upgrade", menuName = "Exterminator/Upgrade Data")]
 public class UpgradeData : ScriptableObject {
     
     [Header("Identification")]
