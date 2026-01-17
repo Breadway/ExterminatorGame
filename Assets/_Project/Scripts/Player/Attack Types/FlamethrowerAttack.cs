@@ -65,7 +65,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
                     flameParticles.Play();
                 }
 
-                nextTickTime = Time.time + (tickRate / 0.5f);
+                nextTickTime = Time.time + tickRate;
             }
 
             yield return null;
