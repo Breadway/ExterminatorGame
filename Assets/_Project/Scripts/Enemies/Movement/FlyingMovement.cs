@@ -1,10 +1,11 @@
+using UnityEditor.Callbacks;
 using UnityEngine;
 public class FlyingMovement : IMovementBehavior {
     private Rigidbody rb;
     private UnityEngine.AI.NavMeshAgent agent;
-    public void Initialize(Enemy enemy, EnemyData enemyData) {
-        rb = enemy.GetComponent<Rigidbody>();
-        agent = enemy.GetComponent<UnityEngine.AI.NavMeshAgent>();
+    public void Initialize(Rigidbody rb, UnityEngine.AI.NavMeshAgent agent) {
+        this.rb = rb;
+        this.agent = agent;
     }
     
     public void UpdateMovement()

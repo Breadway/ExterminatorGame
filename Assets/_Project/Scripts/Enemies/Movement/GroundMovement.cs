@@ -1,17 +1,26 @@
 using UnityEngine;
 using UnityEngine.AI;
-public class GroundMovement : IMovementBehavior {
+public class GroundMovement : MonoBehaviour, IMovementBehavior {
     public Transform target;
     private Rigidbody rb;
-    private UnityEngine.AI.NavMeshAgent agent;
+    private NavMeshAgent agent;
+    private Enemy enemy;
+    private EnemyData enemyData;
     
-    public void Initialize(Enemy enemy, EnemyData enemyData) {
-        
+    public void Initialize(Rigidbody rb, NavMeshAgent agent) {
+        this.rb = rb;
+        this.agent = agent;
     }
 
     void Awake()
     {
-        target = FindObjectOfType<PlayerController>().transform
+        var player = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+        if (player != null) {
+            target = player.transform;
+        } else {
+            Debug.LogWarning("PlayerController not found in the scene.");
+            target = null;
+        }
         agent = enemy.GetComponent<NavMeshAgent>();
 
     }
