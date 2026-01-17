@@ -28,9 +28,10 @@ public class Health : MonoBehaviour, IDamageable {
     // IDamageable implementation
     public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection) {
         if (!IsAlive || isInvulnerable) return;
-        
+        Debug.Log($"Taking damage: {amount} at {hitPoint} from direction {hitDirection}");
         currentHP -= amount;
         currentHP = Mathf.Max(0, currentHP);
+        print("Current HP: " + currentHP);
         
         OnDamaged?.Invoke(amount, hitPoint, hitDirection);
         OnHealthChanged?.Invoke(currentHP, maxHP);

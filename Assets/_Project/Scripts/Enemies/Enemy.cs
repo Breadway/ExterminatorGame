@@ -25,9 +25,6 @@ public class Enemy : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         enemyData = null;
-        Debug.Log(rb != null);
-        Debug.Log(agent != null);
-        Debug.Log(movement != null);
         movement.Initialize(rb, agent);
     }
     void OnEnable() {

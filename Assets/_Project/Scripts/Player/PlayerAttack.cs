@@ -7,10 +7,7 @@ public class PlayerAttack : MonoBehaviour {
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerAiming aiming;
     [SerializeField] private Health health;
-
-    [SerializeField] private int baseDamage = 10;
     [SerializeField] private float baseFireRate = 0.5f; // shots per second
-    [SerializeField] private float range = 10f;
     [SerializeField] private Transform firePoint;
     private PlayerControls controls;
     private bool isFiring = false;

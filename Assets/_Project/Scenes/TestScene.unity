@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 203810610}
   - component: {fileID: 203810609}
   - component: {fileID: 203810608}
+  - component: {fileID: 203810612}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -231,6 +232,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 29.448, z: 0}
+--- !u!114 &203810612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 203810607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
+  m_SerializedVersion: 0
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &230639548 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5739413182247801, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
@@ -248,6 +269,7 @@ GameObject:
   - component: {fileID: 253670121}
   - component: {fileID: 253670120}
   - component: {fileID: 253670119}
+  - component: {fileID: 253670123}
   m_Layer: 0
   m_Name: Cube (3)
   m_TagString: Untagged
@@ -348,6 +370,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 43.505, z: 0}
+--- !u!114 &253670123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253670118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
+  m_SerializedVersion: 0
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
 --- !u!4 &299493080 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2490815014344531945, guid: 81ba2a4746d267544acf71fcccbea1e2, type: 3}
@@ -686,6 +728,7 @@ GameObject:
   - component: {fileID: 639533314}
   - component: {fileID: 639533313}
   - component: {fileID: 639533312}
+  - component: {fileID: 639533316}
   m_Layer: 0
   m_Name: Cube (2)
   m_TagString: Untagged
@@ -786,6 +829,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 152.498, z: 0}
+--- !u!114 &639533316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639533311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
+  m_SerializedVersion: 0
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &715189575
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1158,7 +1221,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3.11627, y: -0, z: -18.69213}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 28.928457, y: 3.7158117, z: 33.37866}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1566,3 +1629,4 @@ SceneRoots:
   - {fileID: 253670122}
   - {fileID: 715189575}
   - {fileID: 1237128253}
+  - {fileID: 1538839464}

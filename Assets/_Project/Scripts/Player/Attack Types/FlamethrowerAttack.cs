@@ -46,7 +46,9 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
                     Vector3 direction = Quaternion.Euler(0, angle, 0) * firePoint.forward;
 
                     if (Physics.SphereCast(firePoint.position, 0.3f, direction, out RaycastHit hit, range)) {
+                        
                         IDamageable target = hit.collider.GetComponent<IDamageable>();
+                        
                         if (target != null && target.IsAlive && !enemiesHitThisFrame.Contains(target)) {
                             enemiesHitThisFrame.Add(target);
                         }
