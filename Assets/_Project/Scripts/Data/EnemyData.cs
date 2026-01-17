@@ -1,12 +1,28 @@
 using UnityEngine;
 
-
 public enum EnemyMovementType
 {
     ChaseMovement,
     FlyingMovement,
     SwarmMovement
 }
+
+public enum EnemyAttackType
+{
+    Contact,
+    Ranged
+}
+
+public enum EnemyType
+{
+    Roach,
+    Ant,
+    Spider,
+    Fly,
+    Scorpion
+}
+
+
 [CreateAssetMenu(menuName = "Exterminator/EnemyData")]
 public class EnemyData : ScriptableObject {
     public string enemyName;
@@ -14,8 +30,10 @@ public class EnemyData : ScriptableObject {
     public float moveSpeed;
     public int XPValue;
     public float attackDamage;
+    public float attackCooldown = 1f;
     public GameObject prefab;
     public EnemyMovementType MovementType;
+    public EnemyAttackType AttackType;
 }
 
 /*

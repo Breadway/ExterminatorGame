@@ -1,5 +1,9 @@
-using UnityEditor.Callbacks;
 using UnityEngine;
+
+[RequireComponent(typeof(Health))]
+[RequireComponent(typeof(EnemyAttack))]
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))]
 public class Enemy : MonoBehaviour {
 
     [Header("Components")]
@@ -7,29 +11,63 @@ public class Enemy : MonoBehaviour {
     IMovementBehavior movement;
     [SerializeField] Rigidbody rb;
     [SerializeField] UnityEngine.AI.NavMeshAgent agent;
-    protected EnemyAttack attack;
-
+    EnemyAttack attack;
+    IAttackBehaviour attackBehavior;
     [Header("Data")]
-    [SerializeField] private EnemyData data;
+    [SerializeField] private EnemyData enemyData;
+    public EnemyData EnemyData { get => enemyData; set => enemyData = value; }
 
     void Update()
     {
-        movement.UpdateMovement();
+        if (movement != null)
+        {
+            movement.UpdateMovement();
+        }
     }
 
     void Awake() {
         health = GetComponent<Health>();
-        movement = GetComponent<IMovementBehavior>();
         attack = GetComponent<EnemyAttack>();
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-        attack = GetComponent<EnemyAttack>();
+        movement = GetComponent<IMovementBehavior>();
+        attackBehavior = GetComponent<IAttackBehaviour>();
 
-        if (attack != null && data != null) {
-            attack.Initialize(data); // Make Initialize() public first
+        if (enemyData != null)
+        {
+            Initialize(enemyData);
         }
-        
-        movement.Initialize(rb, agent);
+        else
+        {
+            Debug.LogWarning("Enemy missing EnemyData. Assign it on the prefab or via spawner before Initialize().", this);
+        }
+    }
+
+    public void Initialize(EnemyData enemyData)
+    {
+        this.enemyData = enemyData;
+
+        if (attack == null)
+        {
+            Debug.LogWarning("Enemy missing EnemyAttack component.", this);
+        }
+        else if (attackBehavior == null)
+        {
+            Debug.LogWarning("Enemy missing IAttackBehaviour component.", this);
+        }
+        else
+        {
+            attack.Initialize(this.enemyData, attackBehavior);
+        }
+
+        if (movement == null)
+        {
+            Debug.LogWarning("Enemy missing IMovementBehavior component.", this);
+        }
+        else
+        {
+            movement.Initialize(this.enemyData);
+        }
     }
     void OnEnable() {
         health.OnDied += HandleDeath;

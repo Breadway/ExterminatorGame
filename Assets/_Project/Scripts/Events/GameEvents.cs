@@ -71,14 +71,14 @@ public static class GameEvents
     /// Parameters: XP amount gained
     /// Listeners: XPBarUI (update bar), VFXManager (XP gain popup)
     /// </summary>
-    public static event Action<int> OnXPGained;
+    public static event System.Action<int, int> OnXPChanged; // (currentXP, xpRequired)
     
     /// <summary>
     /// Fired when player levels up.
     /// Parameters: new level
     /// Listeners: Player (heal on level up), UI (level up popup), PathSystem (check for path unlock at 10/20/30)
     /// </summary>
-    public static event Action<int> OnLevelUp;
+    public static event System.Action<int> OnLevelUp; // (newLevel)
     
     /// <summary>
     /// Fired when player chooses an upgrade after room clear.
@@ -93,6 +93,8 @@ public static class GameEvents
     /// Listeners: UpgradeUI (display choices)
     /// </summary>
     public static event Action<int, UpgradeData[]> OnUpgradeOffered;
+
+    public static event Action<float, float> OnHealthChanged; // (currentHP, maxHP)
     
     /// <summary>
     /// Fired when player's stats change (from upgrades, buffs, debuffs).
@@ -240,6 +242,22 @@ public static class GameEvents
     // ========================================
     // HELPER METHODS (Optional - for safer invocation)
     // ========================================
+
+    public static void StartRun() {
+        try {
+            OnRunStarted?.Invoke();
+        } catch (Exception e) {
+            Debug.LogError($"Error in OnRunStarted listeners: {e.Message}");
+        }
+    }
+
+    public static void EndRun(bool wasVictory) {
+        try {
+            OnRunEnded?.Invoke(wasVictory);
+        } catch (Exception e) {
+            Debug.LogError($"Error in OnRunEnded listeners: {e.Message}");
+        }
+    }
     
     /// <summary>
     /// Safely invoke OnEnemyKilled with null check and error handling.
@@ -260,6 +278,17 @@ public static class GameEvents
             OnPlayerDamaged?.Invoke(amount, currentHP, maxHP);
         } catch (Exception e) {
             Debug.LogError($"Error in OnPlayerDamaged listeners: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Safely invoke OnHealthChanged with null check and error handling.
+    /// </summary>
+    public static void PlayerHealthChanged(float currentHP, float maxHP) {
+        try {
+            OnHealthChanged?.Invoke(currentHP, maxHP);
+        } catch (Exception e) {
+            Debug.LogError($"Error in OnPlayerHealthChanged listeners: {e.Message}");
         }
     }
     
@@ -288,19 +317,36 @@ public static class GameEvents
     /// Safely invoke OnPlayerHealed with null check and error handling.   
     /// </summary>
     public static void PlayerHealed(float amount) {   // Helper method
-        OnPlayerHealed?.Invoke(amount);
+        try {
+            OnPlayerHealed?.Invoke(amount);
+        } catch (Exception e) {
+            Debug.LogError($"Error in OnPlayerHealed listeners: {e.Message}");
+        }
     }   
 
     /// <summary>
     /// Safely invoke OnPlayerDied with null check and error handling.  
     /// </summary>
     public static void PlayerDied() {   // Helper method
-        OnPlayerDied?.Invoke();
+        try {
+            OnPlayerDied?.Invoke();
+        } catch (Exception e) {
+            Debug.LogError($"Error in OnPlayerDied listeners: {e.Message}");
+        }
     }
 
+    /// <summary>
+    /// Safely invoke OnPlayerStatsChanged with null check and error handling.
+    /// </summary>
     public static void PlayerStatsChanged(PlayerStats stats)
     {
-        OnPlayerStatsChanged?.Invoke(stats);
+        try {
+            OnPlayerStatsChanged?.Invoke(stats);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error in OnPlayerStatsChanged listeners: {e.Message}");
+        }
     }
 
     // ========================================
@@ -325,6 +371,14 @@ public static class GameEvents
             Debug.LogError($"Error in OnCameraRotateBy listeners: {e.Message}");
         }
     }
+
+    public static void XPChanged(int current, int required) {
+    try {
+        OnXPChanged?.Invoke(current, required);
+    } catch (Exception e) {
+        Debug.LogError($"Error in OnXPChanged listeners: {e.Message}");
+    }
+    }
     
     // Add more helper methods as needed for frequently used events
     
@@ -347,7 +401,7 @@ public static class GameEvents
         OnPlayerDied = null;
         
         // Progression
-        OnXPGained = null;
+        OnXPChanged = null;
         OnLevelUp = null;
         OnUpgradeChosen = null;
         OnUpgradeOffered = null;

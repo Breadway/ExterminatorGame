@@ -9,7 +9,15 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     [SerializeField] private float range = 6f;
     [SerializeField] private float coneAngle = 45f; // Degrees
     [SerializeField] private float tickRate = 0.1f; // Damage every 0.1 seconds
-    [SerializeField] private int raysPerFrame = 5; // Number of raycasts in cone
+    [SerializeField] private float coneRadius = 1.5f; // Cone width at max range
+    [SerializeField] private LayerMask damageMask = ~0;
+    [SerializeField] private LayerMask obstacleMask = ~0;
+    [SerializeField] private bool requireLineOfSight = true;
+    [SerializeField] private float muzzleProbeDistance = 1.5f;
+
+    [Header("Debug")]
+    [SerializeField] private bool drawDebug = false;
+    [SerializeField] private float debugDuration = 0.1f;
     
     [Header("References")]
     [SerializeField] private Transform firePoint;
@@ -17,7 +25,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     
     private PlayerStats stats;
     private float nextTickTime;
-    private HashSet<IDamageable> enemiesHitThisFrame = new HashSet<IDamageable>();
+    private readonly HashSet<IDamageable> enemiesHitThisFrame = new HashSet<IDamageable>();
     private Coroutine attackCoroutine;
     
     void Awake() {
@@ -40,21 +48,70 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
             if (Time.time >= nextTickTime) {
                 enemiesHitThisFrame.Clear();
 
-                // Cast multiple rays in a cone
-                for (int i = 0; i < raysPerFrame; i++) {
-                    float angle = Random.Range(-coneAngle / 2f, coneAngle / 2f);
-                    Vector3 direction = Quaternion.Euler(0, angle, 0) * firePoint.forward;
+                Vector3 forward = firePoint.forward;
+                Vector3 origin = firePoint.position + forward * muzzleProbeDistance;
+                if (Physics.Raycast(firePoint.position, forward, out RaycastHit muzzleHit, muzzleProbeDistance, obstacleMask, QueryTriggerInteraction.Ignore))
+                {
+                    origin = muzzleHit.point;
+                }
+                float maxAngle = coneAngle * 0.5f;
 
-                    if (Physics.SphereCast(firePoint.position, 0.3f, direction, out RaycastHit hit, range)) {
-                        
-                        IDamageable target = hit.collider.GetComponent<IDamageable>();
-                        
-                        if (target != null && target.IsAlive && !enemiesHitThisFrame.Contains(target)) {
-                            enemiesHitThisFrame.Add(target);
+                if (drawDebug)
+                {
+                    Vector3 leftDir = Quaternion.Euler(0f, -maxAngle, 0f) * forward;
+                    Vector3 rightDir = Quaternion.Euler(0f, maxAngle, 0f) * forward;
+                    Debug.DrawRay(origin, leftDir * range, Color.yellow, debugDuration);
+                    Debug.DrawRay(origin, rightDir * range, Color.yellow, debugDuration);
+                    Debug.DrawRay(origin, forward * range, Color.yellow, debugDuration);
+                    Debug.DrawRay(firePoint.position, forward * muzzleProbeDistance, Color.cyan, debugDuration);
+                }
+
+                Collider[] hits = Physics.OverlapSphere(origin, range, damageMask, QueryTriggerInteraction.Ignore);
+                foreach (var col in hits)
+                {
+                    if (col == null) continue;
+                    var target = col.GetComponent<IDamageable>();
+                    if (target == null || !target.IsAlive) continue;
+
+                    Vector3 toTarget = col.bounds.center - origin;
+                    float distance = toTarget.magnitude;
+                    if (distance <= Mathf.Epsilon || distance > range) continue;
+
+                    Vector3 dir = toTarget / distance;
+                    float angle = Vector3.Angle(forward, dir);
+                    if (angle > maxAngle) continue;
+
+                    float coneMaxRadiusAtDistance = Mathf.Tan(maxAngle * Mathf.Deg2Rad) * distance;
+                    if (toTarget.magnitude > 0f)
+                    {
+                        Vector3 lateral = Vector3.ProjectOnPlane(toTarget, forward);
+                        if (lateral.magnitude > coneMaxRadiusAtDistance + coneRadius)
+                        {
+                            continue;
                         }
                     }
 
-                    Debug.DrawRay(firePoint.position, direction * range, Color.red, 0.1f);
+                    if (requireLineOfSight)
+                    {
+                        if (Physics.Raycast(origin, dir, out RaycastHit blockHit, distance, obstacleMask, QueryTriggerInteraction.Ignore))
+                        {
+                            if (blockHit.collider != col)
+                            {
+                                if (drawDebug)
+                                {
+                                    Debug.DrawRay(origin, dir * distance, Color.red, debugDuration);
+                                }
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (drawDebug)
+                    {
+                        Debug.DrawRay(origin, dir * distance, Color.green, debugDuration);
+                    }
+
+                    enemiesHitThisFrame.Add(target);
                 }
 
                 float finalDamage = damage; //* stats.currentDamage;

@@ -15,7 +15,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerAttack))]
 public class PlayerController : MonoBehaviour {
     [Header("Components")]
-    private Health health;
+    [SerializeField] private Health health;
     private PlayerMovement movement;
     private PlayerAiming aiming;
     private PlayerAttack shooting;
@@ -47,6 +47,10 @@ public class PlayerController : MonoBehaviour {
         
         // Apply stats to health
         health.SetMaxHP(stats.currentMaxHP);
+    }
+
+    public void GetHealth(out Health outHealth) {
+        outHealth = health;
     }
     
     void OnEnable() {
@@ -89,16 +93,18 @@ public class PlayerController : MonoBehaviour {
         // Audio
         // AudioManager listens to health.OnDamaged
         
-        // Knockback (optional)
-        // movement.ApplyKnockback(hitDirection);
+        // Knockback
+        movement.ApplyKnockback(hitDirection);
         
         // Fire game event for other systems
         GameEvents.OnPlayerDamaged?.Invoke(amount, health.CurrentHP, health.MaxHP);
+        GameEvents.PlayerHealthChanged(health.CurrentHP, health.MaxHP);
     }
     
     void HandleHealed(float amount) {
         // Fire event for UI/audio
         GameEvents.PlayerHealed(amount);
+        GameEvents.PlayerHealthChanged(health.CurrentHP, health.MaxHP);
     }
     
     void HandleDeath() {
@@ -113,7 +119,8 @@ public class PlayerController : MonoBehaviour {
         
         // Fire game event
         GameEvents.PlayerDied();
-        
+        GameEvents.EndRun(false); // Player lost
+        Destroy(gameObject);
         // GameManager listens to OnPlayerDied and shows game over screen
     }
     

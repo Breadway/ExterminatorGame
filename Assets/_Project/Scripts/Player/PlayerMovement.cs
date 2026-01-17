@@ -17,6 +17,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float dashCooldown = 0.5f;
     [SerializeField] private float dashRecoveryTime = 0.05f;
 
+    [Header("Knockback Settings")]
+    [SerializeField] private float knockbackSpeed = 12f;
+    [SerializeField] private float knockbackDuration = 0.15f;
+
     private Rigidbody rb;
     private PlayerControls controls;
     private Vector2 moveInput;
@@ -29,6 +33,9 @@ public class PlayerMovement : MonoBehaviour
     private bool isRecovering = false;
     private float recoveryEndTime = 0f;
     private Vector3 recoveryStartVelocity;
+
+    private float knockbackEndTime = 0f;
+    private Vector3 knockbackVelocity;
     
     [Header("Collision")]
     [SerializeField] private LayerMask obstacleMask = ~0;
@@ -145,6 +152,12 @@ public class PlayerMovement : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        if (Time.time < knockbackEndTime)
+        {
+            rb.linearVelocity = new Vector3(knockbackVelocity.x, rb.linearVelocity.y, knockbackVelocity.z);
+            return;
+        }
+
         if (isDashing)
         {
             if (Time.time < dashEndTime)
@@ -177,6 +190,21 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Move();
+    }
+
+    public void ApplyKnockback(Vector3 direction)
+    {
+        direction.y = 0f;
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        Vector3 flatDir = direction.normalized;
+        knockbackVelocity = flatDir * knockbackSpeed;
+        knockbackEndTime = Time.time + knockbackDuration;
+        isDashing = false;
+        isRecovering = false;
     }
 
     public void Move()
