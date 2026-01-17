@@ -1,5 +1,12 @@
 using UnityEngine;
 
+
+public enum EnemyMovementType
+{
+    ChaseMovement,
+    FlyingMovement,
+    SwarmMovement
+}
 [CreateAssetMenu(menuName = "Exterminator/EnemyData")]
 public class EnemyData : ScriptableObject {
     public string enemyName;

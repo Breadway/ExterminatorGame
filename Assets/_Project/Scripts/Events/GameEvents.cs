@@ -404,9 +404,3 @@ public enum GameState {
     Loading
 }
 
-public enum EnemyMovementType
-{
-    ChaseMovement,
-    FlyingMovement,
-    SwarmMovement
-}
