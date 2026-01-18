@@ -47,13 +47,13 @@ public class XPManager : MonoBehaviour {
         int xpGained = data.XPValue;
         currentXP += xpGained;
 
+        // Check if leveled up
+        CheckLevelUp();
+
         Debug.Log($"Gained {xpGained} XP! Total: {currentXP}/{xpToNextLevel}");
 
         // Fire event so UI can update
         GameEvents.XPChanged(currentXP, xpToNextLevel);
-
-        // Check if leveled up
-        CheckLevelUp();
     }
 
     private void CheckLevelUp() {
