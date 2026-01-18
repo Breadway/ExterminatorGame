@@ -17,7 +17,7 @@ MonoBehaviour:
   moveSpeed: 20
   XPValue: 20
   attackDamage: 10
-  attackCooldown: 1
+  attackCooldown: 0.5
   prefab: {fileID: 0}
   MovementType: 0
   AttackType: 0

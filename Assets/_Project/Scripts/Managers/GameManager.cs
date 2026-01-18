@@ -10,20 +10,19 @@ public class GameManager : MonoBehaviour {
     {
         // Do not reload scene here to avoid infinite loop
         gameState = GameState.Playing;
-        Time.timeScale = 1f;
     }
     void OnEnable()
     {
         GameEvents.OnRunEnded += HandleRunEnded;
-        GameEvents.OnRunStarted += RunStarted;
+        GameEvents.OnRunStarted += HandleRunStarted;
     }
     void OnDisable()
     {
         GameEvents.OnRunEnded -= HandleRunEnded;
-        GameEvents.OnRunStarted -= RunStarted;
+        GameEvents.OnRunStarted -= HandleRunStarted;
     }
 
-    void RunStarted()
+    void HandleRunStarted()
     {
         // Handle run start logic here
         Time.timeScale = 1f; // Resume the game
