@@ -4,7 +4,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NavMeshAgent))]
 public class ChaseMovement : MonoBehaviour, IMovementBehavior {
-    public Transform target;
+    [SerializeField] private Transform target;
     private Rigidbody rb;
     private NavMeshAgent agent;
     private EnemyData enemyData;
@@ -16,6 +16,16 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
     [SerializeField] private bool makeRigidbodyKinematic = true;
     [SerializeField] private bool rotateToVelocity = true;
     [SerializeField] private float rotationSpeed = 12f;
+
+    [Header("Path Update")]
+    [SerializeField, Tooltip("Seconds between path recalculations.")]
+    private float repathInterval = 0.2f;
+    [SerializeField, Tooltip("Minimum distance change before updating destination.")]
+    private float repathDistanceThreshold = 0.25f;
+
+    private float nextRepathTime;
+    private Vector3 lastDestination;
+    private static Transform cachedPlayer;
     
     public void Initialize(EnemyData enemyData) {
         this.enemyData = enemyData;
@@ -24,17 +34,26 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
 
     void Awake()
     {
-        var player = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
-        if (player != null) {
-            target = player.transform;
-        } else {
-            Debug.LogWarning("PlayerController not found in the scene.");
-            target = null;
+        // Cache player once to avoid repeated scene searches on mass spawns.
+        if (cachedPlayer == null)
+        {
+            var player = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+            cachedPlayer = player != null ? player.transform : null;
         }
+
+        if (target == null)
+        {
+            target = cachedPlayer;
+            if (target == null)
+            {
+                Debug.LogWarning("PlayerController not found in the scene.");
+            }
+        }
+
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         ApplyMovementSettings();
-        
+        lastDestination = Vector3.positiveInfinity; // force first set
     }
 
     private void ApplyMovementSettings()
@@ -60,23 +79,40 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
     
     public void UpdateMovement()
     {
-        if (target != null && agent != null) {
-            agent.destination = target.position;
-            if (rotateToVelocity)
+        if (target == null || agent == null)
+        {
+            return;
+        }
+
+        // Throttle path recalculation to reduce NavMesh cost.
+        if (Time.time >= nextRepathTime)
+        {
+            Vector3 desired = target.position;
+            if ((desired - lastDestination).sqrMagnitude >= repathDistanceThreshold * repathDistanceThreshold)
             {
-                Vector3 flatVelocity = agent.velocity;
-                flatVelocity.y = 0f;
-                if (flatVelocity.sqrMagnitude > 0.001f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(flatVelocity.normalized, Vector3.up);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
-                }
+                agent.SetDestination(desired);
+                lastDestination = desired;
+                nextRepathTime = Time.time + repathInterval;
+            }
+        }
+
+        if (rotateToVelocity)
+        {
+            Vector3 flatVelocity = agent.velocity;
+            flatVelocity.y = 0f;
+            if (flatVelocity.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(flatVelocity.normalized, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
             }
         }
     }
 
     public void Stop()
     {
-        
+        if (agent != null)
+        {
+            agent.ResetPath();
+        }
     }
 }

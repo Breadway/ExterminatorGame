@@ -4,6 +4,8 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
 {
     private EnemyData enemyData;
     private float nextAttackTime = 0f;
+    private GameObject cachedTarget;
+    private Health cachedHealth;
 
     public void Initialize(EnemyData enemyData)
     {
@@ -12,14 +14,18 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
 
     public void Attack(GameObject target)
     {
-        // Implement contact damage logic here
-        Health health = target.GetComponent<Health>();
-        if (health != null)
+        // Cache the health component to avoid repeated lookups while colliding.
+        if (target != cachedTarget)
+        {
+            cachedTarget = target;
+            cachedHealth = target.GetComponent<Health>();
+        }
+
+        if (cachedHealth != null)
         {
             Vector3 hitPoint = target.transform.position;
             Vector3 hitDirection = (target.transform.position - transform.position).normalized;
-            if (health != null && hitPoint != null && hitDirection != null)
-            health.TakeDamage(enemyData.attackDamage, hitPoint, hitDirection);
+            cachedHealth.TakeDamage(enemyData.attackDamage, hitPoint, hitDirection);
         }
     }
 
@@ -34,6 +40,15 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
         {
             Attack(collision.gameObject);
             nextAttackTime = Time.time + enemyData.attackCooldown;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject == cachedTarget)
+        {
+            cachedTarget = null;
+            cachedHealth = null;
         }
     }
 }
