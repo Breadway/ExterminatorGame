@@ -28,8 +28,24 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     private readonly HashSet<IDamageable> enemiesHitThisFrame = new HashSet<IDamageable>();
     private Coroutine attackCoroutine;
     
+    // Pre-allocated arrays for Physics.OverlapSphereNonAlloc to avoid GC
+    private const int MAX_HITS = 64;
+    private Collider[] hitBuffer = new Collider[MAX_HITS];
+    
+    // Cached WaitForFixedUpdate to avoid GC allocations
+    private WaitForFixedUpdate waitForFixed;
+    
+    // Pre-calculate frequently used values
+    private float maxAngle;
+    private float maxAngleRad;
+    
     void Awake() {
         stats = GetComponentInParent<PlayerController>().stats;
+        waitForFixed = new WaitForFixedUpdate();
+        
+        // Pre-calculate cone angle values
+        maxAngle = coneAngle * 0.5f;
+        maxAngleRad = maxAngle * Mathf.Deg2Rad;
     }
 
     public void Initialize(PlayerStats playerStats) {
@@ -46,88 +62,106 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     private IEnumerator AttackLoop() {
         while (true) {
             if (Time.time >= nextTickTime) {
-                enemiesHitThisFrame.Clear();
-
-                Vector3 forward = firePoint.forward;
-                Vector3 origin = firePoint.position + forward * muzzleProbeDistance;
-                if (Physics.Raycast(firePoint.position, forward, out RaycastHit muzzleHit, muzzleProbeDistance, obstacleMask, QueryTriggerInteraction.Ignore))
-                {
-                    origin = muzzleHit.point;
-                }
-                float maxAngle = coneAngle * 0.5f;
-
-                if (drawDebug)
-                {
-                    Vector3 leftDir = Quaternion.Euler(0f, -maxAngle, 0f) * forward;
-                    Vector3 rightDir = Quaternion.Euler(0f, maxAngle, 0f) * forward;
-                    Debug.DrawRay(origin, leftDir * range, Color.yellow, debugDuration);
-                    Debug.DrawRay(origin, rightDir * range, Color.yellow, debugDuration);
-                    Debug.DrawRay(origin, forward * range, Color.yellow, debugDuration);
-                    Debug.DrawRay(firePoint.position, forward * muzzleProbeDistance, Color.cyan, debugDuration);
-                }
-
-                Collider[] hits = Physics.OverlapSphere(origin, range, damageMask, QueryTriggerInteraction.Ignore);
-                foreach (var col in hits)
-                {
-                    if (col == null) continue;
-                    var target = col.GetComponent<IDamageable>();
-                    if (target == null || !target.IsAlive) continue;
-
-                    Vector3 toTarget = col.bounds.center - origin;
-                    float distance = toTarget.magnitude;
-                    if (distance <= Mathf.Epsilon || distance > range) continue;
-
-                    Vector3 dir = toTarget / distance;
-                    float angle = Vector3.Angle(forward, dir);
-                    if (angle > maxAngle) continue;
-
-                    float coneMaxRadiusAtDistance = Mathf.Tan(maxAngle * Mathf.Deg2Rad) * distance;
-                    if (toTarget.magnitude > 0f)
-                    {
-                        Vector3 lateral = Vector3.ProjectOnPlane(toTarget, forward);
-                        if (lateral.magnitude > coneMaxRadiusAtDistance + coneRadius)
-                        {
-                            continue;
-                        }
-                    }
-
-                    if (requireLineOfSight)
-                    {
-                        if (Physics.Raycast(origin, dir, out RaycastHit blockHit, distance, obstacleMask, QueryTriggerInteraction.Ignore))
-                        {
-                            if (blockHit.collider != col)
-                            {
-                                if (drawDebug)
-                                {
-                                    Debug.DrawRay(origin, dir * distance, Color.red, debugDuration);
-                                }
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (drawDebug)
-                    {
-                        Debug.DrawRay(origin, dir * distance, Color.green, debugDuration);
-                    }
-
-                    enemiesHitThisFrame.Add(target);
-                }
-
-                float finalDamage = damage; //* stats.currentDamage;
-                foreach (IDamageable enemy in enemiesHitThisFrame) {
-                    enemy.TakeDamage(finalDamage, firePoint.position, firePoint.forward);
-                }
-
-                // Emit particles
-                if (flameParticles != null && !flameParticles.isPlaying) {
-                    flameParticles.Play();
-                }
-
+                PerformAttackTick();
                 nextTickTime = Time.time + tickRate;
             }
 
-            yield return null;
+            // Use cached WaitForFixedUpdate instead of yield return null for more consistent timing
+            yield return waitForFixed;
+        }
+    }
+
+    private void PerformAttackTick()
+    {
+        enemiesHitThisFrame.Clear();
+
+        Vector3 forward = firePoint.forward;
+        Vector3 origin = firePoint.position + forward * muzzleProbeDistance;
+        
+        if (Physics.Raycast(firePoint.position, forward, out RaycastHit muzzleHit, muzzleProbeDistance, obstacleMask, QueryTriggerInteraction.Ignore))
+        {
+            origin = muzzleHit.point;
+        }
+
+        #if UNITY_EDITOR
+        if (drawDebug)
+        {
+            Vector3 leftDir = Quaternion.Euler(0f, -maxAngle, 0f) * forward;
+            Vector3 rightDir = Quaternion.Euler(0f, maxAngle, 0f) * forward;
+            Debug.DrawRay(origin, leftDir * range, Color.yellow, debugDuration);
+            Debug.DrawRay(origin, rightDir * range, Color.yellow, debugDuration);
+            Debug.DrawRay(origin, forward * range, Color.yellow, debugDuration);
+            Debug.DrawRay(firePoint.position, forward * muzzleProbeDistance, Color.cyan, debugDuration);
+        }
+        #endif
+
+        // Use NonAlloc version to avoid GC allocations every tick
+        int hitCount = Physics.OverlapSphereNonAlloc(origin, range, hitBuffer, damageMask, QueryTriggerInteraction.Ignore);
+        
+        float tanMaxAngle = Mathf.Tan(maxAngleRad);
+        
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider col = hitBuffer[i];
+            if (col == null) continue;
+            
+            var target = col.GetComponent<IDamageable>();
+            if (target == null || !target.IsAlive) continue;
+
+            Vector3 toTarget = col.bounds.center - origin;
+            float distanceSqr = toTarget.sqrMagnitude;
+            float rangeSqr = range * range;
+            
+            if (distanceSqr <= Mathf.Epsilon || distanceSqr > rangeSqr) continue;
+
+            float distance = Mathf.Sqrt(distanceSqr);
+            Vector3 dir = toTarget / distance;
+            float angle = Vector3.Angle(forward, dir);
+            
+            if (angle > maxAngle) continue;
+
+            float coneMaxRadiusAtDistance = tanMaxAngle * distance;
+            Vector3 lateral = Vector3.ProjectOnPlane(toTarget, forward);
+            if (lateral.sqrMagnitude > (coneMaxRadiusAtDistance + coneRadius) * (coneMaxRadiusAtDistance + coneRadius))
+            {
+                continue;
+            }
+
+            if (requireLineOfSight)
+            {
+                if (Physics.Raycast(origin, dir, out RaycastHit blockHit, distance, obstacleMask, QueryTriggerInteraction.Ignore))
+                {
+                    if (blockHit.collider != col)
+                    {
+                        #if UNITY_EDITOR
+                        if (drawDebug)
+                        {
+                            Debug.DrawRay(origin, dir * distance, Color.red, debugDuration);
+                        }
+                        #endif
+                        continue;
+                    }
+                }
+            }
+
+            #if UNITY_EDITOR
+            if (drawDebug)
+            {
+                Debug.DrawRay(origin, dir * distance, Color.green, debugDuration);
+            }
+            #endif
+
+            enemiesHitThisFrame.Add(target);
+        }
+
+        float finalDamage = damage; //* stats.currentDamage;
+        foreach (IDamageable enemy in enemiesHitThisFrame) {
+            enemy.TakeDamage(finalDamage, firePoint.position, firePoint.forward);
+        }
+
+        // Emit particles
+        if (flameParticles != null && !flameParticles.isPlaying) {
+            flameParticles.Play();
         }
     }
     

@@ -24,6 +24,15 @@ public class Health : MonoBehaviour, IDamageable {
     void Awake() {
         currentHP = maxHP;
     }
+
+    /// <summary>
+    /// Reset health to max (used for object pooling)
+    /// </summary>
+    public void ResetHealth()
+    {
+        currentHP = maxHP;
+        OnHealthChanged?.Invoke(currentHP, maxHP);
+    }
     
     // IDamageable implementation
     public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection) {
