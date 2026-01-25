@@ -8,71 +8,36 @@
 
 ---
 
-## 📋 Table of Contents
-- [Project Overview](#-project-overview)
-- [Current Status](#-current-status)
-- [Core Features](#-core-features)
-- [Technical Stack](#-technical-stack)
-- [Project Structure](#-project-structure)
-- [Development Roadmap](#-development-roadmap)
-- [Architecture](#-architecture)
-- [Team & Timeline](#-team--timeline)
-- [Getting Started](#-getting-started)
-- [Workflow](#-workflow)
-- [Contributing](#-contributing)
-- [Design Philosophy](#-design-philosophy)
+## 📋 Navigation
+
+**For Players/Game Design**: [Overview](#-game-overview) • [Features](#-game-features) • [How to Play](#how-to-play) • [Status](#-playable-status)
+
+**For Developers**: [Getting Started](#-getting-started) • [Development](#-development-section) • [Tech Stack](#-technical-stack) • [Architecture](#-architecture--code-standards) • [Contributing](#-contributing)
 
 ---
 
-## 🎮 Project Overview
+## 🎮 Game Overview
 
-**Exterminator** is a top-down roguelike with Hades-style 3D visuals, procedurally generated runs, and unique character progression. Players choose from 4-5 unlockable exterminators, each with "intentionally broken" mechanics balanced by constraints.
+**Exterminator** is a top-down roguelike with Hades-style 3D visuals, procedurally generated runs, and unique character progression. Players choose from 4-5 unlockable exterminators, each with "intentionally broken" mechanics balanced by meaningful constraints.
 
-### Core Loop
-1. Clear 25 rooms with branching Slay the Spire-style paths
-2. Choose 1 of 3 upgrades after each room (Power/Defense/Utility)
-3. Level up through combat, unlock path abilities at levels 10/20/30
-4. Defeat mid-boss (room ~12) and final boss (room 25)
-5. Unlock Endless Mode for infinite scaling difficulty
+### How to Play
+1. **Navigate** through 25 procedurally arranged rooms with Slay the Spire-style branching paths
+2. **Fight** increasingly challenging bug infestations
+3. **Choose** 1 of 3 upgrades after each room (Power/Defense/Utility)
+4. **Level up** to unlock path abilities at levels 10, 20, 30
+5. **Defeat** mid-boss (room ~12) and final boss (room 25)
+6. **Unlock** Endless Mode for infinite scaling challenge
 
-### Game Pillars
-- **Systemic Variation Over Raw Difficulty**: Each room forces tactical adaptation
-- **Enemies as Teachers**: Every bug type teaches a specific mechanic
-- **Intentionally Broken Characters**: Overpowered mechanics with meaningful constraints
-
----
-
-## 📊 Current Status
-
-### ✅ Completed (Foundation Phase)
-- [x] Unity project setup with URP (project files present)
-- [x] Git repository initialized with proper .gitignore
-- [x] Project file structure and initial scenes
-- [x] Modular player architecture (`PlayerController`, `PlayerMovement`, `PlayerAiming`)
-- [x] Initial Rigidbody-based movement implementation
-- [x] Basic cursor/world aiming framework
-- [x] Event system (`GameEvents.cs`) and health system (`Assets/_Project/Scripts/Shared/Health.cs`, `HealthBarUI`)
-- [x] Base scripts present: `PlayerShooting` (stub), `XPManager` (stub), `Enemy` (base)
-- [x] Universal Health System
-
-### 🚧 In Progress
-- [ ] XP awarding integration (wiring `XPManager` to death events)
-
-
-### 📅 Next Up (Current Sprint)
-- [ ] Finalize movement tuning (1-2 sessions)
-- [ ] Implement player attack & damage flow
-- [ ] Implement basic enemy AI and spawn tests
-- [ ] Connect XP awarding on enemy death and UI feedback
-- [ ] Basic enemy AI and behaviours (chase, simple pathing)
-- [ ] Player attack implementation (damage application, feedback)
-
-### 🎯 Month 1-2 Deliverable Target
-**"Kill enemies and level up"** - Functional combat loop where player can kill enemies, gain XP, and see level increase.
+### Core Philosophy
+| Pillar | What It Means |
+|--------|---------|
+| **Systemic Variation** | Each room forces tactical adaptation, not just higher numbers |
+| **Enemies as Teachers** | Every bug type teaches a specific mechanic |
+| **Intentionally Broken** | Overpowered abilities balanced by meaningful constraints |
 
 ---
 
-## 🎮 Core Features
+## 🎮 Game Features
 
 ### Characters (4-5 Unlockable Exterminators)
 Each character has one overpowered mechanic balanced by a constraint:
@@ -87,23 +52,23 @@ Each character has one overpowered mechanic balanced by a constraint:
 
 ### Progression Systems
 
-#### 1. Room Upgrades (Per-Run)
+**1. Room Upgrades (Per-Run)**
 - Choose 1 of 3 after each room clear
 - Categories: Power (damage/weapons), Defense (HP/resistances), Utility (speed/cooldowns)
 - ~25 upgrade choices per full run
 
-#### 2. XP & Path System (Per-Run)
-- **Every Level**: Auto-heal X% HP (percentage TBD)
+**2. Level-Up Path System (Per-Run)**
+- **Every Level**: Auto-heal X% HP
 - **Level 10**: Choose 1 of 3 major path branches (significant power spike)
 - **Level 20**: Choose 1 of 2 options based on Level 10 choice
 - **Level 30**: Final path choice (Endless Mode only, massive power spike)
 - **Level 31+**: Permanent character-specific buffs each level (Endless only)
 
-#### 3. Meta-Progression (Persistent)
-- Earn currency from runs (sources TBD)
+**3. Meta-Progression (Persistent)**
+- Earn currency from runs
 - Unlock new characters (after milestone achievements)
 - Unlock additional character path trees
-- Small meaningful upgrades (scope TBD)
+- Small meaningful upgrades
 
 ### Map Structure
 - **25 rooms total** with Slay the Spire-style branching paths
@@ -111,7 +76,7 @@ Each character has one overpowered mechanic balanced by a constraint:
 - **Bosses**: Mid-boss (~room 12), Final boss (room 25)
 - **Endless Mode**: Unlocked after beating final boss, separate mode per map
 
-### Enemy Design (8-15 Types)
+### Enemy Types
 "Enemies as teachers" - each type exists to teach a specific mechanic:
 
 - **Roaches**: Swarm tactics (teaches AOE value)
@@ -122,20 +87,89 @@ Each character has one overpowered mechanic balanced by a constraint:
 
 ---
 
+## � Playable Status
+
+### What's Done (Phase 1 ✅)
+- ✅ Combat system (move, aim, shoot, damage)
+- ✅ Enemy AI and spawning
+- ✅ Health system with visual feedback
+- ✅ XP and leveling system
+- ✅ Basic UI (health bar, XP bar, level-up screen)
+
+### What's Next (Phase 2 ⬅️ IN PROGRESS)
+- [ ] Room clearing and transitions
+- [ ] Upgrade selection UI (pick 1 of 3)
+- [ ] Path branches at levels 10/20
+- [ ] 15-20 varied room designs
+- [ ] First boss encounter
+
+### TBD Questions
+- Movement speed tuning
+- Dodge mechanic (dash/roll/i-frames?)
+- Damage feedback visuals (screen shake, particles)
+- Heal percentage on level-up
+- Character-specific attack patterns
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Unity 6.3 LTS or later
+- Git installed
+- GitHub account with repo access
+- Code editor (VS, Rider, or VS Code)
+
+### First-Time Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/[your-username]/exterminator-game.git
+   cd exterminator-game
+   ```
+
+2. **Open in Unity**
+   - Open Unity Hub
+   - Click "Add" → select cloned folder
+   - Unity automatically imports assets
+
+3. **Test the setup**
+   - Open `Scenes/GameplayTest.unity`
+   - Press Play
+   - Controls: WASD to move, mouse to aim
+   - Should see player capsule moving smoothly
+
+4. **Create a feature branch**
+   ```bash
+   git checkout dev
+   git pull origin dev
+   git checkout -b feature/your-feature-name
+   ```
+
+---
+
+# 📋 Development Section
+
+*For developers working on the project. Game designers and players can skip to the end.*
+
+---
+
 ## 🛠 Technical Stack
 
-- **Engine**: Unity 6.3 LTS
-- **Rendering**: Universal Render Pipeline (URP)
-- **Perspective**: 3D models, fixed camera angle (~45° Hades-style)
-- **Version Control**: Git + GitHub
-- **Project Management**: JIRA
-- **Languages**: C# (.NET Standard 2.1)
+| Component | Technology |
+|-----------|-----------|
+| **Engine** | Unity 6.3 LTS |
+| **Rendering** | Universal Render Pipeline (URP) |
+| **Perspective** | 3D (isometric ~45° camera, Hades-style) |
+| **Language** | C# (.NET Standard 2.1) |
+| **Version Control** | Git + GitHub |
+| **Project Management** | JIRA |
 
-### Key Systems
-- Component-based architecture (modular MonoBehaviours)
-- Event-driven design (centralized `GameEvents.cs`)
-- ScriptableObject-based data (upgrades, enemies, weapons)
-- Manager pattern for singleton systems (sparingly used)
+### Architecture Approach
+- **Component-based**: Modular MonoBehaviours with single responsibilities
+- **Event-driven**: Centralized `GameEvents.cs` for system communication
+- **Data-driven**: ScriptableObjects for all configuration (upgrades, enemies, weapons)
+- **Manager orchestration**: Sparse use of singleton managers to coordinate systems
 
 ---
 
@@ -161,7 +195,7 @@ Assets/
     │   │   ├── PlayerController.cs      # Orchestrator
     │   │   ├── PlayerMovement.cs        # Movement logic
     │   │   ├── PlayerAiming.cs          # Aiming logic
-    │   │   ├── PlayerShooting.cs        # Attack logic
+    │   │   ├── PlayerAttack.cs          # Attack logic
     │   │   └── PlayerStats.cs           # Data class
     │   │
     │   ├── Enemies/           # Enemy components
@@ -216,374 +250,286 @@ Assets/
 
 ## 🗓 Development Roadmap
 
-**Total Timeline**: 18-24 months  
-**Time to Apprenticeship**: 11 months (~280 hours)  
-**Weekly Time Budget**: ~6.5 hours (30min weekdays, 2hrs weekends)
+**Total Timeline**: 20 months | **Weekly Budget**: ~6.5 hours
 
-### Phase 1: Foundation (Months 1-2) ⬅️ **YOU ARE HERE**
-**Goal**: Kill enemies and level up
-
-- [x] Unity tutorials (both devs)
-- [x] Basic movement + enemy AI
+### Phase 1: Foundation (Weeks 1-2) ✅ **COMPLETED**
+**Deliverable**: Playable combat loop (kill enemies, gain XP, level up)
+- [x] Unity setup and tutorials
+- [x] Movement + enemy AI
 - [x] Health/damage system
-- [ ] Level-up trigger
-- [ ] **Deliverable**: Playable combat loop
+- [x] Event system wiring
+- [x] Level-up system
 
-### Phase 2: Core Loop (Months 3-5)
-**Goal**: Full run start to boss
-
-- [ ] Room clearing + transitions
-- [ ] Upgrade system (choose 1 of 3)
-- [ ] Path system at levels 10/20
-- [ ] 15-20 rooms with variety
+### Phase 2: Core Loop (Months 1-3) ⬅️ **CURRENT PHASE**
+**Deliverable**: Complete run with upgrades and boss
+- [ ] Room clearing and transitions
+- [ ] Upgrade system (1 of 3 choices)
+- [ ] Path progression (levels 10/20)
+- [ ] 15-20 varied rooms
 - [ ] First boss fight
-- [ ] **Deliverable**: Complete run with upgrades and boss
 
-### Phase 3: Content & Polish (Months 6-9)
-**Goal**: Two characters, endless playable
-
-- [ ] Second character implementation
-- [ ] 8-10 enemy types total
+### Phase 3: Content & Polish (Months 4-8)
+**Deliverable**: Replayable game with variety
+- [ ] Second character
+- [ ] 8-10 enemy types
 - [ ] Room modifiers (hazards, constraints)
 - [ ] Meta-progression (currency, unlocks)
 - [ ] Endless mode
-- [ ] **Deliverable**: Replayable game with variety
 
-### Phase 4: Polish & Buffer (Months 10-11)
-**Goal**: Ready to show publicly
-
-- [ ] Bug fixes, UI polish
-- [ ] Playtesting with external testers
+### Phase 4: Polish & Showcase (Months 9-10)
+**Deliverable**: Presentable vertical slice
+- [ ] Bug fixes and UI polish
+- [ ] External playtesting
 - [ ] Balance pass
-- [ ] **Deliverable**: Presentable vertical slice
+- [ ] Ready for public viewing
 
-### Phase 5: Post-Apprenticeship (Months 12-24)
-**Goal**: Ship-ready product
-
-- [ ] Remaining characters (3-4 more)
+### Phase 5: Expansion (Months 11-20)
+**Deliverable**: Ship-ready product
+- [ ] 3-4 additional characters
 - [ ] Full enemy roster (15 types)
 - [ ] Marketing (Twitter devlog, Steam page)
-- [ ] Art evaluation (hire artist if needed)
-- [ ] Final polish + launch
+- [ ] Professional art evaluation
+- [ ] Final polish and launch
 
 ---
 
-## 🏗 Architecture
+## 🏗 Architecture & Code Standards
 
 ### Design Principles
 
-1. **Component-Based Modularity**
-   - Each script has ONE responsibility
-   - PlayerController orchestrates, components execute
-   - Example: `PlayerMovement` handles movement, not aiming or shooting
+**1. Component-Based Modularity**
+- Each script has ONE responsibility
+- `PlayerController` orchestrates; `PlayerMovement`, `PlayerAiming`, `PlayerAttack` execute
+- Example: Movement doesn't handle aiming or shooting
 
-2. **Event-Driven Communication**
-   - Cross-system communication via `GameEvents.cs`
-   - Decouples systems (e.g., Enemy doesn't know XPManager exists)
-   - Pattern: Fire event → multiple systems react independently
+**2. Event-Driven Communication**
+- Cross-system messaging via `GameEvents.cs`
+- Decouples systems (Enemy doesn't need to know about XPManager)
+- Pattern: `OnEventFired → Multiple systems react independently`
 
-3. **ScriptableObject Data**
-   - All configuration in .asset files (upgrades, enemies, weapons)
-   - Easy to balance/tweak without touching code
-   - Designer-friendly iteration
+**3. Data-Driven Configuration**
+- All game data lives in ScriptableObjects (.asset files)
+- Upgrades, enemies, weapons → designer-friendly, no code changes needed
 
-4. **Manager Orchestration**
-   - Managers coordinate high-level flow (room transitions, state changes)
-   - Managers DON'T do work—they tell other systems to act
-   - Keep manager count small (5-7 max)
+**4. Sparse Manager Use**
+- Managers coordinate high-level flow only
+- Managers DON'T do work—they tell other systems to act
+- Target: 5-7 managers maximum
 
 ### Example: Event Flow for Enemy Death
-
 ```
-Enemy.Die() 
+Enemy.Die()
   → GameEvents.OnEnemyKilled?.Invoke(this)
-    → XPManager.AwardXP() listens
-    → RoomManager.CheckRoomClear() listens
-    → AudioManager.PlayDeathSound() listens
-    → UIManager.UpdateKillCount() listens
+    → XPManager.AwardXP()
+    → RoomManager.CheckRoomClear()
+    → AudioManager.PlayDeathSound()
+    → UIManager.UpdateKillCount()
 ```
 
 ### Code Style Guidelines
-
-- **Naming**: PascalCase for public, camelCase for private
-- **Comments**: Explain WHY, not WHAT (code should be self-documenting)
-- **Single Responsibility**: If a class does 2+ things, split it
-- **Events**: Always unsubscribe in OnDisable (prevents memory leaks)
-- **Commit Messages**: Clear and descriptive (`"Add enemy spawn system"` not `"update"`)
+| Rule | Details |
+|------|---------|
+| **Naming** | `PascalCase` for public, `camelCase` for private |
+| **Comments** | Explain WHY, not WHAT (code should self-document) |
+| **Responsibility** | If a class does 2+ things, split it |
+| **Events** | Always unsubscribe in `OnDisable()` to prevent leaks |
+| **Commits** | Clear messages (`"Add enemy spawn system"`, not `"update"`)
 
 ---
 
 ## 👥 Team & Timeline
 
-### Team
-- **Developer 1**: Age 15, starting electrical apprenticeship in ~335 days
-  - **Focus**: Game design, UI, progression systems, balance, art (potentially)
-- **Developer 2**: Age 23, IT at Bunnings, disciplined, equally invested
-  - **Focus**: Architecture, enemy AI, combat systems, optimization, code reviews
+### The Team
+| Role | Details | Focus |
+|------|---------|-------|
+| **Developer 1** | Age 15, Game design, UI, progression, balance, art |
+| **Developer 2** | Age 23, Architecture, enemy AI, combat, optimization |
 
-### Division of Labor
-- **Shared**: Bug fixes, content creation, planning, weekly syncs
-- **Git Workflow**: Feature branches → pull requests → code review → merge
+### Weekly Workflow
 
-### Meeting Cadence
-**Weekly 30min Syncs**:
-1. Review last week (10min) - what worked, what blocked
-2. Plan this week (15min) - 2-3 tasks each (max 4 hours per task)
-3. Long-term check (5min) - still on track? still motivated?
+**30-minute sync meetings**:
+1. **Review** (10min) — What worked? What blocked us?
+2. **Plan** (15min) — 2-3 tasks each, max 4 hours per task
+3. **Check-in** (5min) — Still on track? Still motivated?
 
-### Success Metrics (Monthly Check-ins)
+### Success Metrics (Monthly)
+Each month ask:
 - ✅ Did we hit the deliverable?
 - ✅ Do we still want to work on this?
 - ✅ Are we having fun?
 
-**If 2/3 = yes, continue. If 1/3 = reassess. If 0/3 = pivot/pause.**
+**Result**: 2-3/3 ✅ = continue | 1/3 ✅ = reassess | 0/3 ✅ = pivot or pause
 
----
+### Risk Management: Burst-and-Crash Pattern
+Developer 1 tendency: Hyperfocus for 40 hours → burnout → abandon
 
-## 🚀 Getting Started
-
-### Prerequisites
-- Unity 6.3 LTS (or later)
-- Git installed
-- GitHub account with repo access
-- Code editor (Visual Studio / Rider / VS Code)
-
-### Setup Instructions
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/[your-username]/exterminator-game.git
-   cd exterminator-game
-   ```
-
-2. **Open in Unity**
-   - Open Unity Hub
-   - Click "Add" → navigate to cloned folder
-   - Open project (Unity will import assets)
-
-3. **Verify setup**
-   - Open `Scenes/GameplayTest.unity`
-   - Press Play
-   - WASD to move, mouse to aim
-   - Should see player capsule moving/rotating
-
-4. **Create your feature branch**
-   ```bash
-   git checkout dev
-   git pull origin dev
-   git checkout -b feature/your-feature-name
-   ```
+**Mitigation**:
+- ⏱ Time-box sessions: 2 hours max with breaks
+- 💾 Commit broken code: Use `[WIP]` tags
+- 🎉 Celebrate small wins: Don't wait for "finished feature"
+- 🎯 One feature max per week
+- 🤝 Weekly accountability check-ins
 
 ---
 
 ## 🔄 Workflow
 
-### Git Branching Strategy
-
+### Git Strategy
 ```
-main          # Stable, working builds only (NEVER commit directly)
+main          # Stable builds only (protected, no direct commits)
   ↑
-dev           # Integration branch (merge features here first)
+dev           # Integration branch for features
   ↑
-feature/task-name    # Your work-in-progress branches
+feature/*     # Your work-in-progress branches
 ```
 
-### Daily Workflow
+### Daily Process
 
-1. **Start of session**
-   ```bash
-   git checkout dev
-   git pull origin dev
-   git checkout -b feature/add-enemy-ai
-   ```
+**Start of session**:
+```bash
+git checkout dev && git pull origin dev
+git checkout -b feature/task-name
+```
 
-2. **During work**
-   - Commit often (every 30-60min or logical stopping point)
-   - Push regularly (don't wait days)
-   ```bash
-   git add .
-   git commit -m "Add basic enemy chase behavior"
-   git push origin feature/add-enemy-ai
-   ```
+**During work** (commit every 30-60min):
+```bash
+git add .
+git commit -m "Add feature description"
+git push origin feature/task-name
+```
 
-3. **End of session**
-   - Create Pull Request on GitHub
-   - Assign to other dev for review
-   - **Don't merge your own PRs** (unless emergency)
+**End of session**:
+- Create Pull Request on GitHub
+- Assign to other developer for review
+- DON'T merge your own PRs (unless emergency)
 
-### Commit Message Format
+### Commit Message Guidelines
 
-✅ **Good**:
-- `"Add enemy spawn system"`
-- `"Fix diagonal movement speed bug"`
-- `"Implement upgrade choice UI"`
+✅ **Good**: `"Add enemy spawn system"`, `"Fix diagonal movement speed bug"`
+❌ **Bad**: `"update"`, `"fix stuff"`, `"changes"`
 
-❌ **Bad**:
-- `"update"`
-- `"fix stuff"`
-- `"changes"`
-
-### Task Sizing
-- **Max 4 hours per task**
-- If bigger → break it down into sub-tasks
-- Commit broken code with `[WIP]` tag if needed (don't wait for perfection)
+### Task Guidelines
+- **Maximum 4 hours per task** — break larger work into sub-tasks
+- **Commit WIP code** — use `[WIP]` tag, don't wait for perfection
+- **Push regularly** — don't hold changes locally for days
 
 ---
 
 ## 🤝 Contributing
 
-### Code Review Checklist
-
-Before creating PR:
+### Pre-Pull Request Checklist
 - [ ] Code compiles without errors/warnings
-- [ ] No debug logs left in (or clearly marked as temporary)
-- [ ] Components follow single responsibility principle
-- [ ] Events unsubscribed in OnDisable if subscribed in OnEnable
-- [ ] ScriptableObjects used for data (not hardcoded values)
-- [ ] Tested in Play mode (doesn't crash immediately)
+- [ ] No debug logs (or marked `// TODO: remove`)
+- [ ] Single responsibility per component
+- [ ] Event unsubscriptions in `OnDisable()` if subscribed in `OnEnable()`
+- [ ] Game data in ScriptableObjects (no hardcoded values)
+- [ ] Tested in Play mode (doesn't crash)
 
-When reviewing:
-- [ ] Does it solve the stated problem?
-- [ ] Is the approach reasonable given our timeline?
-- [ ] Any obvious performance concerns?
-- [ ] Does it follow our architecture patterns?
+### Code Review Process
+When reviewing, ask:
+- Does it solve the stated problem?
+- Is the approach reasonable for our timeline?
+- Any obvious performance issues?
+- Does it follow our architecture patterns?
 
-**Review Goal**: Catch obvious issues, NOT nitpick perfection. We have 280 hours.
+**Goal**: Catch critical issues, not nitpick style. We have 280 hours total.
 
 ---
 
 ## 🎨 Design Philosophy
 
-### Room Design: "Systemic Variation Over Raw Difficulty"
-- Each room introduces constraint/modifier/risk-reward
-- Forces tactical adaptation (not just "same fight but harder")
-- Examples: hazards (fire/electricity), arena shrink, darkness, swarm rooms
+### Room Design: Systemic Variation Over Raw Difficulty
+Each room introduces new constraints/modifiers/risk-reward scenarios that force tactical adaptation.
+- ✅ Different challenge (not just higher numbers)
+- ✅ Examples: hazards, arena shrinking, darkness, swarm composition
+- ❌ Don't make it "same fight but HP doubled"
 
-### Enemy Design: "Enemies as Teachers"
-- Each enemy type teaches a specific mechanic or punishes a mistake
-- NOT just stat variations
-- Design question: "What does this enemy force the player to learn?"
+### Enemy Design: Enemies as Teachers
+Each bug type teaches a specific mechanic or counters a strategy.
+- ✅ Design question: "What does this enemy force the player to learn?"
+- ✅ Examples: Roaches teach AOE value, Beetles teach armor penetration
+- ❌ Don't create stat variations
 
-### Character Design: "Intentionally Broken"
-- Every character has ONE overpowered mechanic
-- Balanced by ONE meaningful constraint
-- Goal: Make each character feel like discovering an exploit
+### Character Design: Intentionally Broken
+Each character has one overpowered mechanic balanced by a meaningful constraint.
+- ✅ Makes the character feel like an exploit discovery
+- ✅ Examples: Beekeeper (allies, no direct damage), Flamethrower (spreads, takes damage)
+- ❌ Balanced characters feel boring
 
-### Difficulty Curve
-- Early rooms: Moderately easy (not boring, not too hard)
-- Smooth curve with spikes at bosses/elites
-- Occasional surprise difficulty moments (keeps player alert)
-- Never "too hard" at start, never "too easy" late game
+### Difficulty Progression
+- **Early rooms**: Moderately easy, never boring
+- **Mid-game**: Smooth difficulty curve with spikes at bosses/elites
+- **Late-game**: Occasional surprises to keep players alert
+- **General rule**: Never too hard at start, never too easy at end
 
----
+## 📝 Open Questions & TBD
 
-## 🎯 Risk Management
+### Combat & Balance
+| Question | Options |
+|----------|---------|
+| Movement speed | Final tuning value? |
+| Dodge mechanic | Dash? Roll? I-frames? |
+| Attack patterns | Per-character variations? |
+| Damage feedback | Screen shake, hit-stop, particles? |
+| Heal % on level-up | Percentage value? |
+| Upgrade power scaling | +10%, +20%, or variable? |
+| XP curve | Linear or exponential? |
+| Enemy scaling | HP/damage progression formula? |
 
-### Known Risk: Burst-and-Crash Pattern
-Developer 1 has a history of hyperfocusing for 40 hours → burning out → abandoning projects.
+### Game Economy
+- Currency sources (performance bonuses? found treasure? room completion?)
+- Shop frequency and inventory size
+- Unlock pricing structure
 
-### Mitigation Strategies
-- ⏱ **Time-box sessions**: 2hr max with breaks
-- 💾 **Commit broken code**: Use `[WIP]` tags, don't need to finish features in one session
-- 🎉 **Celebrate small wins**: Don't wait for "finished feature"
-- 🎯 **One feature per week maximum**
-- 🤝 **Brother accountability**: Weekly check-ins
+### Technical Systems
+- Health system architecture (events vs inheritance)?
+- Player death behavior and penalties
+- Enemy death drops (loot system)?
+- Room modifier types and selection algorithm
 
-### Burst Guidelines (When Hyperfocused)
-✅ **DO**:
-- Finish small tasks completely
-- Test and commit working code
-- Document clearly
-
-❌ **DON'T**:
-- Start 10 features at once
-- Leave broken code for brother to fix
-- Touch systems brother is working on
-
----
-
-## 📝 Open Questions / TBD
-
-### Combat
-- [ ] Final movement speed value?
-- [ ] Dodge mechanic specifics (dash? roll? i-frames?)
-- [ ] Attack patterns per character?
-- [ ] Damage feedback (screen shake, hit stop, particles)?
-
-### Balance
-- [ ] Heal % on level-up?
-- [ ] Upgrade power levels (+10% damage? +20%?)
-- [ ] XP curve (linear or exponential?)
-- [ ] Enemy health/damage scaling?
-
-### Economy
-- [ ] Currency sources (performance bonuses? found treasure?)
-- [ ] Shop frequency and inventory?
-- [ ] Unlock pricing?
-
-### Systems
-- [ ] Health script architecture (events vs inheritance)?
-- [ ] Player death behavior?
-- [ ] Enemy death drops (loot system)?
-- [ ] Room modifier types and selection?
-
----
-
-## 📈 Marketing & Publishing (Future)
+## 📈 Marketing & Long-Term Vision
 
 ### Realistic Outcome Scenarios
 
-**A) Passion Project (Most Likely)**  
-200-500 copies, $500-$2k revenue, massive learning experience
+| Scenario | Likelihood | Copies | Revenue |
+|----------|-----------|--------|---------|
+| **Passion Project** | 80%+ | 200-500 | $500-$2k |
+| **Modest Success** | 5-10% | 5k-20k | $35k-$200k |
+| **Breakout Hit** | <1% | 100k+ | $500k-$2M+ |
 
-**B) Modest Success (5-10% chance with good execution + luck)**  
-5k-20k copies, $35k-$200k revenue
+**Strategy**: Don't count on C, work toward B, expect A. This is a learning project first, commercial second.
 
-**C) Breakout Hit (<1% chance)**  
-100k+ copies, $500k-$2M+ revenue
-
-**Don't count on C, work toward B, expect A.**
-
-### Marketing Plan (Start 6+ months before launch)
-- Twitter devlog (GIFs of progress, #indiedev #roguelike)
-- Weekly blog/YouTube updates
-- Steam wishlists (10k+ is good)
-- Streamer outreach
-- Community building (Discord, Reddit)
+### Marketing Timeline (Start 6+ months before launch)
+- **Twitter**: Regular dev logs with GIFs (#indiedev #roguelike)
+- **Blog/YouTube**: Weekly progress updates
+- **Steam**: Build 10k+ wishlists pre-launch
+- **Outreach**: Contact streamers and communities
+- **Discord**: Build community early
 
 ### Art Strategy
 - Start with programmer art
 - Evaluate at Month 6
-- If needed, hire artist ($1k-$3.5k budget post-apprenticeship)
+- Hire artist if needed (budget: $1k-$3.5k post-apprenticeship)
 
 ---
 
-## 📄 License
+## 📄 License & Contact
 
-**Proprietary** - All rights reserved. This is a closed-source project for learning purposes.
+**License**: Proprietary — All rights reserved (closed-source learning project)
 
----
-
-## 🙏 Acknowledgments
-
-- Inspired by: Hades, Dead Cells, Slay the Spire, Enter the Gungeon
-- Architecture guidance: Unity best practices, GDC talks
-- Mentorship: Claude AI (seriously, it's been helpful)
+**Questions or feedback**:
+- [GitHub Issues](https://github.com/[your-username]/exterminator-game/issues)
+- [GitHub Discussions](https://github.com/[your-username]/exterminator-game/discussions)
 
 ---
 
-## 📞 Contact
+## 🙏 Inspiration & Thanks
 
-For questions or collaboration inquiries:
-- **GitHub Issues**: [Project Issues](https://github.com/[your-username]/exterminator-game/issues)
-- **Discussions**: [Project Discussions](https://github.com/[your-username]/exterminator-game/discussions)
-
----
-
-**Last Updated**: January 2026  
-**Current Phase**: Month 1 - Foundation  
-**Next Milestone**: Functional combat loop (kill enemies, gain XP, level up)
+**Game Inspiration**: Hades, Dead Cells, Slay the Spire, Enter the Gungeon
+**Technical Guidance**: Unity best practices, GDC talks, community resources
 
 ---
+
+**Last Updated**: January 2026 | **Current Phase**: Month 1 — Foundation | **Next Milestone**: Functional combat loop
 
 *"Exterminate with style. 🪲🔫"*
