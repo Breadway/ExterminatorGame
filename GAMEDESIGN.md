@@ -1,5 +1,23 @@
 # 🎮 Game Design Document
 
+## 🎨 Aesthetic & Visual Theme
+
+### "Gritty Industrial Satire"
+The game visualizes the mundane horror of minimum-wage pest control in a world where bugs are dog-sized.
+
+*   **Visual Style:** **Lo-Fi Industrial (PSX/Early-PC)**. Low-poly models with flat shading or pixelated textures. "Crusty" aesthetics—rust, duct tape, stained concrete, and flickering fluorescent lights.
+*   **Color Palette (The 'Safety' Palette):**
+    *   **Primary:** "Hazard Orange" & "Safety Yellow" (Player gear, UI warnings).
+    *   **Secondary:** "Industrial Grey" & "Rust Red" (Environments, machinery).
+    *   **Accent:** "Toxic Purple" or "Neon Green" (Bug ichor, chemical sprays).
+*   **UI Philosophy:** **Diegetic Corporate Paperwork**.
+    *   The HUD resembles a digital clipboard or retro safety terminal.
+    *   Damage numbers print out like receipts.
+    *   Health bars look like pressure gauges or liquid fill levels.
+    *   Terminology is bureaucratic (e.g., "Performance Review" instead of "Level Up").
+
+---
+
 ## 👥 Characters (The Exterminators)
 
 Each character follows the "Intentionally Broken" design philosophy: One overpowered mechanic balanced by a meaningful, gameplay-defining constraint.

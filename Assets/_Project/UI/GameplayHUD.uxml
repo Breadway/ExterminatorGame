@@ -1,0 +1,42 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_Project/UI/GameplayHUD.uss?fileID=7433441132597879392&amp;guid=703e58050258db44ba1a4e350180577e&amp;type=3#GameplayHUD[UNSUPPORTED_IN_UI_BUILDER]"/>
+    <ui:VisualElement name="hud-root" class="hud-root">
+        <ui:VisualElement name="top-left-panel" class="corner-panel corner-panel-top-left">
+            <ui:VisualElement name="health-container" class="stat-container">
+                <ui:Label text="VITALS" name="health-label" class="stat-label safety-label"/>
+                <ui:VisualElement name="health-bar-container" class="bar-container">
+                    <ui:VisualElement name="health-bar-bg" class="bar-background"/>
+                    <ui:VisualElement name="health-bar-fill" class="bar-fill health-bar-fill"/>
+                    <ui:Label text="100 / 100" name="health-text" class="bar-text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="level-container" class="stat-container">
+                <ui:Label text="CLEARANCE LEVEL" name="level-label" class="stat-label safety-label"/>
+                <ui:Label text="1" name="level-value" class="level-value"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="top-right-panel" class="corner-panel corner-panel-top-right">
+            <ui:VisualElement name="room-container" class="stat-container">
+                <ui:Label text="SECTOR" name="room-label" class="stat-label safety-label"/>
+                <ui:Label text="1 / 25" name="room-value" class="room-value"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="enemies-container" class="stat-container">
+                <ui:Label text="HOSTILES" name="enemies-label" class="stat-label safety-label"/>
+                <ui:Label text="0" name="enemies-value" class="enemies-value"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="bottom-center-panel" class="bottom-panel">
+            <ui:VisualElement name="xp-container" class="stat-container xp-stat-container">
+                <ui:Label text="PERFORMANCE REVIEW" name="xp-label" class="stat-label safety-label xp-label"/>
+                <ui:VisualElement name="xp-bar-container" class="bar-container xp-bar-container">
+                    <ui:VisualElement name="xp-bar-bg" class="bar-background"/>
+                    <ui:VisualElement name="xp-bar-fill" class="bar-fill xp-bar-fill"/>
+                    <ui:Label text="0 / 100" name="xp-text" class="bar-text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="notification-panel" class="notification-panel">
+            <ui:Label text="" name="notification-text" class="notification-text"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
