@@ -21,56 +21,34 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float knockbackSpeed = 12f;
     [SerializeField] private float knockbackDuration = 0.15f;
 
-    private Rigidbody rb;
+    private Rigidbody2D rb;
+    private Collider2D col;
     private PlayerControls controls;
     private Vector2 moveInput;
+    private Vector2 dashDirection;
     private bool isInitialized = false;
 
     private float lastDashTime = -Mathf.Infinity;
     private float dashEndTime = 0f;
-    private Vector3 dashDirection;
     private bool isDashing = false;
     private bool isRecovering = false;
     private float recoveryEndTime = 0f;
-    private Vector3 recoveryStartVelocity;
-
     private float knockbackEndTime = 0f;
-    private Vector3 knockbackVelocity;
+    private Vector2 recoveryStartVelocity;
+    private Vector2 knockbackVelocity;
     
     [Header("Collision")]
     [SerializeField] private LayerMask obstacleMask = ~0;
     [SerializeField] private float skinWidth = 0.05f;
     
-    [Header("References")]
-    [SerializeField] private Transform cameraTransform;
-
-    private Collider col;
-    private bool isCapsule = false;
-    private float capsuleRadius = 0.5f;
-    private float capsuleHeight = 2f;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
-        var cap = GetComponent<CapsuleCollider>();
-        if (cap != null)
-        {
-            isCapsule = true;
-            capsuleRadius = Mathf.Max(cap.radius * Mathf.Max(transform.localScale.x, transform.localScale.z), 0.01f);
-            capsuleHeight = Mathf.Max(cap.height * transform.localScale.y, 0.01f);
-        }
-        else if (col != null)
-        {
-            // approximate radius/height from bounds
-            capsuleRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
-            capsuleHeight = Mathf.Max(col.bounds.size.y, 0.01f);
-        }
+        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
 
-        if (cameraTransform == null && Camera.main != null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
     }
 
     private void OnEnable()
@@ -100,23 +78,15 @@ public class PlayerMovement : MonoBehaviour
             controls.Player.Dash.Disable();
         }
     }
-
-    private void OnDestroy()
+    private void OnMoveInput(InputAction.CallbackContext context)
     {
-        if (controls != null)
-        {
-            controls.Dispose();
-        }
+        moveInput = context.ReadValue<Vector2>().normalized;
+        GameEvents.OnPlayerMovementInput?.Invoke(moveInput);
     }
 
     public void UpdateSpeed(float newSpeed)
     {
         moveSpeed = newSpeed;
-    }
-    private void OnMoveInput(InputAction.CallbackContext context)
-    {
-        moveInput = context.ReadValue<Vector2>().normalized;
-        GameEvents.OnPlayerMovementInput?.Invoke(moveInput);
     }
 
     private void OnDashInput(InputAction.CallbackContext context)
@@ -129,21 +99,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void PerformDash()
     {
-        // Use camera-relative input direction for dash when input exists, otherwise player's forward
-        if (cameraTransform != null && moveInput.sqrMagnitude > 0.0001f)
-        {
-            Vector3 camForward = cameraTransform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-            Vector3 camRight = cameraTransform.right;
-            camRight.y = 0f;
-            camRight.Normalize();
-            dashDirection = (camRight * moveInput.x + camForward * moveInput.y).normalized;
-        }
-        else
-        {
-            dashDirection = transform.forward;
-        }
+        dashDirection = moveInput.sqrMagnitude > 0.001f
+            ? moveInput
+            : Vector2.up;
+
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
         isDashing = true;
@@ -154,7 +113,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Time.time < knockbackEndTime)
         {
-            rb.linearVelocity = new Vector3(knockbackVelocity.x, rb.linearVelocity.y, knockbackVelocity.z);
+            rb.linearVelocity = knockbackVelocity;
             return;
         }
 
@@ -162,12 +121,10 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Time.time < dashEndTime)
             {
-                // Apply horizontal dash velocity, preserve vertical (gravity)
-                rb.linearVelocity = new Vector3(dashDirection.x * dashSpeed, rb.linearVelocity.y, dashDirection.z * dashSpeed);
+                rb.linearVelocity = dashDirection * dashSpeed;
             }
             else
             {
-                // End dash and begin short recovery to avoid abrupt stop
                 isDashing = false;
                 isRecovering = true;
                 recoveryStartVelocity = rb.linearVelocity;
@@ -179,12 +136,12 @@ public class PlayerMovement : MonoBehaviour
         if (isRecovering)
         {
             float t = Mathf.Clamp01(1f - (recoveryEndTime - Time.time) / dashRecoveryTime);
-            Vector3 target = new Vector3(0f, recoveryStartVelocity.y, 0f);
-            rb.linearVelocity = Vector3.Lerp(recoveryStartVelocity, target, t);
+            rb.linearVelocity = Vector2.Lerp(recoveryStartVelocity, Vector2.zero, t);
+
             if (Time.time >= recoveryEndTime)
             {
                 isRecovering = false;
-                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+                rb.linearVelocity = Vector2.zero;
             }
             return;
         }
@@ -192,80 +149,52 @@ public class PlayerMovement : MonoBehaviour
         Move();
     }
 
-    public void ApplyKnockback(Vector3 direction)
+    public void ApplyKnockback(Vector2 direction)
     {
-        direction.y = 0f;
-        if (direction.sqrMagnitude < 0.0001f)
-        {
-            return;
-        }
+        if (direction.sqrMagnitude < 0.001f) return;
 
-        Vector3 flatDir = direction.normalized;
-        knockbackVelocity = flatDir * knockbackSpeed;
+        knockbackVelocity = direction.normalized * knockbackSpeed;
         knockbackEndTime = Time.time + knockbackDuration;
+
         isDashing = false;
         isRecovering = false;
     }
 
-    public void Move()
+    private void Move()
     {
-        // Normal movement via velocity to ensure collision response
-        Vector3 horizontalDesired;
-        if (cameraTransform != null)
-        {
-            Vector3 camForward = cameraTransform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-            Vector3 camRight = cameraTransform.right;
-            camRight.y = 0f;
-            camRight.Normalize();
+        Vector2 desiredVelocity = moveInput * moveSpeed;
 
-            horizontalDesired = (camRight * moveInput.x + camForward * moveInput.y) * moveSpeed;
-        }
-        else
+        if (desiredVelocity.sqrMagnitude < 0.001f)
         {
-            horizontalDesired = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
-        }
-
-        // If no input, zero horizontal velocity
-        if (horizontalDesired.sqrMagnitude < 0.0001f)
-        {
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        Vector3 dir = horizontalDesired.normalized;
-        float checkDistance = horizontalDesired.magnitude * Time.fixedDeltaTime + skinWidth;
+        float distance = desiredVelocity.magnitude * Time.fixedDeltaTime + skinWidth;
 
-        RaycastHit hit;
-        bool blocked = false;
+        RaycastHit2D[] hits = new RaycastHit2D[1];
+        int hitCount = col.Cast(
+            desiredVelocity.normalized,
+            new ContactFilter2D { layerMask = obstacleMask, useLayerMask = true },
+            hits,
+            distance
+        );
+        RaycastHit2D hit = hitCount > 0 ? hits[0] : default;
 
-        if (col == null)
+        if (hit.collider != null)
         {
-            // fallback: no collider, just move
-            rb.linearVelocity = new Vector3(horizontalDesired.x, rb.linearVelocity.y, horizontalDesired.z);
-            return;
+            // Project the desired velocity onto the surface tangent by removing the
+            // component along the hit normal: v' = v - (v·n) n
+            desiredVelocity = desiredVelocity - Vector2.Dot(desiredVelocity, hit.normal) * hit.normal;
         }
 
-        if (isCapsule)
+        rb.linearVelocity = desiredVelocity;
+    }
+    private void OnDestroy()
+    {
+        if (controls != null)
         {
-            Vector3 p1 = transform.position + Vector3.up * capsuleRadius;
-            Vector3 p2 = transform.position + Vector3.up * (capsuleHeight - capsuleRadius);
-            blocked = Physics.CapsuleCast(p1, p2, capsuleRadius, dir, out hit, checkDistance, obstacleMask, QueryTriggerInteraction.Ignore);
+            controls.Dispose();
         }
-        else
-        {
-            Vector3 sphereCenter = transform.position + Vector3.up * (col.bounds.extents.y * 0.5f);
-            blocked = Physics.SphereCast(sphereCenter, capsuleRadius, dir, out hit, checkDistance, obstacleMask, QueryTriggerInteraction.Ignore);
-        }
-
-        if (blocked)
-        {
-            // slide along surface instead of penetrating
-            Vector3 slid = Vector3.ProjectOnPlane(horizontalDesired, hit.normal);
-            horizontalDesired = slid;
-        }
-
-        rb.linearVelocity = new Vector3(horizontalDesired.x, rb.linearVelocity.y, horizontalDesired.z);
     }
 }

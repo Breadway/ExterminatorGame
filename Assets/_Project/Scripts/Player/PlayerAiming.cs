@@ -11,62 +11,50 @@ public class PlayerAiming : MonoBehaviour
     [SerializeField] private float rotationLerpSpeed = 20f;
     
     private Camera mainCamera;
-    private Plane groundPlane;
-    private Rigidbody rb;
-    private Quaternion targetRotation = Quaternion.identity;
-    private Vector2 cachedMousePos;
-    private Vector3 lastAimDirection = Vector3.forward;
+    private Rigidbody2D rb;
+    private float targetAngle;
+    private float lastSentAngle;
+    private Vector2 lastAimDirection = Vector2.up;
 
     private void Awake()
     {
         mainCamera = Camera.main;
-        groundPlane = new Plane(Vector3.up, Vector3.zero);
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
     {
-        if (mainCamera == null) return;
+        if (mainCamera == null || Mouse.current == null)
+            return;
 
-        // Cache mouse position to avoid repeated ReadValue() calls
-        Vector2 currentMousePos = Mouse.current.position.ReadValue();
-        
-        // Only raycast if mouse position has changed
-        if (currentMousePos != cachedMousePos)
+        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
+        Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(
+            new Vector3(mouseScreenPos.x, mouseScreenPos.y, -mainCamera.transform.position.z)
+        );
+
+        Vector2 aimDir = (mouseWorld - transform.position);
+        if (aimDir.sqrMagnitude < 0.0001f)
+            return;
+
+        aimDir.Normalize();
+
+        // Angle for top-down 2D (Z rotation)
+        targetAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg - 90f;
+
+        if (Vector2.Distance(lastAimDirection, aimDir) > 0.01f)
         {
-            cachedMousePos = currentMousePos;
-            Ray ray = mainCamera.ScreenPointToRay(currentMousePos);
-            if (groundPlane.Raycast(ray, out float distance))
-            {
-                Vector3 worldPoint = ray.GetPoint(distance);
-                worldPoint.y = transform.position.y;
-                Vector3 dir = (worldPoint - transform.position).normalized;
-                
-                if (dir.sqrMagnitude > 0f)
-                {
-                    targetRotation = Quaternion.LookRotation(dir);
-                    
-                    // Fire event if direction changed significantly
-                    if (Vector3.Distance(lastAimDirection, dir) > 0.01f)
-                    {
-                        lastAimDirection = dir;
-                        GameEvents.OnPlayerAimDirectionChanged?.Invoke(dir);
-                    }
-                }
-            }
+            lastAimDirection = aimDir;
+            GameEvents.OnPlayerAimDirectionChanged?.Invoke(aimDir);
         }
     }
-
     private void FixedUpdate()
     {
-        // Apply rotation smoothly
-        if (rb != null)
-        {
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationLerpSpeed * Time.fixedDeltaTime));
-        }
-        else
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationLerpSpeed * Time.fixedDeltaTime);
-        }
+        float newAngle = Mathf.LerpAngle(
+            rb.rotation,
+            targetAngle,
+            rotationLerpSpeed * Time.fixedDeltaTime
+        );
+
+        rb.MoveRotation(newAngle);
     }
 }
