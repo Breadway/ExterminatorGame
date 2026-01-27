@@ -23,8 +23,8 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
 
         if (cachedHealth != null)
         {
-            Vector3 hitPoint = target.transform.position;
-            Vector3 hitDirection = (target.transform.position - transform.position).normalized;
+            Vector2 hitPoint = target.transform.position;
+            Vector2 hitDirection = ((Vector2)target.transform.position - (Vector2)transform.position).normalized;
             cachedHealth.TakeDamage(enemyData.attackDamage, hitPoint, hitDirection);
         }
     }
@@ -34,7 +34,7 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
         // No continuous attack to stop for contact damage
     }
 
-    private void OnCollisionStay(Collision collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
         if (nextAttackTime <= Time.time)
         {
@@ -43,7 +43,7 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
         }
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject == cachedTarget)
         {

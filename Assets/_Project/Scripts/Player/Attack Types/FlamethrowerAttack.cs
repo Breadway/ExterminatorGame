@@ -9,7 +9,6 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     [SerializeField] private float range = 6f;
     [SerializeField] private float coneAngle = 45f; // Degrees
     [SerializeField] private float tickRate = 0.1f; // Damage every 0.1 seconds
-    [SerializeField] private float coneRadius = 1.5f; // Cone width at max range
     [SerializeField] private LayerMask damageMask = ~0;
     [SerializeField] private LayerMask obstacleMask = ~0;
     [SerializeField] private bool requireLineOfSight = true;
@@ -28,16 +27,15 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     private readonly HashSet<IDamageable> enemiesHitThisFrame = new HashSet<IDamageable>();
     private Coroutine attackCoroutine;
     
-    // Pre-allocated arrays for Physics.OverlapSphereNonAlloc to avoid GC
+    // Pre-allocated arrays for Physics2D.OverlapCircleNonAlloc to avoid GC
     private const int MAX_HITS = 64;
-    private Collider[] hitBuffer = new Collider[MAX_HITS];
+    private Collider2D[] hitBuffer = new Collider2D[MAX_HITS];
     
     // Cached WaitForFixedUpdate to avoid GC allocations
     private WaitForFixedUpdate waitForFixed;
     
     // Pre-calculate frequently used values
     private float maxAngle;
-    private float maxAngleRad;
     
     void Awake() {
         stats = GetComponentInParent<PlayerController>().stats;
@@ -45,7 +43,6 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
         
         // Pre-calculate cone angle values
         maxAngle = coneAngle * 0.5f;
-        maxAngleRad = maxAngle * Mathf.Deg2Rad;
     }
 
     public void Initialize(PlayerStats playerStats) {
@@ -75,10 +72,11 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
     {
         enemiesHitThisFrame.Clear();
 
-        Vector3 forward = firePoint.forward;
-        Vector3 origin = firePoint.position + forward * muzzleProbeDistance;
+        Vector2 forward = firePoint.up;
+        Vector2 origin = (Vector2)firePoint.position + forward * muzzleProbeDistance;
         
-        if (Physics.Raycast(firePoint.position, forward, out RaycastHit muzzleHit, muzzleProbeDistance, obstacleMask, QueryTriggerInteraction.Ignore))
+        RaycastHit2D muzzleHit = Physics2D.Raycast(firePoint.position, forward, muzzleProbeDistance, obstacleMask);
+        if (muzzleHit.collider != null)
         {
             origin = muzzleHit.point;
         }
@@ -86,8 +84,8 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
         #if UNITY_EDITOR
         if (drawDebug)
         {
-            Vector3 leftDir = Quaternion.Euler(0f, -maxAngle, 0f) * forward;
-            Vector3 rightDir = Quaternion.Euler(0f, maxAngle, 0f) * forward;
+            Vector2 leftDir = Rotate2D(forward, -maxAngle);
+            Vector2 rightDir = Rotate2D(forward, maxAngle);
             Debug.DrawRay(origin, leftDir * range, Color.yellow, debugDuration);
             Debug.DrawRay(origin, rightDir * range, Color.yellow, debugDuration);
             Debug.DrawRay(origin, forward * range, Color.yellow, debugDuration);
@@ -96,42 +94,32 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
         #endif
 
         // Use NonAlloc version to avoid GC allocations every tick
-        int hitCount = Physics.OverlapSphereNonAlloc(origin, range, hitBuffer, damageMask, QueryTriggerInteraction.Ignore);
-        
-        float tanMaxAngle = Mathf.Tan(maxAngleRad);
-        
+        int hitCount = Physics2D.OverlapCircleNonAlloc(origin, range, hitBuffer, damageMask);
         for (int i = 0; i < hitCount; i++)
         {
-            Collider col = hitBuffer[i];
+            Collider2D col = hitBuffer[i];
             if (col == null) continue;
             
             var target = col.GetComponent<IDamageable>();
             if (target == null || !target.IsAlive) continue;
 
-            Vector3 toTarget = col.bounds.center - origin;
+            Vector2 toTarget = (Vector2)col.bounds.center - origin;
             float distanceSqr = toTarget.sqrMagnitude;
             float rangeSqr = range * range;
             
             if (distanceSqr <= Mathf.Epsilon || distanceSqr > rangeSqr) continue;
 
             float distance = Mathf.Sqrt(distanceSqr);
-            Vector3 dir = toTarget / distance;
-            float angle = Vector3.Angle(forward, dir);
+            Vector2 dir = toTarget / distance;
+            float angle = Vector2.Angle(forward, dir);
             
             if (angle > maxAngle) continue;
 
-            float coneMaxRadiusAtDistance = tanMaxAngle * distance;
-            Vector3 lateral = Vector3.ProjectOnPlane(toTarget, forward);
-            if (lateral.sqrMagnitude > (coneMaxRadiusAtDistance + coneRadius) * (coneMaxRadiusAtDistance + coneRadius))
-            {
-                continue;
-            }
-
             if (requireLineOfSight)
             {
-                if (Physics.Raycast(origin, dir, out RaycastHit blockHit, distance, obstacleMask, QueryTriggerInteraction.Ignore))
+                RaycastHit2D blockHit = Physics2D.Raycast(origin, dir, distance, obstacleMask);
+                if (blockHit.collider != null && blockHit.collider != col)
                 {
-                    if (blockHit.collider != col)
                     {
                         #if UNITY_EDITOR
                         if (drawDebug)
@@ -156,13 +144,22 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack {
 
         float finalDamage = damage; //* stats.currentDamage;
         foreach (IDamageable enemy in enemiesHitThisFrame) {
-            enemy.TakeDamage(finalDamage, firePoint.position, firePoint.forward);
+            enemy.TakeDamage(finalDamage, firePoint.position, firePoint.up);
         }
 
         // Emit particles
         if (flameParticles != null && !flameParticles.isPlaying) {
             flameParticles.Play();
         }
+    }
+    
+    // Helper method to rotate a 2D vector by an angle in degrees
+    private Vector2 Rotate2D(Vector2 v, float degrees)
+    {
+        float radians = degrees * Mathf.Deg2Rad;
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
+        return new Vector2(cos * v.x - sin * v.y, sin * v.x + cos * v.y);
     }
     
     public void StopAttack() {

@@ -1,10 +1,10 @@
-# 🪲 Exterminator (Working Title)
+# 🪲 VERMICIDE (Working Title)
 
-> A top-down roguelike where you play as pest exterminators clearing bug infestations. Think Hades meets Dead Cells with a darkly comedic twist.
+> A top-down 2D roguelike where you play as pest exterminators clearing bug infestations. Think Enter the Gungeon meets Vampire Survivors with a darkly comedic twist.
 
 [![Unity Version](https://img.shields.io/badge/Unity-6.3_LTS-black.svg?style=flat&logo=unity)](https://unity.com/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
-[![Development Phase](https://img.shields.io/badge/Phase-Foundation_(Month_1--2)-blue.svg)](#development-roadmap)
+[![Development Phase](https://img.shields.io/badge/Phase-2_Core_Loop_&_2D_Refactor-blue.svg)](#development-roadmap)
 
 ---
 
@@ -18,15 +18,15 @@
 
 ## 🎮 Game Overview
 
-**Exterminator** is a top-down roguelike with Hades-style 3D visuals, procedurally generated runs, and unique character progression. Players choose from 4-5 unlockable exterminators, each with "intentionally broken" mechanics balanced by meaningful constraints.
+**VERMICIDE** is a top-down 2D pixel-art roguelike featuring "intentionally broken" character progression. Players choose from 4-5 unlockable exterminators, each with overpowered mechanics balanced by meaningful constraints, to clear procedurally arranged industrial sectors.
 
 ### How to Play
-1. **Navigate** through 25 procedurally arranged rooms with Slay the Spire-style branching paths
-2. **Fight** increasingly challenging bug infestations
-3. **Choose** 1 of 3 upgrades after each room (Power/Defense/Utility)
+1. **Navigate** through 25 procedurally arranged rooms (Sectors) with branching paths
+2. **Fight** increasingly challenging bug infestations using tactical fire spread and crowd control
+3. **Choose** 1 of 3 upgrades (Performance Reviews) after each room
 4. **Level up** to unlock path abilities at levels 10, 20, 30
-5. **Defeat** mid-boss (room ~12) and final boss (room 25)
-6. **Unlock** Endless Mode for infinite scaling challenge
+5. **Defeat** mid-boss (Sector ~12) and final boss (Sector 25)
+6. **Unlock** Overtime Mode (Endless) for infinite scaling challenge
 
 ### Core Philosophy
 | Pillar | What It Means |

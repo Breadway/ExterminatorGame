@@ -19,9 +19,9 @@ public static class GameEvents
     /// Fired when player rotation/aiming changes.
     /// Allows systems to react to aim updates (animation, UI, etc).
     /// </summary>
-    public static Action<Vector3> OnPlayerAimDirectionChanged;
+    public static Action<Vector2> OnPlayerAimDirectionChanged;
 
-    public static Action<Vector3> OnPlayerDash;
+    public static Action<Vector2> OnPlayerDash;
 
     
     // ========================================
@@ -39,7 +39,7 @@ public static class GameEvents
     /// Parameters: damage amount, hit position, hit direction
     /// Listeners: VFXManager (spawn damage numbers), AudioManager (hit sound)
     /// </summary>
-    public static event Action<float, Vector3, Vector3> OnEnemyDamaged;
+    public static event Action<float, Vector2, Vector2> OnEnemyDamaged;
     
     /// <summary>
     /// Fired when player takes damage.
@@ -212,10 +212,10 @@ public static class GameEvents
     
     /// <summary>
     /// Fired when a sound effect should play.
-    /// Parameters: sound ID/name, position (Vector3.zero for 2D sounds)
+    /// Parameters: sound ID/name, position (Vector2.zero for 2D sounds)
     /// Listeners: AudioManager
     /// </summary>
-    public static event Action<string, Vector3> OnPlaySound;
+    public static event Action<string, Vector2> OnPlaySound;
     
     /// <summary>
     /// Fired when music should change.
@@ -346,29 +346,6 @@ public static class GameEvents
         catch (Exception e)
         {
             Debug.LogError($"Error in OnPlayerStatsChanged listeners: {e.Message}");
-        }
-    }
-
-    // ========================================
-    // CAMERA EVENTS
-    // ========================================
-
-    /// <summary>
-    /// Fired to request the camera rotate by a delta Euler angle (degrees).
-    /// Parameter: Vector3 deltaEuler (x=pitch,y=yaw,z=roll)
-    /// Listeners: PlayerCamera
-    /// </summary>
-    public static event Action<Vector3> OnCameraRotateBy;
-
-    public static void CameraRotateBy(Vector3 deltaEuler)
-    {
-        try
-        {
-            OnCameraRotateBy?.Invoke(deltaEuler);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error in OnCameraRotateBy listeners: {e.Message}");
         }
     }
 

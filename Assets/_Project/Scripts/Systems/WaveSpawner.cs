@@ -84,7 +84,7 @@ public class WaveSpawner : MonoBehaviour {
         waveInProgress = true;
         
         for (int i = 0; i < enemiesToSpawn; i++) {
-            Vector3 spawnPos = GetRandomSpawnPosition();
+            Vector2 spawnPos = GetRandomSpawnPosition();
             
             // Use pooling system instead of Instantiate
             GameObject enemy = PoolingSystem.Instance?.Get(poolId, spawnPos, Quaternion.identity);
@@ -92,24 +92,23 @@ public class WaveSpawner : MonoBehaviour {
             // Fallback to Instantiate if pooling not available
             if (enemy == null)
             {
-                enemy = Instantiate(scorpionPrefab, spawnPos, Quaternion.identity);
+                enemy = Instantiate(scorpionPrefab, (Vector3)spawnPos, Quaternion.identity);
             }
             
             enemiesAlive++;
         }
     }
     
-    private Vector3 GetRandomSpawnPosition() {
+    private Vector2 GetRandomSpawnPosition() {
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
         float distance = Random.Range(minSpawnDistance, spawnRadius);
         
-        Vector3 offset = new Vector3(
+        Vector2 offset = new Vector2(
             Mathf.Cos(angle) * distance,
-            0f,
             Mathf.Sin(angle) * distance
         );
         
-        return player.position + offset;
+        return (Vector2)player.position + offset;
     }
     
     private void OnEnemyDied(Enemy enemy) {

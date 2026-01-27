@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(NavMeshAgent))]
 public class ChaseMovement : MonoBehaviour, IMovementBehavior {
     [SerializeField] private Transform target;
-    private Rigidbody rb;
+    private Rigidbody2D rb;
     private NavMeshAgent agent;
     private EnemyData enemyData;
 
@@ -24,7 +24,7 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
     private float repathDistanceThreshold = 0.25f;
 
     private float nextRepathTime;
-    private Vector3 lastDestination;
+    private Vector2 lastDestination;
     private static Transform cachedPlayer;
     
     public void Initialize(EnemyData enemyData) {
@@ -50,17 +50,17 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
             }
         }
 
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
         agent = GetComponent<NavMeshAgent>();
         ApplyMovementSettings();
-        lastDestination = Vector3.positiveInfinity; // force first set
+        lastDestination = Vector2.positiveInfinity; // force first set
     }
 
     private void ApplyMovementSettings()
     {
         if (rb != null)
         {
-            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             if (makeRigidbodyKinematic)
             {
                 rb.isKinematic = true;
@@ -87,7 +87,7 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
         // Throttle path recalculation to reduce NavMesh cost.
         if (Time.time >= nextRepathTime)
         {
-            Vector3 desired = target.position;
+            Vector2 desired = target.position;
             if ((desired - lastDestination).sqrMagnitude >= repathDistanceThreshold * repathDistanceThreshold)
             {
                 agent.SetDestination(desired);
@@ -98,11 +98,11 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
 
         if (rotateToVelocity)
         {
-            Vector3 flatVelocity = agent.velocity;
-            flatVelocity.y = 0f;
+            Vector2 flatVelocity = new Vector2(agent.velocity.x, agent.velocity.z);
             if (flatVelocity.sqrMagnitude > 0.001f)
             {
-                Quaternion targetRot = Quaternion.LookRotation(flatVelocity.normalized, Vector3.up);
+                float angle = Mathf.Atan2(flatVelocity.y, flatVelocity.x) * Mathf.Rad2Deg;
+                Quaternion targetRot = Quaternion.Euler(0f, 0f, angle - 90f);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
             }
         }

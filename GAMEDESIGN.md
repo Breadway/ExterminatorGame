@@ -14,7 +14,6 @@ The game visualizes the mundane horror of minimum-wage pest control in a world w
     *   The HUD resembles a digital clipboard or retro safety terminal.
     *   Damage numbers print out like receipts.
     *   Health bars look like pressure gauges or liquid fill levels.
-    *   Terminology is bureaucratic (e.g., "Performance Review" instead of "Level Up").
 
 ---
 

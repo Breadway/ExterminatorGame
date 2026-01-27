@@ -163,6 +163,14 @@ public class PoolingSystem : MonoBehaviour
     }
 
     /// <summary>
+    /// Get an object from the pool using Vector2 position (for 2D games)
+    /// </summary>
+    public GameObject Get(string poolId, Vector2 position, Quaternion rotation)
+    {
+        return Get(poolId, new Vector3(position.x, position.y, 0f), rotation);
+    }
+
+    /// <summary>
     /// Get an object from pool using prefab name as ID
     /// </summary>
     public GameObject Get(GameObject prefab, Vector3 position, Quaternion rotation)
@@ -176,6 +184,14 @@ public class PoolingSystem : MonoBehaviour
         }
 
         return Get(poolId, position, rotation);
+    }
+
+    /// <summary>
+    /// Get an object from pool using prefab name as ID and Vector2 position (for 2D games)
+    /// </summary>
+    public GameObject Get(GameObject prefab, Vector2 position, Quaternion rotation)
+    {
+        return Get(prefab, new Vector3(position.x, position.y, 0f), rotation);
     }
 
     /// <summary>

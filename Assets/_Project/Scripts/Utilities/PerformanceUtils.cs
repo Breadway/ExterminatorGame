@@ -56,6 +56,14 @@ public static class PerformanceUtils
     }
 
     /// <summary>
+    /// Faster distance check using squared magnitude (avoids sqrt) - Vector2 version.
+    /// </summary>
+    public static bool IsWithinDistance(Vector2 a, Vector2 b, float maxDistance)
+    {
+        return (a - b).sqrMagnitude <= maxDistance * maxDistance;
+    }
+
+    /// <summary>
     /// Faster distance check for 2D (XZ plane).
     /// </summary>
     public static bool IsWithinDistanceXZ(Vector3 a, Vector3 b, float maxDistance)
@@ -69,6 +77,14 @@ public static class PerformanceUtils
     /// Get squared distance (faster than Vector3.Distance).
     /// </summary>
     public static float SqrDistance(Vector3 a, Vector3 b)
+    {
+        return (a - b).sqrMagnitude;
+    }
+
+    /// <summary>
+    /// Get squared distance (faster than Vector2.Distance) - Vector2 version.
+    /// </summary>
+    public static float SqrDistance(Vector2 a, Vector2 b)
     {
         return (a - b).sqrMagnitude;
     }
@@ -120,9 +136,30 @@ public static class PerformanceExtensions
     }
 
     /// <summary>
+    /// Check if approximately zero without allocations - Vector2 version.
+    /// </summary>
+    public static bool IsApproximatelyZero(this Vector2 v, float threshold = 0.0001f)
+    {
+        return v.sqrMagnitude < threshold;
+    }
+
+    /// <summary>
     /// Normalize only if needed (avoids unnecessary sqrt).
     /// </summary>
     public static Vector3 NormalizeIfNeeded(this Vector3 v)
+    {
+        float sqrMag = v.sqrMagnitude;
+        if (sqrMag > 1.0001f || sqrMag < 0.9999f)
+        {
+            return v / Mathf.Sqrt(sqrMag);
+        }
+        return v;
+    }
+
+    /// <summary>
+    /// Normalize only if needed (avoids unnecessary sqrt) - Vector2 version.
+    /// </summary>
+    public static Vector2 NormalizeIfNeeded(this Vector2 v)
     {
         float sqrMag = v.sqrMagnitude;
         if (sqrMag > 1.0001f || sqrMag < 0.9999f)

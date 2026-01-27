@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Handles player character rotation by raycasting to find a point on the ground plane.
-/// Responsibility: Read mouse input → Raycast to ground → Rotate player to face direction
+/// Handles player character rotation in 2D by rotating towards mouse position.
+/// Responsibility: Read mouse input → Calculate direction → Rotate player
 /// Fires aiming events for other systems to react to (animation, UI, etc).
 /// </summary>
 public class PlayerAiming : MonoBehaviour
@@ -11,17 +11,15 @@ public class PlayerAiming : MonoBehaviour
     [SerializeField] private float rotationLerpSpeed = 20f;
     
     private Camera mainCamera;
-    private Plane groundPlane;
-    private Rigidbody rb;
+    private Rigidbody2D rb;
     private Quaternion targetRotation = Quaternion.identity;
     private Vector2 cachedMousePos;
-    private Vector3 lastAimDirection = Vector3.forward;
+    private Vector2 lastAimDirection = Vector2.up;
 
     private void Awake()
     {
         mainCamera = Camera.main;
-        groundPlane = new Plane(Vector3.up, Vector3.zero);
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -35,23 +33,21 @@ public class PlayerAiming : MonoBehaviour
         if (currentMousePos != cachedMousePos)
         {
             cachedMousePos = currentMousePos;
-            Ray ray = mainCamera.ScreenPointToRay(currentMousePos);
-            if (groundPlane.Raycast(ray, out float distance))
+            Vector3 worldPoint = mainCamera.ScreenToWorldPoint(new Vector3(currentMousePos.x, currentMousePos.y, mainCamera.nearClipPlane));
+            Vector2 worldPoint2D = new Vector2(worldPoint.x, worldPoint.y);
+            
+            Vector2 dir = (worldPoint2D - (Vector2)transform.position).normalized;
+            
+            if (dir.sqrMagnitude > 0f)
             {
-                Vector3 worldPoint = ray.GetPoint(distance);
-                worldPoint.y = transform.position.y;
-                Vector3 dir = (worldPoint - transform.position).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                targetRotation = Quaternion.Euler(0f, 0f, angle - 90f); // -90 because up is 0 degrees in 2D
                 
-                if (dir.sqrMagnitude > 0f)
+                // Fire event if direction changed significantly
+                if (Vector2.Distance(lastAimDirection, dir) > 0.01f)
                 {
-                    targetRotation = Quaternion.LookRotation(dir);
-                    
-                    // Fire event if direction changed significantly
-                    if (Vector3.Distance(lastAimDirection, dir) > 0.01f)
-                    {
-                        lastAimDirection = dir;
-                        GameEvents.OnPlayerAimDirectionChanged?.Invoke(dir);
-                    }
+                    lastAimDirection = dir;
+                    GameEvents.OnPlayerAimDirectionChanged?.Invoke(dir);
                 }
             }
         }
@@ -62,7 +58,10 @@ public class PlayerAiming : MonoBehaviour
         // Apply rotation smoothly
         if (rb != null)
         {
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationLerpSpeed * Time.fixedDeltaTime));
+            float currentAngle = rb.rotation;
+            float targetAngle = targetRotation.eulerAngles.z;
+            float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, rotationLerpSpeed * Time.fixedDeltaTime);
+            rb.MoveRotation(newAngle);
         }
         else
         {

@@ -2,14 +2,14 @@ using UnityEngine;
 
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(EnemyAttack))]
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))]
 public class Enemy : MonoBehaviour, IPoolable {
 
     [Header("Components")]
     [SerializeField] protected Health health;
     IMovementBehavior movement;
-    [SerializeField] Rigidbody rb;
+    [SerializeField] Rigidbody2D rb;
     [SerializeField] UnityEngine.AI.NavMeshAgent agent;
     EnemyAttack attack;
     IAttackBehaviour attackBehavior;
@@ -38,7 +38,7 @@ public class Enemy : MonoBehaviour, IPoolable {
         
         health = GetComponent<Health>();
         attack = GetComponent<EnemyAttack>();
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
         agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         movement = GetComponent<IMovementBehavior>();
         attackBehavior = GetComponent<IAttackBehaviour>();

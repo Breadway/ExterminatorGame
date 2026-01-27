@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Handles player movement via Rigidbody.
+/// Handles player movement via Rigidbody2D.
 /// Responsibility: Read input → Calculate velocity → Move via physics
 /// Fires movement events for other systems to react to (animation, sfx, etc).
 /// </summary>
@@ -21,21 +21,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float knockbackSpeed = 12f;
     [SerializeField] private float knockbackDuration = 0.15f;
 
-    private Rigidbody rb;
+    private Rigidbody2D rb;
     private PlayerControls controls;
     private Vector2 moveInput;
     private bool isInitialized = false;
 
     private float lastDashTime = -Mathf.Infinity;
     private float dashEndTime = 0f;
-    private Vector3 dashDirection;
+    private Vector2 dashDirection;
     private bool isDashing = false;
     private bool isRecovering = false;
     private float recoveryEndTime = 0f;
-    private Vector3 recoveryStartVelocity;
+    private Vector2 recoveryStartVelocity;
 
     private float knockbackEndTime = 0f;
-    private Vector3 knockbackVelocity;
+    private Vector2 knockbackVelocity;
     
     [Header("Collision")]
     [SerializeField] private LayerMask obstacleMask = ~0;
@@ -44,26 +44,26 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
 
-    private Collider col;
+    private Collider2D col;
     private bool isCapsule = false;
     private float capsuleRadius = 0.5f;
     private float capsuleHeight = 2f;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
-        var cap = GetComponent<CapsuleCollider>();
+        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
+        var cap = GetComponent<CapsuleCollider2D>();
         if (cap != null)
         {
             isCapsule = true;
-            capsuleRadius = Mathf.Max(cap.radius * Mathf.Max(transform.localScale.x, transform.localScale.z), 0.01f);
-            capsuleHeight = Mathf.Max(cap.height * transform.localScale.y, 0.01f);
+            capsuleRadius = Mathf.Max(cap.size.x * 0.5f * Mathf.Max(transform.localScale.x, transform.localScale.y), 0.01f);
+            capsuleHeight = Mathf.Max(cap.size.y * transform.localScale.y, 0.01f);
         }
         else if (col != null)
         {
             // approximate radius/height from bounds
-            capsuleRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+            capsuleRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.y);
             capsuleHeight = Mathf.Max(col.bounds.size.y, 0.01f);
         }
 
@@ -129,20 +129,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void PerformDash()
     {
-        // Use camera-relative input direction for dash when input exists, otherwise player's forward
-        if (cameraTransform != null && moveInput.sqrMagnitude > 0.0001f)
+        // Use input direction for dash when input exists, otherwise player's forward (up in 2D)
+        if (moveInput.sqrMagnitude > 0.0001f)
         {
-            Vector3 camForward = cameraTransform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-            Vector3 camRight = cameraTransform.right;
-            camRight.y = 0f;
-            camRight.Normalize();
-            dashDirection = (camRight * moveInput.x + camForward * moveInput.y).normalized;
+            dashDirection = moveInput.normalized;
         }
         else
         {
-            dashDirection = transform.forward;
+            dashDirection = transform.up;
         }
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
@@ -154,7 +148,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Time.time < knockbackEndTime)
         {
-            rb.linearVelocity = new Vector3(knockbackVelocity.x, rb.linearVelocity.y, knockbackVelocity.z);
+            rb.linearVelocity = knockbackVelocity;
             return;
         }
 
@@ -162,8 +156,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Time.time < dashEndTime)
             {
-                // Apply horizontal dash velocity, preserve vertical (gravity)
-                rb.linearVelocity = new Vector3(dashDirection.x * dashSpeed, rb.linearVelocity.y, dashDirection.z * dashSpeed);
+                rb.linearVelocity = dashDirection * dashSpeed;
             }
             else
             {
@@ -179,12 +172,12 @@ public class PlayerMovement : MonoBehaviour
         if (isRecovering)
         {
             float t = Mathf.Clamp01(1f - (recoveryEndTime - Time.time) / dashRecoveryTime);
-            Vector3 target = new Vector3(0f, recoveryStartVelocity.y, 0f);
-            rb.linearVelocity = Vector3.Lerp(recoveryStartVelocity, target, t);
+            Vector2 target = Vector2.zero;
+            rb.linearVelocity = Vector2.Lerp(recoveryStartVelocity, target, t);
             if (Time.time >= recoveryEndTime)
             {
                 isRecovering = false;
-                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+                rb.linearVelocity = Vector2.zero;
             }
             return;
         }
@@ -192,15 +185,14 @@ public class PlayerMovement : MonoBehaviour
         Move();
     }
 
-    public void ApplyKnockback(Vector3 direction)
+    public void ApplyKnockback(Vector2 direction)
     {
-        direction.y = 0f;
         if (direction.sqrMagnitude < 0.0001f)
         {
             return;
         }
 
-        Vector3 flatDir = direction.normalized;
+        Vector2 flatDir = direction.normalized;
         knockbackVelocity = flatDir * knockbackSpeed;
         knockbackEndTime = Time.time + knockbackDuration;
         isDashing = false;
@@ -210,62 +202,46 @@ public class PlayerMovement : MonoBehaviour
     public void Move()
     {
         // Normal movement via velocity to ensure collision response
-        Vector3 horizontalDesired;
-        if (cameraTransform != null)
-        {
-            Vector3 camForward = cameraTransform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-            Vector3 camRight = cameraTransform.right;
-            camRight.y = 0f;
-            camRight.Normalize();
+        Vector2 desiredVelocity = moveInput * moveSpeed;
 
-            horizontalDesired = (camRight * moveInput.x + camForward * moveInput.y) * moveSpeed;
-        }
-        else
+        // If no input, zero velocity
+        if (desiredVelocity.sqrMagnitude < 0.0001f)
         {
-            horizontalDesired = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
-        }
-
-        // If no input, zero horizontal velocity
-        if (horizontalDesired.sqrMagnitude < 0.0001f)
-        {
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        Vector3 dir = horizontalDesired.normalized;
-        float checkDistance = horizontalDesired.magnitude * Time.fixedDeltaTime + skinWidth;
+        Vector2 dir = desiredVelocity.normalized;
+        float checkDistance = desiredVelocity.magnitude * Time.fixedDeltaTime + skinWidth;
 
-        RaycastHit hit;
+        RaycastHit2D hit;
         bool blocked = false;
 
         if (col == null)
         {
             // fallback: no collider, just move
-            rb.linearVelocity = new Vector3(horizontalDesired.x, rb.linearVelocity.y, horizontalDesired.z);
+            rb.linearVelocity = desiredVelocity;
             return;
         }
 
         if (isCapsule)
         {
-            Vector3 p1 = transform.position + Vector3.up * capsuleRadius;
-            Vector3 p2 = transform.position + Vector3.up * (capsuleHeight - capsuleRadius);
-            blocked = Physics.CapsuleCast(p1, p2, capsuleRadius, dir, out hit, checkDistance, obstacleMask, QueryTriggerInteraction.Ignore);
+            hit = Physics2D.CapsuleCast((Vector2)transform.position, new Vector2(capsuleRadius * 2f, capsuleHeight), CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
+            blocked = hit.collider != null;
         }
         else
         {
-            Vector3 sphereCenter = transform.position + Vector3.up * (col.bounds.extents.y * 0.5f);
-            blocked = Physics.SphereCast(sphereCenter, capsuleRadius, dir, out hit, checkDistance, obstacleMask, QueryTriggerInteraction.Ignore);
+            hit = Physics2D.CircleCast((Vector2)transform.position, capsuleRadius, dir, checkDistance, obstacleMask);
+            blocked = hit.collider != null;
         }
 
         if (blocked)
         {
             // slide along surface instead of penetrating
-            Vector3 slid = Vector3.ProjectOnPlane(horizontalDesired, hit.normal);
-            horizontalDesired = slid;
+            Vector2 slid = Vector2.Perpendicular(hit.normal) * Vector2.Dot(desiredVelocity, Vector2.Perpendicular(hit.normal));
+            desiredVelocity = slid;
         }
 
-        rb.linearVelocity = new Vector3(horizontalDesired.x, rb.linearVelocity.y, horizontalDesired.z);
+        rb.linearVelocity = desiredVelocity;
     }
 }

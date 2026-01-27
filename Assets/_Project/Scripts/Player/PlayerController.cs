@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviour {
     
     // === DAMAGE HANDLING ===
     
-    void HandleDamaged(float amount, Vector3 hitPoint, Vector3 hitDirection) {
+    void HandleDamaged(float amount, Vector2 hitPoint, Vector2 hitDirection) {
         // Player-specific damage reactions
         
         // Screen effects
@@ -160,6 +160,6 @@ public class PlayerController : MonoBehaviour {
     public void TakeDamageFromGameEvent(float amount) {
         // If you want GameManager to directly call damage
         // (Though I recommend using IDamageable instead)
-        health.TakeDamage(amount, transform.position, Vector3.zero);
+        health.TakeDamage(amount, transform.position, Vector2.zero);
     }
 }
