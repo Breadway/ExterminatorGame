@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private PlayerControls controls;
     private Vector2 moveInput;
+    private Vector2 dashDirection;
     private bool isInitialized = false;
 
     private float lastDashTime = -Mathf.Infinity;
@@ -67,10 +68,8 @@ public class PlayerMovement : MonoBehaviour
             capsuleHeight = Mathf.Max(col.bounds.size.y, 0.01f);
         }
 
-        if (cameraTransform == null && Camera.main != null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
     }
 
     private void OnEnable()
@@ -100,23 +99,15 @@ public class PlayerMovement : MonoBehaviour
             controls.Player.Dash.Disable();
         }
     }
-
-    private void OnDestroy()
+    private void OnMoveInput(InputAction.CallbackContext context)
     {
-        if (controls != null)
-        {
-            controls.Dispose();
-        }
+        moveInput = context.ReadValue<Vector2>().normalized;
+        GameEvents.OnPlayerMovementInput?.Invoke(moveInput);
     }
 
     public void UpdateSpeed(float newSpeed)
     {
         moveSpeed = newSpeed;
-    }
-    private void OnMoveInput(InputAction.CallbackContext context)
-    {
-        moveInput = context.ReadValue<Vector2>().normalized;
-        GameEvents.OnPlayerMovementInput?.Invoke(moveInput);
     }
 
     private void OnDashInput(InputAction.CallbackContext context)
@@ -160,7 +151,6 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                // End dash and begin short recovery to avoid abrupt stop
                 isDashing = false;
                 isRecovering = true;
                 recoveryStartVelocity = rb.linearVelocity;
@@ -195,11 +185,12 @@ public class PlayerMovement : MonoBehaviour
         Vector2 flatDir = direction.normalized;
         knockbackVelocity = flatDir * knockbackSpeed;
         knockbackEndTime = Time.time + knockbackDuration;
+
         isDashing = false;
         isRecovering = false;
     }
 
-    public void Move()
+    private void Move()
     {
         // Normal movement via velocity to ensure collision response
         Vector2 desiredVelocity = moveInput * moveSpeed;
@@ -217,7 +208,7 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit2D hit;
         bool blocked = false;
 
-        if (col == null)
+        if (hit.collider != null)
         {
             // fallback: no collider, just move
             rb.linearVelocity = desiredVelocity;
@@ -235,7 +226,11 @@ public class PlayerMovement : MonoBehaviour
             blocked = hit.collider != null;
         }
 
-        if (blocked)
+        rb.linearVelocity = desiredVelocity;
+    }
+    private void OnDestroy()
+    {
+        if (controls != null)
         {
             // slide along surface instead of penetrating
             Vector2 slid = Vector2.Perpendicular(hit.normal) * Vector2.Dot(desiredVelocity, Vector2.Perpendicular(hit.normal));

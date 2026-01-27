@@ -24,13 +24,24 @@ public class PlayerAiming : MonoBehaviour
 
     private void Update()
     {
-        if (mainCamera == null) return;
+        if (mainCamera == null || Mouse.current == null)
+            return;
 
-        // Cache mouse position to avoid repeated ReadValue() calls
-        Vector2 currentMousePos = Mouse.current.position.ReadValue();
-        
-        // Only raycast if mouse position has changed
-        if (currentMousePos != cachedMousePos)
+        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
+        Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(
+            new Vector3(mouseScreenPos.x, mouseScreenPos.y, -mainCamera.transform.position.z)
+        );
+
+        Vector2 aimDir = (mouseWorld - transform.position);
+        if (aimDir.sqrMagnitude < 0.0001f)
+            return;
+
+        aimDir.Normalize();
+
+        // Angle for top-down 2D (Z rotation)
+        targetAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg - 90f;
+
+        if (Vector2.Distance(lastAimDirection, aimDir) > 0.01f)
         {
             cachedMousePos = currentMousePos;
             Vector3 worldPoint = mainCamera.ScreenToWorldPoint(new Vector3(currentMousePos.x, currentMousePos.y, mainCamera.nearClipPlane));
@@ -52,7 +63,6 @@ public class PlayerAiming : MonoBehaviour
             }
         }
     }
-
     private void FixedUpdate()
     {
         // Apply rotation smoothly
