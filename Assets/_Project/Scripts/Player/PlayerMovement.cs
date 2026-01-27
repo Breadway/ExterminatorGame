@@ -29,7 +29,6 @@ public class PlayerMovement : MonoBehaviour
 
     private float lastDashTime = -Mathf.Infinity;
     private float dashEndTime = 0f;
-    private Vector2 dashDirection;
     private bool isDashing = false;
     private bool isRecovering = false;
     private float recoveryEndTime = 0f;
