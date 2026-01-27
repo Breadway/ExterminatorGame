@@ -1,35 +1,33 @@
 using UnityEngine;
-using UnityEngine.AI;
 
+/// <summary>
+/// 2D chase movement using Rigidbody2D physics.
+/// Moves directly toward the target player position.
+/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(NavMeshAgent))]
-public class ChaseMovement : MonoBehaviour, IMovementBehavior {
+public class ChaseMovement : MonoBehaviour, IMovementBehavior
+{
     [SerializeField] private Transform target;
     private Rigidbody2D rb;
-    private NavMeshAgent agent;
     private EnemyData enemyData;
+    private float moveSpeed = 5f;
 
-    [Header("Agent Tuning")]
-    [SerializeField] private float angularSpeed = 720f;
-    [SerializeField] private float acceleration = 60f;
-    [SerializeField] private float stoppingDistance = 0.2f;
-    [SerializeField] private bool makeRigidbodyKinematic = true;
+    [Header("Movement Settings")]
+    [SerializeField] private float stoppingDistance = 0.5f;
     [SerializeField] private bool rotateToVelocity = true;
     [SerializeField] private float rotationSpeed = 12f;
 
-    [Header("Path Update")]
-    [SerializeField, Tooltip("Seconds between path recalculations.")]
-    private float repathInterval = 0.2f;
-    [SerializeField, Tooltip("Minimum distance change before updating destination.")]
-    private float repathDistanceThreshold = 0.25f;
-
-    private float nextRepathTime;
-    private Vector2 lastDestination;
     private static Transform cachedPlayer;
-    
-    public void Initialize(EnemyData enemyData) {
+    private bool isStopped = false;
+
+    public void Initialize(EnemyData enemyData)
+    {
         this.enemyData = enemyData;
-        ApplyMovementSettings();
+        if (enemyData != null)
+        {
+            moveSpeed = enemyData.moveSpeed;
+        }
+        isStopped = false;
     }
 
     void Awake()
@@ -51,68 +49,51 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior {
         }
 
         rb = GetComponent<Rigidbody2D>();
-        agent = GetComponent<NavMeshAgent>();
-        ApplyMovementSettings();
-        lastDestination = Vector2.positiveInfinity; // force first set
-    }
-
-    private void ApplyMovementSettings()
-    {
         if (rb != null)
         {
+            rb.gravityScale = 0f;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            if (makeRigidbodyKinematic)
-            {
-                rb.isKinematic = true;
-            }
-        }
-
-        if (agent != null)
-        {
-            agent.speed = enemyData != null ? enemyData.moveSpeed : 20f;
-            agent.angularSpeed = angularSpeed;
-            agent.acceleration = acceleration;
-            agent.stoppingDistance = stoppingDistance;
-            agent.updateRotation = !rotateToVelocity;
         }
     }
-    
+
     public void UpdateMovement()
     {
-        if (target == null || agent == null)
+        if (target == null || rb == null || isStopped)
         {
             return;
         }
 
-        // Throttle path recalculation to reduce NavMesh cost.
-        if (Time.time >= nextRepathTime)
+        Vector2 currentPos = rb.position;
+        Vector2 targetPos = target.position;
+        Vector2 direction = targetPos - currentPos;
+        float distance = direction.magnitude;
+
+        // Stop when close enough to target
+        if (distance <= stoppingDistance)
         {
-            Vector2 desired = target.position;
-            if ((desired - lastDestination).sqrMagnitude >= repathDistanceThreshold * repathDistanceThreshold)
-            {
-                agent.SetDestination(desired);
-                lastDestination = desired;
-                nextRepathTime = Time.time + repathInterval;
-            }
+            rb.linearVelocity = Vector2.zero;
+            return;
         }
 
-        if (rotateToVelocity)
+        // Move toward target
+        Vector2 moveDirection = direction.normalized;
+        rb.linearVelocity = moveDirection * moveSpeed;
+
+        // Rotate to face movement direction
+        if (rotateToVelocity && moveDirection.sqrMagnitude > 0.001f)
         {
-            Vector2 flatVelocity = new Vector2(agent.velocity.x, agent.velocity.z);
-            if (flatVelocity.sqrMagnitude > 0.001f)
-            {
-                float angle = Mathf.Atan2(flatVelocity.y, flatVelocity.x) * Mathf.Rad2Deg;
-                Quaternion targetRot = Quaternion.Euler(0f, 0f, angle - 90f);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
-            }
+            float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+            Quaternion targetRot = Quaternion.Euler(0f, 0f, angle);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
         }
     }
 
     public void Stop()
     {
-        if (agent != null)
+        isStopped = true;
+        if (rb != null)
         {
-            agent.ResetPath();
+            rb.linearVelocity = Vector2.zero;
         }
     }
 }

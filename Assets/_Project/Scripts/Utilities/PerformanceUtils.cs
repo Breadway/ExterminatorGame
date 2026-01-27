@@ -64,13 +64,13 @@ public static class PerformanceUtils
     }
 
     /// <summary>
-    /// Faster distance check for 2D (XZ plane).
+    /// Faster distance check for 2D (XY plane) using Vector3 inputs.
     /// </summary>
-    public static bool IsWithinDistanceXZ(Vector3 a, Vector3 b, float maxDistance)
+    public static bool IsWithinDistance2D(Vector3 a, Vector3 b, float maxDistance)
     {
         float dx = a.x - b.x;
-        float dz = a.z - b.z;
-        return (dx * dx + dz * dz) <= maxDistance * maxDistance;
+        float dy = a.y - b.y;
+        return (dx * dx + dy * dy) <= maxDistance * maxDistance;
     }
 
     /// <summary>

@@ -160,7 +160,8 @@ Each character has one overpowered mechanic balanced by a constraint:
 |-----------|-----------|
 | **Engine** | Unity 6.3 LTS |
 | **Rendering** | Universal Render Pipeline (URP) |
-| **Perspective** | 3D (isometric ~45° camera, Hades-style) |
+| **Perspective** | 2D (top-down orthographic camera) |
+| **Physics** | Unity 2D Physics (Rigidbody2D, Collider2D) |
 | **Language** | C# (.NET Standard 2.1) |
 | **Version Control** | Git + GitHub |
 | **Project Management** | JIRA |

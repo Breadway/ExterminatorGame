@@ -207,13 +207,6 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit2D hit;
         bool blocked = false;
 
-        if (hit.collider != null)
-        {
-            // fallback: no collider, just move
-            rb.linearVelocity = desiredVelocity;
-            return;
-        }
-
         if (isCapsule)
         {
             hit = Physics2D.CapsuleCast((Vector2)transform.position, new Vector2(capsuleRadius * 2f, capsuleHeight), CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
@@ -225,11 +218,7 @@ public class PlayerMovement : MonoBehaviour
             blocked = hit.collider != null;
         }
 
-        rb.linearVelocity = desiredVelocity;
-    }
-    private void OnDestroy()
-    {
-        if (controls != null)
+        if (blocked && hit.collider != null)
         {
             // slide along surface instead of penetrating
             Vector2 slid = Vector2.Perpendicular(hit.normal) * Vector2.Dot(desiredVelocity, Vector2.Perpendicular(hit.normal));
@@ -237,5 +226,12 @@ public class PlayerMovement : MonoBehaviour
         }
 
         rb.linearVelocity = desiredVelocity;
+    }
+    private void OnDestroy()
+    {
+        if (controls != null)
+        {
+            controls.Dispose();
+        }
     }
 }

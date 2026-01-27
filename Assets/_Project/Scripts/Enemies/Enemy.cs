@@ -3,14 +3,12 @@ using UnityEngine;
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(EnemyAttack))]
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))]
 public class Enemy : MonoBehaviour, IPoolable {
 
     [Header("Components")]
     [SerializeField] protected Health health;
     IMovementBehavior movement;
     [SerializeField] Rigidbody2D rb;
-    [SerializeField] UnityEngine.AI.NavMeshAgent agent;
     EnemyAttack attack;
     IAttackBehaviour attackBehavior;
     [Header("Data")]
@@ -39,7 +37,6 @@ public class Enemy : MonoBehaviour, IPoolable {
         health = GetComponent<Health>();
         attack = GetComponent<EnemyAttack>();
         rb = GetComponent<Rigidbody2D>();
-        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         movement = GetComponent<IMovementBehavior>();
         attackBehavior = GetComponent<IAttackBehaviour>();
         
@@ -118,11 +115,10 @@ public class Enemy : MonoBehaviour, IPoolable {
             health.ResetHealth();
         }
         
-        // Re-enable NavMeshAgent
-        if (agent != null)
+        // Re-enable Rigidbody2D
+        if (rb != null)
         {
-            agent.enabled = true;
-            agent.isStopped = false;
+            rb.simulated = true;
         }
         
         // Re-initialize with enemy data
@@ -134,11 +130,10 @@ public class Enemy : MonoBehaviour, IPoolable {
 
     public void OnReturnToPool()
     {
-        // Stop NavMeshAgent to prevent errors
-        if (agent != null)
+        // Stop Rigidbody2D to prevent errors
+        if (rb != null)
         {
-            agent.isStopped = true;
-            agent.ResetPath();
+            rb.linearVelocity = Vector2.zero;
         }
         
         // Stop movement
