@@ -5,12 +5,14 @@
 ## 🏢 The World: Corporate Satire
 The game takes place in a world dominated by **Biosphere Management Group (BMG)**, a mega-corporation that holds a monopoly on pharmaceuticals and extends into every corner of society — from municipal pest control contracts to school lunch supplements, from hospital supply chains to municipal water treatment. Streets, parks, and product packaging quietly carry BMG's seal; public health advisories circulate with the company's logo and carefully edited statistics. Where BMG's reach can't be bought, it's regulated: licensing, zoning, and municipal waste contracts all favor corporate partners, creating a patchwork of legal entanglement that muffles dissent.
 
+BMG divides its operational territories into numbered **Sectors** (geographic districts spanning multiple city blocks or rural zones). Within each sector, specific **Deployment Zones** are designated for contractor operations: residential complexes, industrial facilities, municipal infrastructure, and research campuses. Your work orders reference both — "Sector 7, Residential Deployment Zone G" is bureaucratese for "someone's basement is now a nightmare."
+
 The corporation maintains a polished public face — charity drives, glossy safety campaigns, and "community resilience" grants — while a shadow infrastructure handles the inconvenient fallout: private cleanup crews, secret research wings, and aggressive legal teams that neutralize leaks (literal and figurative). Propaganda blurs the line between pest and threat, normalizing increasingly violent countermeasures in the name of "public safety."
 
 Everyday life feels commodified. Health clinics push company-formulated treatments; vending machines vend "wellness" boosters with fine print you never read. A second economy thrives on salvaged gear, black-market stabilizers, and contractor tips shared over static-filled radio channels. For most citizens the crisis is a strange headline; for contractors it's a day job, a debt ladder, and a slow unraveling of what "protection" really means under corporate rule.
 
 ### The "Incident"
-Biosphere Management Group acquired Verdantix (formerly "Hyper-Gro Labs"), a scrappy agrochemical startup that promised to end food shortages with a fast-acting growth formula. At first it was a miracle: crops matured faster, yields spiked, and Verdantix's stock soared. To scale that success, BMG prioritized throughput and margin over safety testing — reformulation cycles were shortened, stabilizers were dialed back, and leak-prone production lines were pushed into continuous operation.
+Biosphere Management Group acquired **Verdantix** (formerly "Hyper-Gro Labs"), a scrappy agrochemical startup that promised to end food shortages with a fast-acting growth formula. At first it was a miracle: crops matured faster, yields spiked, and Verdantix's stock soared. To scale that success, BMG prioritized throughput and margin over safety testing — reformulation cycles were shortened, stabilizers were dialed back, and leak-prone production lines were pushed into continuous operation.
 
 Those shortcuts turned a plant-growth compound into a biologically active mutagen. The reagent began integrating with local microbial and insect populations, then crossing unexpected physiological boundaries. Instead of the intended plant uptake, the agent rewrote host biochemistry in ways no one predicted: rapid somatic growth, accelerated reproduction, and emergent biochemical pathways that produced confined, element-like effects (localized combustion, acidic secretions, electrical discharges).
 
@@ -20,6 +22,26 @@ The result: household pests—cockroaches, spiders, wasps—mutated into large, 
 
 When the scale became undeniable, BMG spun up **Division 8** — a deniable shadow operation disguised as "independent contractor services." Rather than admit fault and trigger regulatory intervention, the company deployed these "contractors" to "neutralize surplus biomass." Equipped with company gear, armed with experimental "neutralization tools," and bound by iron-clad NDAs, these workers are the human cost of corporate damage control. Their work orders come through encrypted company tablets; their hazard pay barely covers equipment repairs. They are deployed to residential basements and commercial warehouses with the same casualness as scheduling a plumber.
 
+### 📅 Historical Timeline: The Road to Ruin (Confidential)
+
+*   **September 12, 2023:** BMG acquires Verdantix (formerly Hyper-Gro Labs) for $4.2B.
+    *   *Press Release:* "Ushering in a new era of sustainable abundance."
+    *   *Internal Memo:* "Asset strip the safety division, double production quotas."
+*   **March 15, 2024:** "Verdant-X" commercial rollout begins in Sector 4 (Midwest Agricultural Belt).
+    *   *Result:* Crop yields increase 200%. Stock price jumps 45%.
+*   **August 02, 2024:** First reports of "Gigantism" in local pest populations.
+    *   *Response:* BMG Legal creates "The Climate Change Defense" strategy.
+*   **November 11, 2024 - The "Black Friday" Incident:**
+    *   A single mutated queen roach breaches the Sector 4 Distribution Center. 14 employees lost.
+    *   *Official Story:* "Gas leak explosion."
+*   **January 2025:** Operation "Clean Sweep" (The Containment Burns).
+    *   Attempt to incinerate affected zones. Smoke carries mutagenic particulate to residential suburbs. 
+    *   *Total Failure:* Instead of killing the pests, the mutagen spreads airborne.
+*   **March - August 2025:** BMG Legal creates the "Emergency Environmental Services Act" framework while privately negotiating with regulators and local governments to avoid federal oversight.
+*   **September 2025:** Division 8 formally chartered and begins covert contractor recruitment.
+    *   Public launch delayed until January 2026 to create legal distance from the Incident.
+*   **Current Day (January 2026):** Division 8 operations are active across 12 metropolitan sectors. The public believes the infestation is a "seasonal climate anomaly." Contractors have 11 months of field mortality data.
+
 ### The Tone
 *   **Cynical & Bureaucratic:** You are risking your life for minimum wage and a chance at a "Performance Bonus."
 *   **Darkly Comedic:** The horror of a giant spider eating a cat is juxtaposed with a chirpy HR voice over the radio reminding you to "Protect Company Assets."
@@ -27,7 +49,35 @@ When the scale became undeniable, BMG spun up **Division 8** — a deniable shad
 
 ---
 
-## 👷 The Exterminators (Division 8 Personnel Files)
+## 👔 The Management (Targets & VIPs)
+
+While you toil in the slime, these are the faces on the monitors—the people (and entities) pulling the strings.
+
+### 1. Director Sterling Voss (CEO)
+> *"Safety is a core value. Profit is the **only** value."*
+*   **Role:** The Faceless Corporate Overlord.
+*   **Bio:** A former hedge fund manager turned industrial titan. Voss views the infestation not as a disaster, but as a "market correction" that allows BMG to sell solutions to problems they created. He appears only in pre-recorded holographic messages that play in the VAN, usually congratulating the team on "staying under budget" while you bleed out.
+*   **Influence:** He signs the checks (digitally) and authorizes the use of "Experimental Weaponry" whenever it boosts stock value.
+
+### 2. Dr. Aris Thorne (Head of R&D)
+> *"The mutation rate is actually quite fascinating, provided you're standing behind thick glass."*
+*   **Role:** The Amoral Scientist.
+*   **Bio:** Former head of Verdantix's biochemical division, now BMG's R&D overlord. He saw the mutagenic properties of Verdant-X not as a flaw, but as a feature to be monetized. When his lead researcher (Dr. Sarah Chen) raised safety concerns, he buried her reports and accelerated production timelines. He now runs **Facility Omega**, researching weaponized bugs for military contracts. He considers Division 8 contractors to be "field testers" for his new toys.
+*   **Relationship:** One of his former researchers is now in the field. He finds this "poetically efficient."
+
+### 3. Commander Jackson "Brick" Stone (Division 8 Operations)
+> *"Stop bleeding on the carpet and get back in there."*
+*   **Role:** The Handler / Mission Control.
+*   **Bio:** Ex-military, dishonorably discharged for "excessive collateral damage." He runs Division 8 like a chaotic mercenary outfit. He's the voice in your ear during missions, barking orders and updating objectives. He respects survival, hates paperwork, and has a begrudging respect for contractors who survive more than one week.
+
+### 4. "Asset Management" (The A.I. HR)
+> *"Reminder: Your life insurance policy does not cover 'Acts of Bug'. Have a productive day."*
+*   **Role:** The System.
+*   **Bio:** A cheery, synthesized voice that handles all administrative tasks—hiring, firing, and payout processing. It delivers the most horrifying news with the tone of a preschool teacher. It is the true antagonist of the contractor's daily life.
+
+---
+
+## �👷 The Exterminators (Division 8 Personnel Files)
 
 You play as "contractors"—desperate individuals who owe debt to the company, are running from something worse, or are simply unhinged enough to see this as an opportunity. BMG doesn't ask questions during hiring; they just need warm bodies willing to sign the waiver.
 
@@ -105,10 +155,10 @@ You play as "contractors"—desperate individuals who owe debt to the company, a
 > *"The pest control is experimental. The lawsuits are real."*
 
 *   **Real Name:** Dr. Sarah Chen, Ph.D.
-*   **Previous Employment:** Senior researcher at Verdantix Labs (fired post-Incident)
-*   **Hired Because:** She knows what BMG did. They hired her to keep her quiet.
-*   **Backstory:** Dr. Chen was the lead biochemist on the Hyper-Gro project. She raised concerns about the accelerated testing schedule, the missing stabilizer trials, and the anomalous readings in the arthropod exposure groups. Her reports were filed, then buried. When the mutations started, she tried to go public. BMG's legal team arrived first with a termination notice, an NDA, and a choice: accept a "contractor position" with Division 8 or face charges for "intellectual property theft." Now she's in the field with a prototype particle beam that was never meant to leave the lab—a weapon built from the same destabilized compounds that created this mess. She tells herself she's gathering data. Really, she's trying to survive long enough to find proof.
-*   **Field Notes:** Subject exhibits signs of guilt and extreme competence. Monitor for whistleblower tendencies. Approved for "experimental equipment"—losses are acceptable.
+*   **Previous Employment:** Senior researcher at Verdantix (fired post-Incident)
+*   **Hired Because:** She knows what BMG did. They hired her to keep her quiet—and because she signed the safety reports.
+*   **Backstory:** Dr. Chen was the lead biochemist on the Hyper-Gro project. She raised concerns about the accelerated testing schedule, the missing stabilizer trials, and the anomalous readings in the arthropod exposure groups. Her supervisor (Dr. Thorne) told her to "adjust the parameters" and "recontextualize the outliers." When she refused, he reminded her about her student loans, her visa status, and the 47 other Ph.D.s waiting for her job. So she signed. When the mutations started, she tried to go public. BMG's legal team arrived with the reports bearing her signature, a termination notice, and a choice: accept a "contractor position" with Division 8 or face criminal negligence charges for falsifying safety data. Now she's in the field with a prototype particle beam that was never meant to leave the lab—a weapon built from the same destabilized compounds that created this mess. She tells herself she's gathering evidence. Really, she's trying to survive long enough to decide if she's a whistleblower or an accomplice.
+*   **Field Notes:** Subject exhibits signs of guilt and extreme competence. Monitor for whistleblower tendencies. Approved for "experimental equipment"—losses are acceptable. Dr. Thorne has requested regular performance reports.
 *   **Mechanic:** **Charge Laser / Critical Instability.**
     *   *The Power:* Fully charged shots pierce through all enemies and walls, dealing massive damage. It's the most powerful weapon in Division 8's arsenal.
     *   *The Constraint:* Charging above 75% has a 5% chance per second to cause critical failure—dealing 30% max HP as self-damage and stunning her for one second. The longer she charges, the more she gambles. Uncharged shots do minimal damage, forcing risk-reward decisions.
@@ -147,24 +197,20 @@ Completing a contract unlocks "Overtime Mode" (Endless) for that specific zone�
 ### Current Deployment Zones
 
 #### **Contract #001: Suburbia Clean-Up (Launch Map)**
+*   **Location:** Sector 7, Residential Deployment Zone G ("Sector 7G" in contractor slang)
 *   **Setting:** Ruined living rooms, overgrown backyards, infested garages.
 *   **The Mission:** Clear 25 rooms of Class 1 and Class 2 biomass.
-*   **The Boss:** **The Queen Roach** (Sector 7G).
+*   **The Boss:** **The Queen Roach** — Former homeowner's "pet" that got into the wrong compost bin.
 *   **Endless Unlock:** "Overtime in the Burbs" — Fight until the union forces a break (or you die).
 
 #### **Future Contracts (Coming Soon)**
 *   **Contract #002: Municipal Waste Facility (The Sewers)**
+    *   *Location:* Sector 4, Infrastructure Deployment Zone M
     *   *Hazard:* Toxic sludge and corrosive leaks.
 *   **Contract #003: R&D Facility Omega (The Lab)**
+    *   *Location:* Sector 11, Research Deployment Zone Omega (Classified)
     *   *Hazard:* Reality-warping breaches and experimental escapees.
-
-### The "Upgrades"
-You don't find magical artifacts. You find:
-*   **"Stolen Office Supplies"** (+Speed)
-*   **"Unauthorized Modifications"** (+Damage)
-*   **"Union Membership Card"** (+Defense)
-*   **"Performance Review"** (Level Up)
-
 ---
+*Property of Biosphere Management Group (BMG). Unauthorized distribution is punishable by termination and/or incineration.*
 
 
