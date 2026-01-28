@@ -1,4 +1,4 @@
-# 🪲 VERMICIDE (Working Title)
+# 🪲 Hazard Pay (Working Title)
 
 > A top-down 2D roguelike where you play as pest exterminators clearing bug infestations. Think Enter the Gungeon meets Vampire Survivors with a darkly comedic twist.
 
@@ -18,7 +18,7 @@
 
 ## 🎮 Game Overview
 
-**VERMICIDE** is a top-down 2D pixel-art roguelike featuring "intentionally broken" character progression. Players choose from 4-5 unlockable exterminators, each with overpowered mechanics balanced by meaningful constraints, to clear procedurally arranged industrial sectors.
+**Hazard Pay** is a top-down 2D pixel-art roguelike featuring "intentionally broken" character progression. Players choose from 4-5 unlockable exterminators, each with overpowered mechanics balanced by meaningful constraints, to clear procedurally arranged industrial sectors.
 
 ### How to Play
 1. **Navigate** through 25 procedurally arranged rooms (Sectors) with branching paths
