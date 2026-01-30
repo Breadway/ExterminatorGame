@@ -28,6 +28,18 @@ public class Enemy : MonoBehaviour, IPoolable {
 
     void Awake() {
         CacheComponents();
+        ConfigureRigidbody();
+    }
+
+    private void ConfigureRigidbody()
+    {
+        if (rb != null)
+        {
+            // Make enemy kinematic to prevent physics-based pushing/vibration
+            // Enemy movement is handled by IMovementBehavior, not physics forces
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.useFullKinematicContacts = true; // Still detect collisions for damage
+        }
     }
 
     private void CacheComponents()
@@ -84,10 +96,18 @@ public class Enemy : MonoBehaviour, IPoolable {
     
     void OnEnable() {
         health.OnDied += HandleDeath;
+        health.OnDamaged += HandleDamage;
     }
     
     void OnDisable() {
         health.OnDied -= HandleDeath;
+        health.OnDamaged -= HandleDamage;
+    }
+    
+    void HandleDamage(float amount, Vector2 hitPoint, Vector2 hitDirection) {
+        // Fire GameEvent for damage tracking, VFX, audio, etc.
+        GameEvents.EnemyDamaged(amount, hitPoint, hitDirection);
+        GameEvents.DebugLog($"[Enemy] {gameObject.name} took {amount} damage. HP: {health.CurrentHP}/{health.MaxHP}");
     }
     
     void HandleDeath() {

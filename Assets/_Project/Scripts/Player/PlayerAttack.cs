@@ -13,6 +13,7 @@ public class PlayerAttack : MonoBehaviour {
     private bool isFiring = false;
     private float nextFireTime = 0f;
     private IWeaponAttack currentWeapon;
+    
     void Awake()
     {
         controls = new PlayerControls();

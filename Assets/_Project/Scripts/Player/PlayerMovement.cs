@@ -69,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
 
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Smoother collision handling
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate; // Smoother visual movement
     }
 
     private void OnEnable()
@@ -207,24 +209,31 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit2D hit;
         bool blocked = false;
 
+        // Use the collider's current position for casting
+        Vector2 castOrigin = (Vector2)transform.position;
+
         if (isCapsule)
         {
-            hit = Physics2D.CapsuleCast((Vector2)transform.position, new Vector2(capsuleRadius * 2f, capsuleHeight), CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
-            blocked = hit.collider != null;
+            hit = Physics2D.CapsuleCast(castOrigin, new Vector2(capsuleRadius * 2f, capsuleHeight), CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
+            blocked = hit.collider != null && hit.distance > 0f; // Only block if we're not already overlapping
         }
         else
         {
-            hit = Physics2D.CircleCast((Vector2)transform.position, capsuleRadius, dir, checkDistance, obstacleMask);
-            blocked = hit.collider != null;
+            hit = Physics2D.CircleCast(castOrigin, capsuleRadius, dir, checkDistance, obstacleMask);
+            blocked = hit.collider != null && hit.distance > 0f; // Only block if we're not already overlapping
         }
 
         if (blocked && hit.collider != null)
         {
-            // slide along surface instead of penetrating
-            Vector2 slid = Vector2.Perpendicular(hit.normal) * Vector2.Dot(desiredVelocity, Vector2.Perpendicular(hit.normal));
-            desiredVelocity = slid;
+            // Slide along surface instead of penetrating
+            // Calculate the component of velocity parallel to the surface
+            Vector2 slideDir = Vector2.Perpendicular(hit.normal);
+            float slideMagnitude = Vector2.Dot(desiredVelocity, slideDir);
+            desiredVelocity = slideDir * slideMagnitude;
         }
 
+        // Let the Rigidbody2D handle the actual collision resolution
+        // by setting velocity and allowing physics to do its job
         rb.linearVelocity = desiredVelocity;
     }
     private void OnDestroy()

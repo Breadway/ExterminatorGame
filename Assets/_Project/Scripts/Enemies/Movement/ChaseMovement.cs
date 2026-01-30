@@ -16,6 +16,7 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior
     [SerializeField] private float stoppingDistance = 0.5f;
     [SerializeField] private bool rotateToVelocity = true;
     [SerializeField] private float rotationSpeed = 12f;
+    [SerializeField] private Transform movementVector;
 
     private static Transform cachedPlayer;
     private bool isStopped = false;
@@ -84,7 +85,7 @@ public class ChaseMovement : MonoBehaviour, IMovementBehavior
         {
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
             Quaternion targetRot = Quaternion.Euler(0f, 0f, angle);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
+            movementVector.rotation = Quaternion.Slerp(movementVector.rotation, targetRot, rotationSpeed * Time.deltaTime);
         }
     }
 

@@ -229,13 +229,35 @@ public static class GameEvents
     // DEBUG EVENTS (Development only)
     // ========================================
     
-    #if UNITY_EDITOR
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>
     /// Fired when debug command is executed.
     /// Parameters: command name, arguments
     /// Listeners: DebugConsole, various managers
     /// </summary>
     public static event Action<string, string[]> OnDebugCommand;
+    
+    /// <summary>
+    /// Debug logging event for combat/attack debugging.
+    /// Parameters: log message
+    /// </summary>
+    public static event Action<string> OnDebugLog;
+    
+    /// <summary>
+    /// Helper method for debug logging. Outputs to console and fires OnDebugLog event.
+    /// Only active in Editor and Development builds.
+    /// </summary>
+    public static void DebugLog(string message)
+    {
+        Debug.Log(message);
+        OnDebugLog?.Invoke(message);
+    }
+    #else
+    /// <summary>
+    /// No-op debug logging for release builds.
+    /// </summary>
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public static void DebugLog(string message) { }
     #endif
     
     
@@ -356,6 +378,14 @@ public static class GameEvents
         Debug.LogError($"Error in OnXPChanged listeners: {e.Message}");
     }
     }
+
+    public static void EnemyDamaged(float amount, Vector2 hitPoint, Vector2 hitDirection) {
+        try {
+            OnEnemyDamaged?.Invoke(amount, hitPoint, hitDirection);
+        } catch (Exception e) {
+            Debug.LogError($"Error in OnEnemyDamaged listeners: {e.Message}");
+        }
+    }
     
     // Add more helper methods as needed for frequently used events
     
@@ -408,8 +438,9 @@ public static class GameEvents
         OnPlaySound = null;
         OnPlayMusic = null;
         
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || DEVELOPMENT_BUILD
         OnDebugCommand = null;
+        OnDebugLog = null;
         #endif
         
         Debug.Log("All GameEvents listeners cleared.");
