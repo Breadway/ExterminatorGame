@@ -1,0 +1,3 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_Project/UI/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=c4a01e72c8875f94b9ee3a13b8840a0a&amp;type=3"/>
+</ui:UXML>
