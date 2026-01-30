@@ -5,7 +5,7 @@ using UnityEngine;
 /// Moves directly toward the target player position with separation to avoid clumping.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
-public class ChaseMovement : MonoBehaviour, IMovementBehavior
+public class ChaseMovement : MonoBehaviour, IMovementBehavior, IMovementModifiable
 {
     [SerializeField] private Transform target;
     private Rigidbody2D rb;

@@ -83,7 +83,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     
     void Awake()
     {
-        stats = GetComponentInParent<PlayerController>().stats;
+        stats = GetComponent<PlayerController>().stats;
         waitForFixed = new WaitForFixedUpdate();
         
         // coneAngle represents TOTAL cone width (e.g., 45° total)
