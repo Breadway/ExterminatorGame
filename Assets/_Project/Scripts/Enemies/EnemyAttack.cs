@@ -2,14 +2,15 @@ using UnityEngine;
 
 public class EnemyAttack : MonoBehaviour {
     // Enemy attack logic
-    [SerializeField] EnemyData EnemyData;
-    void Initialize(EnemyData enemyDatainit)
+    EnemyData enemyData;
+    IAttackBehaviour attackBehavior;
+    public void Initialize(EnemyData enemyDatainit, IAttackBehaviour attackBehavior)
     {
-        EnemyData = enemyDatainit;
-    }
-
-    void Attack()
-    {
-        
+        enemyData = enemyDatainit;
+        this.attackBehavior = attackBehavior;
+        if (attackBehavior != null)
+        {
+            attackBehavior.Initialize(enemyData);
+        }
     }
 }

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77cfe5fd2a7d4718a499f50c7d89559d, type: 3}
+  m_Name: Fire
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
+  effectType: 0
+  effectName: 
+  duration: 8
+  tickInterval: 0.5
+  canStack: 0
+  maxStacks: 1
+  refreshDurationOnReapply: 1
+  damagePerTick: 4
+  moveSpeedMultiplier: 1
+  damageTakenMultiplier: 1
+  canSpread: 1
+  spreadRadius: 2
+  spreadDelay: 0
+  spreadDuration: 8
+  spreadInterval: 1
+  spreadTargetMask:
+    serializedVersion: 2
+    m_Bits: 128
+  effectPrefab: {fileID: 4496402545659835853, guid: a8596512cd7386d488939b5e37662a8a, type: 3}
+  effectTint: {r: 1, g: 0, b: 0, a: 1}

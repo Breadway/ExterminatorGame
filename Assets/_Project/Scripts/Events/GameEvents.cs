@@ -19,9 +19,16 @@ public static class GameEvents
     /// Fired when player rotation/aiming changes.
     /// Allows systems to react to aim updates (animation, UI, etc).
     /// </summary>
-    public static Action<Vector3> OnPlayerAimDirectionChanged;
+    public static Action<Vector2> OnPlayerAimDirectionChanged;
 
-    public static Action<Vector3> OnPlayerDash;
+    public static Action<Vector2> OnPlayerDash;
+
+    /// <summary>
+    /// Fired when player selects an upgrade from the upgrade choice UI.   
+    /// Parameters: chosen UpgradeData
+    /// Listeners: Player (apply upgrade), UI (close upgrade panel), AudioManager (play selection sound)
+    /// </summary>
+    public static Action<UpgradeData> OnPlayerUpgradeApplied;
 
     
     // ========================================
@@ -32,14 +39,14 @@ public static class GameEvents
     /// Fired when an enemy is killed. Passes the enemy that died.
     /// Listeners: XPManager (award XP), RoomManager (check room clear), AudioManager (death sound), UI (kill counter)
     /// </summary>
-    public static event Action<Enemy> OnEnemyKilled;
+    public static Action<Enemy> OnEnemyKilled;
     
     /// <summary>
     /// Fired when an enemy takes damage (non-fatal).
     /// Parameters: damage amount, hit position, hit direction
     /// Listeners: VFXManager (spawn damage numbers), AudioManager (hit sound)
     /// </summary>
-    public static event Action<float, Vector3, Vector3> OnEnemyDamaged;
+    public static event Action<float, Vector2, Vector2> OnEnemyDamaged;
     
     /// <summary>
     /// Fired when player takes damage.
@@ -63,6 +70,25 @@ public static class GameEvents
     
     
     // ========================================
+    // STATUS EFFECT EVENTS
+    // ========================================
+    
+    /// <summary>
+    /// Fired when a status effect is applied to an entity.
+    /// Parameters: affected GameObject, effect data
+    /// Listeners: VFXManager (spawn effect visuals), AudioManager (play effect sound), UI (show status icon)
+    /// </summary>
+    public static Action<GameObject, StatusEffectData> OnStatusEffectApplied;
+    
+    /// <summary>
+    /// Fired when a status effect is removed from an entity.
+    /// Parameters: affected GameObject, effect data
+    /// Listeners: VFXManager (clean up visuals), UI (remove status icon)
+    /// </summary>
+    public static Action<GameObject, StatusEffectData> OnStatusEffectRemoved;
+    
+    
+    // ========================================
     // PROGRESSION EVENTS
     // ========================================
     
@@ -71,21 +97,14 @@ public static class GameEvents
     /// Parameters: XP amount gained
     /// Listeners: XPBarUI (update bar), VFXManager (XP gain popup)
     /// </summary>
-    public static event Action<int> OnXPGained;
+    public static System.Action<int, int> OnXPChanged; // (currentXP, xpRequired)
     
     /// <summary>
     /// Fired when player levels up.
     /// Parameters: new level
     /// Listeners: Player (heal on level up), UI (level up popup), PathSystem (check for path unlock at 10/20/30)
     /// </summary>
-    public static event Action<int> OnLevelUp;
-    
-    /// <summary>
-    /// Fired when player chooses an upgrade after room clear.
-    /// Parameters: chosen upgrade data
-    /// Listeners: Player (apply stats), UI (close upgrade panel), SaveManager (track upgrades taken)
-    /// </summary>
-    public static event Action<UpgradeData> OnUpgradeChosen;
+    public static System.Action<int> OnLevelUp; // (newLevel)
     
     /// <summary>
     /// Fired when upgrade choices are offered to player.
@@ -93,6 +112,8 @@ public static class GameEvents
     /// Listeners: UpgradeUI (display choices)
     /// </summary>
     public static event Action<int, UpgradeData[]> OnUpgradeOffered;
+
+    public static event Action<float, float> OnHealthChanged; // (currentHP, maxHP)
     
     /// <summary>
     /// Fired when player's stats change (from upgrades, buffs, debuffs).
@@ -210,10 +231,10 @@ public static class GameEvents
     
     /// <summary>
     /// Fired when a sound effect should play.
-    /// Parameters: sound ID/name, position (Vector3.zero for 2D sounds)
+    /// Parameters: sound ID/name, position (Vector2.zero for 2D sounds)
     /// Listeners: AudioManager
     /// </summary>
-    public static event Action<string, Vector3> OnPlaySound;
+    public static event Action<string, Vector2> OnPlaySound;
     
     /// <summary>
     /// Fired when music should change.
@@ -227,19 +248,128 @@ public static class GameEvents
     // DEBUG EVENTS (Development only)
     // ========================================
     
-    #if UNITY_EDITOR
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>
     /// Fired when debug command is executed.
     /// Parameters: command name, arguments
     /// Listeners: DebugConsole, various managers
     /// </summary>
     public static event Action<string, string[]> OnDebugCommand;
+    
+    /// <summary>
+    /// Debug logging event for combat/attack debugging.
+    /// Parameters: log message, category
+    /// </summary>
+    public static event Action<string, DebugCategory> OnDebugLog;
+    
+    /// <summary>
+    /// Helper method for debug logging with category filtering.
+    /// Only logs if the category is enabled in DebugManager.
+    /// Only active in Editor and Development builds.
+    /// </summary>
+    public static void DebugLog(string message, DebugCategory category = DebugCategory.General)
+    {
+        // Check if DebugManager exists and category is enabled
+        if (DebugManager.Instance == null || !DebugManager.Instance.IsCategoryEnabled(category))
+        {
+            return;
+        }
+        
+        // Add category prefix to message for easier filtering in console
+        string prefixedMessage = $"{DebugManager.Instance.GetCategoryPrefix(category)} {message}";
+        
+        Debug.Log(prefixedMessage);
+        OnDebugLog?.Invoke(prefixedMessage, category);
+    }
+    
+    /// <summary>
+    /// Backward compatibility: Log without category (uses General category).
+    /// </summary>
+    [System.Obsolete("Use DebugLog(message, category) instead for better filtering.")]
+    public static void DebugLog(string message)
+    {
+        Debug.Log(message);
+    }
+    
+    /// <summary>
+    /// Helper method for debug warning logging with category filtering.
+    /// Only logs if the category is enabled in DebugManager.
+    /// Only active in Editor and Development builds.
+    /// </summary>
+    public static void DebugWarning(string message, DebugCategory category = DebugCategory.General)
+    {
+        // Check if DebugManager exists and category is enabled
+        if (DebugManager.Instance == null || !DebugManager.Instance.IsCategoryEnabled(category))
+        {
+            return;
+        }
+        // Add category prefix to message for easier filtering in console
+        string prefixedMessage = $"{DebugManager.Instance.GetCategoryPrefix(category)} {message}";
+        Debug.LogWarning(prefixedMessage);
+        OnDebugLog?.Invoke(prefixedMessage, category);
+    }
+    
+    [System.Obsolete("Use DebugWarning(message, category) instead for better filtering.")]
+    public static void DebugWarning(string message)
+    {
+        Debug.Log(message);
+    }
+    
+    public static void DebugError(string message, DebugCategory category = DebugCategory.General)
+    {
+        // Check if DebugManager exists and category is enabled
+        if (DebugManager.Instance == null || !DebugManager.Instance.IsCategoryEnabled(category))
+        {
+            return;
+        }
+        
+        // Add category prefix to message for easier filtering in console
+        string prefixedMessage = $"{DebugManager.Instance.GetCategoryPrefix(category)} {message}";
+        
+        Debug.LogError(prefixedMessage);
+        OnDebugLog?.Invoke(prefixedMessage, category);
+    }
+    
+    /// <summary>
+    /// Backward compatibility: Log without category (uses General category).
+    /// </summary>
+    [System.Obsolete("Use DebugError(message, category) instead for better filtering.")]
+    public static void DebugError(string message)
+    {
+        Debug.LogError(message);
+    }
+    #else
+    /// <summary>
+    /// No-op debug logging for release builds.
+    /// </summary>
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public static void DebugLog(string message, DebugCategory category = DebugCategory.General) { }
+    
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    [System.Obsolete("Use DebugLog(message, category) instead for better filtering.")]
+    public static void DebugLog(string message) { }
     #endif
     
     
     // ========================================
     // HELPER METHODS (Optional - for safer invocation)
     // ========================================
+
+    public static void StartRun() {
+        try {
+            OnRunStarted?.Invoke();
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnRunStarted listeners: {e.Message}");
+        }
+    }
+
+    public static void EndRun(bool wasVictory) {
+        try {
+            OnRunEnded?.Invoke(wasVictory);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnRunEnded listeners: {e.Message}");
+        }
+    }
     
     /// <summary>
     /// Safely invoke OnEnemyKilled with null check and error handling.
@@ -248,7 +378,7 @@ public static class GameEvents
         try {
             OnEnemyKilled?.Invoke(enemy);
         } catch (Exception e) {
-            Debug.LogError($"Error in OnEnemyKilled listeners: {e.Message}");
+            GameEvents.DebugError($"Error in OnEnemyKilled listeners: {e.Message}");
         }
     }
     
@@ -259,7 +389,18 @@ public static class GameEvents
         try {
             OnPlayerDamaged?.Invoke(amount, currentHP, maxHP);
         } catch (Exception e) {
-            Debug.LogError($"Error in OnPlayerDamaged listeners: {e.Message}");
+            GameEvents.DebugError($"Error in OnPlayerDamaged listeners: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Safely invoke OnHealthChanged with null check and error handling.
+    /// </summary>
+    public static void PlayerHealthChanged(float currentHP, float maxHP) {
+        try {
+            OnHealthChanged?.Invoke(currentHP, maxHP);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnPlayerHealthChanged listeners: {e.Message}");
         }
     }
     
@@ -270,7 +411,7 @@ public static class GameEvents
         try {
             OnLevelUp?.Invoke(newLevel);
         } catch (Exception e) {
-            Debug.LogError($"Error in OnLevelUp listeners: {e.Message}");
+            GameEvents.DebugError($"Error in OnLevelUp listeners: {e.Message}");
         }
     }
     
@@ -281,48 +422,88 @@ public static class GameEvents
         try {
             OnRoomCleared?.Invoke(roomIndex);
         } catch (Exception e) {
-            Debug.LogError($"Error in OnRoomCleared listeners: {e.Message}");
+            GameEvents.DebugError($"Error in OnRoomCleared listeners: {e.Message}");
         }
     }
     /// <summary>
     /// Safely invoke OnPlayerHealed with null check and error handling.   
     /// </summary>
     public static void PlayerHealed(float amount) {   // Helper method
-        OnPlayerHealed?.Invoke(amount);
+        try {
+            OnPlayerHealed?.Invoke(amount);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnPlayerHealed listeners: {e.Message}");
+        }
     }   
 
     /// <summary>
     /// Safely invoke OnPlayerDied with null check and error handling.  
     /// </summary>
     public static void PlayerDied() {   // Helper method
-        OnPlayerDied?.Invoke();
+        try {
+            OnPlayerDied?.Invoke();
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnPlayerDied listeners: {e.Message}");
+        }
     }
-
-    public static void PlayerStatsChanged(PlayerStats stats)
-    {
-        OnPlayerStatsChanged?.Invoke(stats);
-    }
-
-    // ========================================
-    // CAMERA EVENTS
-    // ========================================
 
     /// <summary>
-    /// Fired to request the camera rotate by a delta Euler angle (degrees).
-    /// Parameter: Vector3 deltaEuler (x=pitch,y=yaw,z=roll)
-    /// Listeners: PlayerCamera
+    /// Safely invoke OnPlayerStatsChanged with null check and error handling.
     /// </summary>
-    public static event Action<Vector3> OnCameraRotateBy;
-
-    public static void CameraRotateBy(Vector3 deltaEuler)
+    public static void PlayerStatsChanged(PlayerStats stats)
     {
-        try
-        {
-            OnCameraRotateBy?.Invoke(deltaEuler);
+        try {
+            OnPlayerStatsChanged?.Invoke(stats);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Error in OnCameraRotateBy listeners: {e.Message}");
+            GameEvents.DebugError($"Error in OnPlayerStatsChanged listeners: {e.Message}");
+        }
+    }
+
+    public static void XPChanged(int current, int required) {
+    try {
+        OnXPChanged?.Invoke(current, required);
+    } catch (Exception e) {
+        GameEvents.DebugError($"Error in OnXPChanged listeners: {e.Message}");
+    }
+    }
+
+    public static void EnemyDamaged(float amount, Vector2 hitPoint, Vector2 hitDirection) {
+        try {
+            OnEnemyDamaged?.Invoke(amount, hitPoint, hitDirection);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnEnemyDamaged listeners: {e.Message}");
+        }
+    }
+
+    public static void UpgradeApplied(UpgradeData upgrade) {
+        try {
+            OnPlayerUpgradeApplied?.Invoke(upgrade);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnPlayerUpgradeApplied listeners: {e.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Safely invoke OnStatusEffectApplied with null check and error handling.
+    /// </summary>
+    public static void StatusEffectApplied(GameObject target, StatusEffectData effectData) {
+        try {
+            OnStatusEffectApplied?.Invoke(target, effectData);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnStatusEffectApplied listeners: {e.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Safely invoke OnStatusEffectRemoved with null check and error handling.
+    /// </summary>
+    public static void StatusEffectRemoved(GameObject target, StatusEffectData effectData) {
+        try {
+            OnStatusEffectRemoved?.Invoke(target, effectData);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnStatusEffectRemoved listeners: {e.Message}");
         }
     }
     
@@ -346,10 +527,14 @@ public static class GameEvents
         OnPlayerHealed = null;
         OnPlayerDied = null;
         
+        // Status Effects
+        OnStatusEffectApplied = null;
+        OnStatusEffectRemoved = null;
+        
         // Progression
-        OnXPGained = null;
+        OnXPChanged = null;
         OnLevelUp = null;
-        OnUpgradeChosen = null;
+        OnPlayerUpgradeApplied = null;
         OnUpgradeOffered = null;
         OnPlayerStatsChanged = null;
         
@@ -377,11 +562,12 @@ public static class GameEvents
         OnPlaySound = null;
         OnPlayMusic = null;
         
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || DEVELOPMENT_BUILD
         OnDebugCommand = null;
+        OnDebugLog = null;
         #endif
         
-        Debug.Log("All GameEvents listeners cleared.");
+        GameEvents.DebugLog("All GameEvents listeners cleared.", DebugCategory.General);
     }
 }
 
@@ -404,9 +590,3 @@ public enum GameState {
     Loading
 }
 
-public enum EnemyMovementType
-{
-    ChaseMovement,
-    FlyingMovement,
-    SwarmMovement
-}

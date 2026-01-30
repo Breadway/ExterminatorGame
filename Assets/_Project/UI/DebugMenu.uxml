@@ -1,0 +1,75 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="DebugMenu.uss" />
+    
+    <ui:VisualElement name="DebugRoot" class="debug-root hidden">
+        <!-- Draggable Header -->
+        <ui:VisualElement name="DragHandle" class="debug-header">
+            <ui:Label text=":: HAZARD PAY // DIAGNOSTICS ::" class="debug-title" />
+            <ui:Label text="⠿" class="drag-icon" />
+        </ui:VisualElement>
+        
+        <!-- Tab Bar -->
+        <ui:VisualElement class="tab-container">
+            <ui:Button name="TabStats" text="STATS" class="tab-button active" />
+            <ui:Button name="TabUpgrades" text="UPGRADES" class="tab-button" />
+            <ui:Button name="TabWave" text="WAVE" class="tab-button" />
+            <ui:Button name="TabActions" text="ACTIONS" class="tab-button" />
+        </ui:VisualElement>
+        
+        <!-- Content Area -->
+        <ui:VisualElement class="content-container">
+            
+            <!-- Tab 1: Stats -->
+            <ui:ScrollView name="ContentStats" class="tab-content active">
+                <ui:Label text="Current Player Statistics (Editable)" class="section-label" />
+                <ui:VisualElement name="StatsList">
+                    <!-- Populated via Script with TextField inputs -->
+                </ui:VisualElement>
+                <ui:Button name="BtnApplyStats" text="Apply Changes" class="action-button apply-button" />
+            </ui:ScrollView>
+            
+            <!-- Tab 2: Upgrades -->
+            <ui:ScrollView name="ContentUpgrades" class="tab-content">
+                <ui:Label text="Applied Upgrades" class="section-label" />
+                <ui:VisualElement name="UpgradesList">
+                    <!-- Populated via Script -->
+                </ui:VisualElement>
+            </ui:ScrollView>
+            
+            <!-- Tab 3: Wave -->
+            <ui:VisualElement name="ContentWave" class="tab-content">
+                <ui:Label text="Wave Status (Editable)" class="section-label" />
+                <ui:VisualElement name="WaveInfoList">
+                    <ui:VisualElement class="data-row">
+                        <ui:Label text="Current Wave" class="data-label" />
+                        <ui:TextField name="ValWaveIndex" value="0" class="data-input" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="data-row">
+                        <ui:Label text="Enemies Alive" class="data-label" />
+                        <ui:TextField name="ValEnemiesAlive" value="0" class="data-input" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="data-row">
+                        <ui:Label text="Status" class="data-label" />
+                        <ui:Label name="ValWaveState" text="Inactive" class="data-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="BtnApplyWave" text="Apply Wave Changes" class="action-button apply-button" />
+            </ui:VisualElement>
+            
+            <!-- Tab 4: Actions -->
+            <ui:ScrollView name="ContentActions" class="tab-content">
+                <ui:Label text="Event Triggers" class="section-label" />
+                <ui:Button name="BtnLevelUp" text="Force Level Up" class="action-button" />
+                <ui:Button name="BtnKillAll" text="Kill All Enemies (Cheat)" class="action-button" />
+                <ui:Button name="BtnHeal" text="Heal Player (Full)" class="action-button" />
+                <ui:Button name="BtnAddXP" text="Add 100 XP" class="action-button" />
+                
+                <ui:Label text="Upgrade Injector" class="section-label" />
+                <ui:Button name="BtnAddRandomUpgrade" text="Add Random Upgrade" class="action-button" />
+            </ui:ScrollView>
+            
+        </ui:VisualElement>
+        
+        <ui:Label text="Press F3 to Toggle | Drag Header to Move" style="font-size: 10px; color: grey; padding-left: 10px; padding-bottom: 5px;" />
+    </ui:VisualElement>
+</ui:UXML>

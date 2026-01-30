@@ -12,7 +12,7 @@ public class Health : MonoBehaviour, IDamageable {
     
     // Events for other systems to react to
     public event Action<float, float> OnHealthChanged; // current, max
-    public event Action<float, Vector3, Vector3> OnDamaged; // amount, hitPoint, hitDirection
+    public event Action<float, Vector2, Vector2> OnDamaged; // amount, hitPoint, hitDirection
     public event Action OnDied;
     public event Action<float> OnHealed; // amount
     
@@ -24,11 +24,19 @@ public class Health : MonoBehaviour, IDamageable {
     void Awake() {
         currentHP = maxHP;
     }
+
+    /// <summary>
+    /// Reset health to max (used for object pooling)
+    /// </summary>
+    public void ResetHealth()
+    {
+        currentHP = maxHP;
+        OnHealthChanged?.Invoke(currentHP, maxHP);
+    }
     
     // IDamageable implementation
-    public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection) {
+    public void TakeDamage(float amount, Vector2 hitPoint, Vector2 hitDirection) {
         if (!IsAlive || isInvulnerable) return;
-        
         currentHP -= amount;
         currentHP = Mathf.Max(0, currentHP);
         

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad1e6730355fd5741ab264ba4695428a, type: 3}
+  m_Name: Explosive Finale
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
+  upgradeID: explosive_finale
+  upgradeName: Explosive Finale
+  description: Enemies go out with a bang, damaging everything around them.
+  icon: {fileID: 0}
+  type: 2
+  rarity: 2
+  healthBonus: 0
+  healthMultiplier: 1
+  damageBonus: 0
+  damageMultiplier: 1
+  critChanceBonus: 0
+  critDamageBonus: 0
+  speedMultiplier: 1
+  attackSpeedMultiplier: 1
+  cooldownReduction: 0
+  armorBonus: 0
+  hasSpecialEffect: 0
+  specialEffectID: 
+  specialEffectDescription: 
+  maxStacks: 1
+  conflictingUpgrades: []
+  requiredUpgrades: []

@@ -1,0 +1,218 @@
+/* ========================================
+   DEBUG MENU STYLES
+   Theme: Industrial Diagnostic Tool
+   ======================================== */
+
+:root {
+    /* Inherited Palette - Redefined here for self-containment if needed, 
+       but ideally variables cascade if attached to the same UIDocument. 
+       Re-declaring for safety in isolated preview. */
+    --safety-yellow: rgb(255, 204, 0);
+    --hazard-orange: rgb(255, 120, 0);
+    --rust-red: rgb(140, 50, 40);
+    --concrete-grey: rgb(80, 80, 85);
+    --terminal-bg: rgba(10, 12, 15, 0.95);
+    
+    --debug-panel-bg: rgba(20, 25, 30, 0.98);
+    --tab-active-bg: var(--safety-yellow);
+    --tab-inactive-bg: var(--concrete-grey);
+    --text-active:rgb(20, 20, 20);
+    --text-inactive: rgb(200, 200, 200);
+    --input-bg: rgba(0, 0, 0, 0.4);
+    --input-border: rgb(100, 100, 100);
+}
+
+.debug-root {
+    width: 600px;
+    height: 500px;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    background-color: var(--debug-panel-bg);
+    border-width: 2px;
+    border-color: var(--safety-yellow);
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none;
+}
+
+/* HEADER - DRAGGABLE */
+.debug-header {
+    height: 40px;
+    background-color: rgba(0,0,0,0.5);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--safety-yellow);
+    cursor: move;
+}
+
+.debug-header:hover {
+    background-color: rgba(255, 204, 0, 0.15);
+}
+
+.debug-title {
+    color: var(--safety-yellow);
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+.drag-icon {
+    color: var(--safety-yellow);
+    font-size: 20px;
+    opacity: 0.6;
+}
+
+/* TABS */
+.tab-container {
+    flex-direction: row;
+    height: 35px;
+    background-color: var(--concrete-grey);
+}
+
+.tab-button {
+    flex-grow: 1;
+    background-color: var(--tab-inactive-bg);
+    color: var(--text-inactive);
+    border-width: 0;
+    border-right-width: 1px;
+    border-color: rgba(0,0,0,0.5);
+    margin: 0;
+    font-size: 12px;
+    -unity-font-style: bold;
+    justify-content: center;
+    align-items: center; 
+}
+
+.tab-button:hover {
+    background-color: rgb(100, 100, 105);
+}
+
+.tab-button.active {
+    background-color: var(--tab-active-bg);
+    color: var(--text-active);
+}
+
+/* CONTENT AREA */
+.content-container {
+    flex-grow: 1;
+    padding: 10px;
+    color: rgb(220, 220, 220);
+}
+
+.tab-content {
+    display: none;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* DATA ROWS */
+.data-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    padding-bottom: 2px;
+    min-height: 26px;
+}
+
+.data-label {
+    color: rgb(180, 180, 180);
+    font-size: 12px;
+    width: 40%;
+}
+
+.data-value {
+    color: var(--safety-yellow);
+    font-size: 12px;
+    -unity-font-style: bold;
+    width: 55%;
+    -unity-text-align: middle-right;
+}
+
+/* INPUT FIELDS */
+.data-input {
+    width: 55%;
+    height: 22px;
+    background-color: var(--input-bg);
+    border-width: 1px;
+    border-color: var(--input-border);
+    border-radius: 2px;
+    color: var(--safety-yellow);
+    font-size: 12px;
+    -unity-font-style: bold;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.data-input:focus {
+    border-color: var(--safety-yellow);
+    background-color: rgba(255, 204, 0, 0.1);
+}
+
+.data-input > TextInput {
+    background-color: transparent;
+    border-width: 0;
+    color: var(--safety-yellow);
+    -unity-text-align: middle-right;
+    padding: 0;
+    margin: 0;
+}
+
+.data-input:focus > TextInput {
+    color: white;
+}
+
+/* BUTTONS */
+.action-button {
+    background-color: var(--concrete-grey);
+    color: white;
+    border-width: 1px;
+    border-color: var(--hazard-orange);
+    margin-bottom: 5px;
+    padding: 5px;
+}
+
+.action-button:hover {
+    background-color: rgb(100, 100, 105);
+}
+
+.action-button:active {
+    background-color: var(--hazard-orange);
+}
+
+.apply-button {
+    margin-top: 10px;
+    background-color: rgba(50, 150, 50, 0.5);
+    border-color: rgb(80, 200, 80);
+}
+
+.apply-button:hover {
+    background-color: rgba(50, 180, 50, 0.7);
+}
+
+.apply-button:active {
+    background-color: rgb(50, 200, 50);
+}
+
+.section-label {
+    color: var(--hazard-orange);
+    font-size: 14px;
+    -unity-font-style: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--hazard-orange);
+}

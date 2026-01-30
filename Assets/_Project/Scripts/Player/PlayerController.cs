@@ -15,7 +15,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerAttack))]
 public class PlayerController : MonoBehaviour {
     [Header("Components")]
-    private Health health;
+    [SerializeField] private Health health;
     private PlayerMovement movement;
     private PlayerAiming aiming;
     private PlayerAttack shooting;
@@ -48,6 +48,10 @@ public class PlayerController : MonoBehaviour {
         // Apply stats to health
         health.SetMaxHP(stats.currentMaxHP);
     }
+
+    public void GetHealth(out Health outHealth) {
+        outHealth = health;
+    }
     
     void OnEnable() {
         // Subscribe to health events
@@ -57,7 +61,6 @@ public class PlayerController : MonoBehaviour {
         
         // Subscribe to game events
         GameEvents.OnLevelUp += OnLevelUp;
-        GameEvents.OnUpgradeChosen += ApplyUpgrade;
     }
     
     void OnDisable() {
@@ -67,7 +70,6 @@ public class PlayerController : MonoBehaviour {
         health.OnDied -= HandleDeath;
         
         GameEvents.OnLevelUp -= OnLevelUp;
-        GameEvents.OnUpgradeChosen -= ApplyUpgrade;
     }
     
     void FixedUpdate() {
@@ -80,7 +82,7 @@ public class PlayerController : MonoBehaviour {
     
     // === DAMAGE HANDLING ===
     
-    void HandleDamaged(float amount, Vector3 hitPoint, Vector3 hitDirection) {
+    void HandleDamaged(float amount, Vector2 hitPoint, Vector2 hitDirection) {
         // Player-specific damage reactions
         
         // Screen effects
@@ -89,16 +91,18 @@ public class PlayerController : MonoBehaviour {
         // Audio
         // AudioManager listens to health.OnDamaged
         
-        // Knockback (optional)
-        // movement.ApplyKnockback(hitDirection);
+        // Knockback
+        movement.ApplyKnockback(hitDirection);
         
         // Fire game event for other systems
         GameEvents.OnPlayerDamaged?.Invoke(amount, health.CurrentHP, health.MaxHP);
+        GameEvents.PlayerHealthChanged(health.CurrentHP, health.MaxHP);
     }
     
     void HandleHealed(float amount) {
         // Fire event for UI/audio
         GameEvents.PlayerHealed(amount);
+        GameEvents.PlayerHealthChanged(health.CurrentHP, health.MaxHP);
     }
     
     void HandleDeath() {
@@ -113,7 +117,8 @@ public class PlayerController : MonoBehaviour {
         
         // Fire game event
         GameEvents.PlayerDied();
-        
+        GameEvents.EndRun(false); // Player lost
+        Destroy(gameObject);
         // GameManager listens to OnPlayerDied and shows game over screen
     }
     
@@ -153,6 +158,6 @@ public class PlayerController : MonoBehaviour {
     public void TakeDamageFromGameEvent(float amount) {
         // If you want GameManager to directly call damage
         // (Though I recommend using IDamageable instead)
-        health.TakeDamage(amount, transform.position, Vector3.zero);
+        health.TakeDamage(amount, transform.position, Vector2.zero);
     }
 }

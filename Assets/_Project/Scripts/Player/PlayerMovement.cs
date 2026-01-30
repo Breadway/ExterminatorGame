@@ -2,33 +2,41 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Handles player movement via Rigidbody.
+/// Handles player movement via Rigidbody2D.
 /// Responsibility: Read input → Calculate velocity → Move via physics
 /// Fires movement events for other systems to react to (animation, sfx, etc).
 /// </summary>
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IMovementModifiable
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 20f;
+    [SerializeField] private float moveSpeed = 8f;
     
     [Header("Dash Settings")]
-    [SerializeField] private float dashSpeed = 40f;
-    [SerializeField] private float dashDuration = 0.2f;
-    [SerializeField] private float dashCooldown = 0.5f;
-    [SerializeField] private float dashRecoveryTime = 0.05f;
+    [SerializeField] private float dashSpeed = 20f;
+    [SerializeField] private float dashDuration = 0.15f;
+    [SerializeField] private float dashCooldown = 0.8f;
+    [SerializeField] private float dashRecoveryTime = 0.1f;
 
-    private Rigidbody rb;
+    [Header("Knockback Settings")]
+    [SerializeField] private float knockbackSpeed = 8f;
+    [SerializeField] private float knockbackDuration = 0.2f;
+
+    private Rigidbody2D rb;
     private PlayerControls controls;
+    private PlayerStats stats;
     private Vector2 moveInput;
+    private Vector2 dashDirection;
     private bool isInitialized = false;
 
     private float lastDashTime = -Mathf.Infinity;
     private float dashEndTime = 0f;
-    private Vector3 dashDirection;
     private bool isDashing = false;
     private bool isRecovering = false;
     private float recoveryEndTime = 0f;
-    private Vector3 recoveryStartVelocity;
+    private Vector2 recoveryStartVelocity;
+
+    private float knockbackEndTime = 0f;
+    private Vector2 knockbackVelocity;
     
     [Header("Collision")]
     [SerializeField] private LayerMask obstacleMask = ~0;
@@ -37,33 +45,43 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
 
-    private Collider col;
+    private Collider2D col;
     private bool isCapsule = false;
     private float capsuleRadius = 0.5f;
     private float capsuleHeight = 2f;
+    private float speedMultiplier = 1f;
+    private float currentSpeed;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
-        var cap = GetComponent<CapsuleCollider>();
+        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
+        
+        // Get PlayerStats from PlayerController
+        var playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            stats = playerController.stats;
+        }
+        
+        var cap = GetComponent<CapsuleCollider2D>();
         if (cap != null)
         {
             isCapsule = true;
-            capsuleRadius = Mathf.Max(cap.radius * Mathf.Max(transform.localScale.x, transform.localScale.z), 0.01f);
-            capsuleHeight = Mathf.Max(cap.height * transform.localScale.y, 0.01f);
+            capsuleRadius = Mathf.Max(cap.size.x * 0.5f * Mathf.Max(transform.localScale.x, transform.localScale.y), 0.01f);
+            capsuleHeight = Mathf.Max(cap.size.y * transform.localScale.y, 0.01f);
         }
         else if (col != null)
         {
             // approximate radius/height from bounds
-            capsuleRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+            capsuleRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.y);
             capsuleHeight = Mathf.Max(col.bounds.size.y, 0.01f);
         }
 
-        if (cameraTransform == null && Camera.main != null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Smoother collision handling
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate; // Smoother visual movement
     }
 
     private void OnEnable()
@@ -93,28 +111,22 @@ public class PlayerMovement : MonoBehaviour
             controls.Player.Dash.Disable();
         }
     }
-
-    private void OnDestroy()
-    {
-        if (controls != null)
-        {
-            controls.Dispose();
-        }
-    }
-
-    public void UpdateSpeed(float newSpeed)
-    {
-        moveSpeed = newSpeed;
-    }
     private void OnMoveInput(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>().normalized;
         GameEvents.OnPlayerMovementInput?.Invoke(moveInput);
     }
 
+    public void UpdateSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+    }
+
     private void OnDashInput(InputAction.CallbackContext context)
     {
-        if (Time.time >= lastDashTime + dashCooldown)
+        // Use PlayerStats dash cooldown if available, otherwise fall back to serialized value
+        float currentDashCooldown = stats != null ? stats.currentDashCooldown : dashCooldown;
+        if (Time.time >= lastDashTime + currentDashCooldown)
         {
             PerformDash();
         }
@@ -122,20 +134,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void PerformDash()
     {
-        // Use camera-relative input direction for dash when input exists, otherwise player's forward
-        if (cameraTransform != null && moveInput.sqrMagnitude > 0.0001f)
+        // Use input direction for dash when input exists, otherwise player's forward (up in 2D)
+        if (moveInput.sqrMagnitude > 0.0001f)
         {
-            Vector3 camForward = cameraTransform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-            Vector3 camRight = cameraTransform.right;
-            camRight.y = 0f;
-            camRight.Normalize();
-            dashDirection = (camRight * moveInput.x + camForward * moveInput.y).normalized;
+            dashDirection = moveInput.normalized;
         }
         else
         {
-            dashDirection = transform.forward;
+            dashDirection = transform.up;
         }
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
@@ -145,16 +151,20 @@ public class PlayerMovement : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        if (Time.time < knockbackEndTime)
+        {
+            rb.linearVelocity = knockbackVelocity;
+            return;
+        }
+
         if (isDashing)
         {
             if (Time.time < dashEndTime)
             {
-                // Apply horizontal dash velocity, preserve vertical (gravity)
-                rb.linearVelocity = new Vector3(dashDirection.x * dashSpeed, rb.linearVelocity.y, dashDirection.z * dashSpeed);
+                rb.linearVelocity = dashDirection * dashSpeed;
             }
             else
             {
-                // End dash and begin short recovery to avoid abrupt stop
                 isDashing = false;
                 isRecovering = true;
                 recoveryStartVelocity = rb.linearVelocity;
@@ -166,12 +176,12 @@ public class PlayerMovement : MonoBehaviour
         if (isRecovering)
         {
             float t = Mathf.Clamp01(1f - (recoveryEndTime - Time.time) / dashRecoveryTime);
-            Vector3 target = new Vector3(0f, recoveryStartVelocity.y, 0f);
-            rb.linearVelocity = Vector3.Lerp(recoveryStartVelocity, target, t);
+            Vector2 target = Vector2.zero;
+            rb.linearVelocity = Vector2.Lerp(recoveryStartVelocity, target, t);
             if (Time.time >= recoveryEndTime)
             {
                 isRecovering = false;
-                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+                rb.linearVelocity = Vector2.zero;
             }
             return;
         }
@@ -179,65 +189,81 @@ public class PlayerMovement : MonoBehaviour
         Move();
     }
 
-    public void Move()
+    public void ApplyKnockback(Vector2 direction)
+    {
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        Vector2 flatDir = direction.normalized;
+        knockbackVelocity = flatDir * knockbackSpeed;
+        knockbackEndTime = Time.time + knockbackDuration;
+
+        isDashing = false;
+        isRecovering = false;
+    }
+
+    private void Move()
     {
         // Normal movement via velocity to ensure collision response
-        Vector3 horizontalDesired;
-        if (cameraTransform != null)
-        {
-            Vector3 camForward = cameraTransform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-            Vector3 camRight = cameraTransform.right;
-            camRight.y = 0f;
-            camRight.Normalize();
+        // Use PlayerStats speed if available, otherwise fall back to serialized value
+        currentSpeed = stats != null ? stats.currentSpeed : moveSpeed;
+        currentSpeed *= speedMultiplier;
+        Vector2 desiredVelocity = moveInput * currentSpeed;
 
-            horizontalDesired = (camRight * moveInput.x + camForward * moveInput.y) * moveSpeed;
-        }
-        else
+        // If no input, zero velocity
+        if (desiredVelocity.sqrMagnitude < 0.0001f)
         {
-            horizontalDesired = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
-        }
-
-        // If no input, zero horizontal velocity
-        if (horizontalDesired.sqrMagnitude < 0.0001f)
-        {
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        Vector3 dir = horizontalDesired.normalized;
-        float checkDistance = horizontalDesired.magnitude * Time.fixedDeltaTime + skinWidth;
+        Vector2 dir = desiredVelocity.normalized;
+        float checkDistance = desiredVelocity.magnitude * Time.fixedDeltaTime + skinWidth;
 
-        RaycastHit hit;
+        RaycastHit2D hit;
         bool blocked = false;
 
-        if (col == null)
-        {
-            // fallback: no collider, just move
-            rb.linearVelocity = new Vector3(horizontalDesired.x, rb.linearVelocity.y, horizontalDesired.z);
-            return;
-        }
+        // Use the collider's current position for casting
+        Vector2 castOrigin = (Vector2)transform.position;
 
         if (isCapsule)
         {
-            Vector3 p1 = transform.position + Vector3.up * capsuleRadius;
-            Vector3 p2 = transform.position + Vector3.up * (capsuleHeight - capsuleRadius);
-            blocked = Physics.CapsuleCast(p1, p2, capsuleRadius, dir, out hit, checkDistance, obstacleMask, QueryTriggerInteraction.Ignore);
+            hit = Physics2D.CapsuleCast(castOrigin, new Vector2(capsuleRadius * 2f, capsuleHeight),
+                CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
+            blocked = hit.collider != null && hit.distance > 0f; // Only block if we're not already overlapping
         }
         else
         {
-            Vector3 sphereCenter = transform.position + Vector3.up * (col.bounds.extents.y * 0.5f);
-            blocked = Physics.SphereCast(sphereCenter, capsuleRadius, dir, out hit, checkDistance, obstacleMask, QueryTriggerInteraction.Ignore);
+            hit = Physics2D.CircleCast(castOrigin, capsuleRadius, dir, checkDistance, obstacleMask);
+            blocked = hit.collider != null && hit.distance > 0f; // Only block if we're not already overlapping
         }
 
-        if (blocked)
+        if (blocked && hit.collider != null)
         {
-            // slide along surface instead of penetrating
-            Vector3 slid = Vector3.ProjectOnPlane(horizontalDesired, hit.normal);
-            horizontalDesired = slid;
+            // Slide along surface instead of penetrating
+            // Calculate the component of velocity parallel to the surface
+            Vector2 slideDir = Vector2.Perpendicular(hit.normal);
+            float slideMagnitude = Vector2.Dot(desiredVelocity, slideDir);
+            desiredVelocity = slideDir * slideMagnitude;
         }
 
-        rb.linearVelocity = new Vector3(horizontalDesired.x, rb.linearVelocity.y, horizontalDesired.z);
+        // Let the Rigidbody2D handle the actual collision resolution
+        // by setting velocity and allowing physics to do its job
+        rb.linearVelocity = desiredVelocity;
+    }
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = multiplier;
+    }
+
+    private void OnDestroy()
+    {
+        if (controls != null)
+        {
+            controls.Dispose();
+        }
     }
 }

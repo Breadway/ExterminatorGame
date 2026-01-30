@@ -1,0 +1,259 @@
+/* ========================================
+   EXTERMINATOR GAME - INDUSTRIAL HUD
+   Theme: "Diegetic Corporate Paperwork" & "Retro Terminal"
+   Colors: Safety Yellow, Hazard Orange, Rust Red, Industrial Grey
+   ======================================== */
+
+:root {
+    /* Safety Palette */
+    --safety-yellow: rgb(255, 204, 0); /* Slightly cooler yellow */
+    --hazard-orange: rgb(255, 120, 0);
+    --rust-red: rgb(140, 50, 40);
+    --toxic-purple: rgb(180, 60, 220);
+    
+    /* Industrial Colors */
+    --concrete-grey: rgb(80, 80, 85);
+    --terminal-bg: rgba(10, 12, 15, 0.95); /* Deep CRT Black */
+    --terminal-scanline: rgba(0, 0, 0, 0.3);
+    
+    /* UI Elements */
+    --panel-border-color: var(--concrete-grey);
+    --highlight-border-color: var(--safety-yellow);
+    
+    /* Text */
+    --text-primary: rgb(230, 230, 230);
+    --text-dim: rgb(150, 150, 155);
+    --text-warning: var(--hazard-orange);
+    
+    /* Bars */
+    --health-color: rgb(200, 50, 50); /* Liquid Red/Rust */
+    --xp-color: rgb(50, 200, 100); /* Neon Green slime/chemical */
+    
+    /* Metrics */
+    --panel-border-width: 3px;
+    --bar-height: 24px;
+}
+
+/* ========================================
+   ROOT & LAYOUT
+   ======================================== */
+.hud-root {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+    padding: 24px; /* Move away from edges */
+}
+
+/* ========================================
+   PANEL STYLING - "The Clipboard"
+   ======================================== */
+.corner-panel {
+    background-color: var(--terminal-bg);
+    border-color: var(--panel-border-color);
+    border-width: var(--panel-border-width);
+    border-radius: 0; /* Brutalist/Industrial */
+    padding: 16px;
+    min-width: 260px;
+    pointer-events: auto;
+    
+    /* Retro shadow */
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5); 
+}
+
+/* Top Decoration Line (like a clipboard clip or terminal header) */
+.panel-header-line {
+    height: 4px;
+    width: 100%;
+    background-color: var(--hazard-orange);
+    margin-bottom: 12px;
+}
+
+.corner-panel-top-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 20px;
+    align-items: flex-start;
+}
+
+.corner-panel-top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 20px;
+    align-items: flex-end;
+}
+
+.corner-panel-top-right .panel-header-line {
+    background-color: var(--safety-yellow); /* Differentiate sectors */
+}
+
+/* ========================================
+   BOTTOM PANEL (XP / Performance Review)
+   ======================================== */
+.bottom-panel {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0;
+    background-color: var(--terminal-bg);
+    border-color: var(--panel-border-color);
+    border-width: var(--panel-border-width);
+    padding: 12px 24px;
+    min-width: 500px;
+    align-items: center;
+    pointer-events: auto;
+    border-top-width: 6px; /* Heavy Top Border */
+    border-top-color: var(--safety-yellow);
+    margin-bottom: 24px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.8);
+}
+
+/* ========================================
+   TYPOGRAPHY - "Dot Matrix / Stenciled"
+   ======================================== */
+.stat-label {
+    font-size: 14px;
+    color: var(--text-dim);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    /* Simulate monospaced/technical look */
+}
+
+.safety-label {
+    color: var(--safety-yellow);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--concrete-grey);
+    padding-bottom: 2px;
+    width: 100%;
+}
+
+.xp-label {
+    text-align: center;
+    border-bottom-width: 0;
+    color: var(--text-primary);
+}
+
+.level-value,
+.room-value,
+.enemies-value {
+    -unity-font-style: bold;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+}
+
+.level-value {
+    font-size: 64px;
+    color: var(--safety-yellow);
+    letter-spacing: -2px;
+    margin-top: 5px;
+}
+
+.room-value {
+    font-size: 36px;
+    color: var(--text-primary);
+}
+
+.enemies-value {
+    font-size: 36px;
+    color: var(--hazard-orange);
+}
+
+/* ========================================
+   GAUGES & BARS (The "Pressure Gauge" Look)
+   ======================================== */
+.stat-container {
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.xp-stat-container {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.bar-container {
+    height: var(--bar-height);
+    background-color: #000;
+    border-color: var(--concrete-grey);
+    border-width: 2px;
+    margin-top: 4px;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.xp-bar-container {
+    width: 100%;
+}
+
+.bar-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+}
+
+.bar-fill {
+    height: 100%;
+    border-right-width: 2px;
+    border-right-color: rgba(255, 255, 255, 0.5); /* Highlight at tip */
+}
+
+.health-bar-fill {
+    background-color: var(--health-color);
+}
+
+.health-bar-fill.low-health {
+    background-color: #ff0000;
+}
+
+.xp-bar-fill {
+    background-color: var(--xp-color);
+}
+
+.bar-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -unity-text-align: middle-center;
+    font-size: 16px;
+    color: #fff;
+    -unity-font-style: bold;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ========================================
+   NOTIFICATIONS - "The Receipt"
+   ======================================== */
+.notification-panel {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    translate: -50% -50%;
+    opacity: 0;
+    transition-duration: 0.2s;
+    transition-property: opacity;
+    align-items: center;
+}
+
+.notification-text {
+    font-size: 48px;
+    color: var(--rust-red); /* Alert Color */
+    background-color: rgba(10, 10, 10, 0.9);
+    border-color: var(--safety-yellow);
+    border-width: 4px;
+    padding: 20px 60px;
+    text-transform: uppercase;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+    rotate: -2deg; /* Stamped look */
+}
+
+.notification-panel.visible {
+    opacity: 1;
+}

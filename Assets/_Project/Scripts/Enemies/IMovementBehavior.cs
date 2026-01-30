@@ -1,7 +1,7 @@
 using UnityEngine;
 
-public interface IMovementBehavior{
-    void Initialize(Rigidbody rb, UnityEngine.AI.NavMeshAgent agent);
+public interface IMovementBehavior : IMovementModifiable{
+    void Initialize(EnemyData enemyData);
     void UpdateMovement();
     void Stop();
 }
