@@ -91,7 +91,7 @@ public class GameplayHUDController : MonoBehaviour
     {
         if (uiDocument == null || uiDocument.rootVisualElement == null)
         {
-            Debug.LogError("GameplayHUDController: UIDocument or root element is null!");
+            GameEvents.DebugLog("GameplayHUDController: UIDocument or root element is null!", DebugCategory.UI);
             return;
         }
         
@@ -117,7 +117,7 @@ public class GameplayHUDController : MonoBehaviour
             xpText == null || levelValue == null || roomValue == null || 
             enemiesValue == null || notificationPanel == null || notificationText == null)
         {
-            Debug.LogError("GameplayHUDController: Failed to find one or more UI elements!");
+            GameEvents.DebugError("GameplayHUDController: Failed to find one or more UI elements!");
             return;
         }
         
@@ -128,7 +128,7 @@ public class GameplayHUDController : MonoBehaviour
         UpdateRoomDisplay();
         UpdateEnemiesDisplay();
         
-        Debug.Log("GameplayHUDController: UI initialized successfully.");
+        GameEvents.DebugLog("GameplayHUDController: UI initialized successfully.", DebugCategory.UI);
     }
     
     

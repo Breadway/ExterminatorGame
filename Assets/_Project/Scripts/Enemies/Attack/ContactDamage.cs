@@ -6,6 +6,18 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
     private float nextAttackTime = 0f;
     private GameObject cachedTarget;
     private Health cachedHealth;
+    
+    // Cached layer to avoid expensive LayerMask.NameToLayer() calls every frame
+    private static int playerLayer = -1;
+    
+    void Awake()
+    {
+        // Cache player layer once (static, shared across all instances)
+        if (playerLayer == -1)
+        {
+            playerLayer = LayerMask.NameToLayer("Player");
+        }
+    }
 
     public void Initialize(EnemyData enemyData)
     {
@@ -36,7 +48,11 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (nextAttackTime <= Time.time)
+        if (collision.gameObject.layer != playerLayer)
+        {
+            return;
+        }
+        else if (nextAttackTime <= Time.time)
         {
             Attack(collision.gameObject);
             nextAttackTime = Time.time + enemyData.attackCooldown;

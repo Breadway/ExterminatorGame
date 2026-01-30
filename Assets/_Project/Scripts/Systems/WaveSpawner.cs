@@ -5,13 +5,24 @@ public class WaveSpawner : MonoBehaviour {
     [Header("Wave Settings")]
     [SerializeField] private GameObject scorpionPrefab;
     // add other enemy prefabs here
-    [SerializeField] private int baseEnemiesPerWave = 5;
-    [SerializeField] private float enemyIncreasePerWave = 1.5f;
-    [SerializeField] private float timeBetweenWaves = 5f;
+    [SerializeField] private int baseEnemiesPerWave = 4;
+    [SerializeField] private float enemyIncreasePerWave = 1.3f;
+    [SerializeField] private float timeBetweenWaves = 3f;
 
     [Header("Spawn Area")]
-    [SerializeField] private float spawnRadius = 15f;
-    [SerializeField] private float minSpawnDistance = 8f;
+    [SerializeField] private float spawnRadius = 12f;
+    [SerializeField] private float minSpawnDistance = 6f;
+    [SerializeField] private Vector2 arenaSize = new Vector2(25f, 20f);
+    
+    [Header("Spawn Patterns")]
+    [Tooltip("How much of the circle around player is blocked for spawning (0-1). 0.5 = enemies spawn in 180° arc")]
+    [SerializeField] [Range(0.2f, 0.8f)] private float safeArcRatio = 0.35f;
+    [Tooltip("Chance to spawn from arena edges instead of around player")]
+    [SerializeField] [Range(0f, 1f)] private float edgeSpawnChance = 0.6f;
+    [Tooltip("Chance to spawn enemies in clusters")]
+    [SerializeField] [Range(0f, 1f)] private float clusterChance = 0.25f;
+    [SerializeField] private float clusterRadius = 2f;
+    [SerializeField] private int clusterSize = 3;
     
     [Header("Pooling")]
     [SerializeField] private int initialPoolSize = 50;
@@ -27,6 +38,19 @@ public class WaveSpawner : MonoBehaviour {
     // Cached values to avoid allocations
     private WaitForSeconds waveWait;
     private string poolId;
+    
+    // Spawn pattern state
+    private float currentSafeAngle; // Direction player is facing/moving - we spawn AWAY from this
+    
+    // Public Accessors for Debug UI
+    public int CurrentWave => currentWave;
+    public int EnemiesAlive => enemiesAlive;
+    public bool WaveInProgress => waveInProgress;
+    
+    /// <summary>
+    /// Debug setter for the debug menu.
+    /// </summary>
+    public void DebugSetWave(int wave) => currentWave = Mathf.Max(0, wave);
     
     void Start()
     {
@@ -78,29 +102,134 @@ public class WaveSpawner : MonoBehaviour {
         int enemiesToSpawn = Mathf.RoundToInt(baseEnemiesPerWave * Mathf.Pow(enemyIncreasePerWave, currentWave - 1));
         
         #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Debug.Log($"Starting Wave {currentWave}: {enemiesToSpawn} enemies");
+        GameEvents.DebugLog($"Starting Wave {currentWave}: {enemiesToSpawn} enemies", DebugCategory.EnemyAI);
         #endif
         
         waveInProgress = true;
         
-        for (int i = 0; i < enemiesToSpawn; i++) {
-            Vector2 spawnPos = GetRandomSpawnPosition();
+        // Update safe angle based on player's facing direction
+        UpdateSafeAngle();
+        
+        int i = 0;
+        while (i < enemiesToSpawn)
+        {
+            // Decide spawn pattern
+            float roll = Random.value;
             
-            // Use pooling system instead of Instantiate
-            GameObject enemy = PoolingSystem.Instance?.Get(poolId, spawnPos, Quaternion.identity);
-            
-            // Fallback to Instantiate if pooling not available
-            if (enemy == null)
+            if (roll < clusterChance && i + clusterSize <= enemiesToSpawn)
             {
-                enemy = Instantiate(scorpionPrefab, (Vector3)spawnPos, Quaternion.identity);
+                // Spawn a cluster
+                Vector2 clusterCenter = GetSpawnPosition();
+                int actualClusterSize = Random.Range(clusterSize / 2, clusterSize + 1);
+                
+                for (int j = 0; j < actualClusterSize && i < enemiesToSpawn; j++)
+                {
+                    Vector2 offset = Random.insideUnitCircle * clusterRadius;
+                    Vector2 spawnPos = clusterCenter + offset;
+                    SpawnEnemy(spawnPos);
+                    i++;
+                }
             }
-            
-            enemiesAlive++;
+            else
+            {
+                // Spawn individual enemy
+                Vector2 spawnPos = GetSpawnPosition();
+                SpawnEnemy(spawnPos);
+                i++;
+            }
         }
     }
     
-    private Vector2 GetRandomSpawnPosition() {
-        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+    private void SpawnEnemy(Vector2 position)
+    {
+        // Use pooling system instead of Instantiate
+        GameObject enemy = PoolingSystem.Instance?.Get(poolId, position, Quaternion.identity);
+        
+        // Fallback to Instantiate if pooling not available
+        if (enemy == null)
+        {
+            GameEvents.DebugLog("Pooling system not available or pool empty, instantiating enemy directly.", DebugCategory.EnemyAI);
+            Instantiate(scorpionPrefab, (Vector3)position, Quaternion.identity);
+        }
+        
+        enemiesAlive++;
+    }
+    
+    private void UpdateSafeAngle()
+    {
+        // Try to get player's movement direction or facing direction
+        var playerRb = player.GetComponent<Rigidbody2D>();
+        if (playerRb != null && playerRb.linearVelocity.sqrMagnitude > 0.1f)
+        {
+            // Player is moving - keep their path clear
+            currentSafeAngle = Mathf.Atan2(playerRb.linearVelocity.y, playerRb.linearVelocity.x) * Mathf.Rad2Deg;
+        }
+        else
+        {
+            // Player is stationary - pick a random safe direction
+            currentSafeAngle = Random.Range(0f, 360f);
+        }
+    }
+    
+    private Vector2 GetSpawnPosition()
+    {
+        if (Random.value < edgeSpawnChance)
+        {
+            return GetEdgeSpawnPosition();
+        }
+        else
+        {
+            return GetArcSpawnPosition();
+        }
+    }
+    
+    /// <summary>
+    /// Spawn from arena edges (not surrounding player).
+    /// </summary>
+    private Vector2 GetEdgeSpawnPosition()
+    {
+        Vector2 arenaCenter = player != null ? (Vector2)player.position : Vector2.zero;
+        
+        // Pick a random edge (0=top, 1=right, 2=bottom, 3=left)
+        int edge = Random.Range(0, 4);
+        float t = Random.value; // Position along edge (0-1)
+        
+        Vector2 spawnPos;
+        float halfWidth = arenaSize.x * 0.5f;
+        float halfHeight = arenaSize.y * 0.5f;
+        
+        switch (edge)
+        {
+            case 0: // Top
+                spawnPos = new Vector2(Mathf.Lerp(-halfWidth, halfWidth, t), halfHeight);
+                break;
+            case 1: // Right
+                spawnPos = new Vector2(halfWidth, Mathf.Lerp(-halfHeight, halfHeight, t));
+                break;
+            case 2: // Bottom
+                spawnPos = new Vector2(Mathf.Lerp(-halfWidth, halfWidth, t), -halfHeight);
+                break;
+            default: // Left
+                spawnPos = new Vector2(-halfWidth, Mathf.Lerp(-halfHeight, halfHeight, t));
+                break;
+        }
+        
+        return arenaCenter + spawnPos;
+    }
+    
+    /// <summary>
+    /// Spawn in an arc AWAY from player's safe direction (leaves escape route).
+    /// </summary>
+    private Vector2 GetArcSpawnPosition()
+    {
+        // Calculate spawn arc (opposite of safe direction)
+        float spawnArcCenter = currentSafeAngle + 180f; // Opposite direction
+        float arcHalfWidth = (1f - safeArcRatio) * 180f; // How wide the spawn arc is
+        
+        // Random angle within the spawn arc
+        float angle = spawnArcCenter + Random.Range(-arcHalfWidth, arcHalfWidth);
+        angle *= Mathf.Deg2Rad;
+        
         float distance = Random.Range(minSpawnDistance, spawnRadius);
         
         Vector2 offset = new Vector2(
@@ -117,7 +246,7 @@ public class WaveSpawner : MonoBehaviour {
         if (enemiesAlive <= 0) {
             waveInProgress = false;
             #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log($"Wave {currentWave} cleared!");
+            GameEvents.DebugLog($"Wave {currentWave} cleared!");
             #endif
         }
     }

@@ -16,12 +16,13 @@ public class PlayerStats {
     
     [Header("Base Stats")]
     [SerializeField] private float baseMaxHP = 100f;
-    [SerializeField] private float baseDamage = 10f;
-    [SerializeField] private float baseSpeed = 7f;
-    [SerializeField] private float baseAttackSpeed = 1f; // Attacks per second
-    [SerializeField] private float baseCritChance = 0.05f; // 5%
-    [SerializeField] private float baseCritMultiplier = 2f; // 2x damage
-    [SerializeField] private float baseArmor = 0f;
+    [SerializeField] private float baseDamage = 5f;
+    [SerializeField] private float baseSpeed = 15f;
+    [SerializeField] private float baseAttackSpeed = 1.2f; // Attacks per second
+    [SerializeField] private float baseCritChance = 0.08f; // 8%
+    [SerializeField] private float baseCritMultiplier = 1.5f; // 1.5x damage
+    [SerializeField] private float baseArmor = 5f;
+    [SerializeField] private bool debugMode = false;
     
     
     // ========================================
@@ -92,14 +93,25 @@ public class PlayerStats {
     /// </summary>
     public void ApplyUpgrade(UpgradeData upgrade) {
         if (upgrade == null) {
-            Debug.LogWarning("Tried to apply null upgrade!");
+            GameEvents.DebugLog("Attempted to apply null upgrade", DebugCategory.PlayerStats);
             return;
         }
+        
+        // Capture stats before upgrade for comparison
+        string beforeStats = GetStatsDebugString();
         
         appliedUpgrades.Add(upgrade);
         RecalculateStats();
         
-        Debug.Log($"Applied upgrade: {upgrade.upgradeName}");
+        // Log upgrade application with before/after comparison
+        GameEvents.DebugLog($"=== UPGRADE APPLIED ===", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Upgrade: {upgrade.upgradeName} (Type: {upgrade.type})", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Modifiers: HP+{upgrade.healthBonus} ({upgrade.healthMultiplier:F2}x), DMG+{upgrade.damageBonus} ({upgrade.damageMultiplier:F2}x)", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Speed: {upgrade.speedMultiplier:F2}x, AtkSpd: {upgrade.attackSpeedMultiplier:F2}x, CDR: {upgrade.cooldownReduction:P0}", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Crit: +{upgrade.critChanceBonus:P1} chance, +{upgrade.critDamageBonus:F2}x mult, Armor+{upgrade.armorBonus}", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"BEFORE: {beforeStats}", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"AFTER:  {GetStatsDebugString()}", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Total upgrades applied: {appliedUpgrades.Count}", DebugCategory.PlayerStats);
     }
     
     /// <summary>
@@ -127,6 +139,15 @@ public class PlayerStats {
         currentSpeed = Mathf.Max(1f, currentSpeed); // Minimum speed
         currentAttackSpeed = Mathf.Max(0.1f, currentAttackSpeed); // Minimum attack speed
         currentDashCooldown = Mathf.Max(0.1f, currentDashCooldown); // Minimum cooldown
+        
+        GameEvents.DebugLog($"Stats recalculated: {GetStatsDebugString()}", DebugCategory.PlayerStats);
+    }
+    
+    /// <summary>
+    /// Get a compact debug string of current stats for logging.
+    /// </summary>
+    private string GetStatsDebugString() {
+        return $"HP:{currentMaxHP:F0} DMG:{currentDamage:F1} SPD:{currentSpeed:F1} ASPD:{currentAttackSpeed:F2} CRIT:{currentCritChance:P0}/{currentCritMultiplier:F1}x ARM:{currentArmor:F0} DASH:{currentDashCooldown:F2}s";
     }
     
     /// <summary>
@@ -161,9 +182,12 @@ public class PlayerStats {
     /// Reset all stats to base values (use when starting new run).
     /// </summary>
     public void ResetStats() {
+        int previousUpgradeCount = appliedUpgrades.Count;
         appliedUpgrades.Clear();
         RecalculateStats();
-        Debug.Log("Player stats reset to base values.");
+        GameEvents.DebugLog($"=== STATS RESET ===", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Cleared {previousUpgradeCount} upgrades, returned to base values", DebugCategory.PlayerStats);
+        GameEvents.DebugLog($"Current: {GetStatsDebugString()}", DebugCategory.PlayerStats);
     }
     
     
@@ -180,7 +204,7 @@ public class PlayerStats {
         // Roll for crit
         if (UnityEngine.Random.value < currentCritChance) {
             damage *= currentCritMultiplier;
-            Debug.Log($"CRIT! Damage: {damage}");
+            GameEvents.DebugLog($"CRIT! Damage: {damage}", DebugCategory.Combat);
         }
         
         return damage;
@@ -235,6 +259,18 @@ public class PlayerStats {
     // ========================================
     // DEBUG / SERIALIZATION
     // ========================================
+    
+    /// <summary>
+    /// Debug setters for the debug menu. Use with caution - bypasses normal stat calculation.
+    /// </summary>
+    public void DebugSetMaxHP(float value) => currentMaxHP = Mathf.Max(1f, value);
+    public void DebugSetDamage(float value) => currentDamage = Mathf.Max(0f, value);
+    public void DebugSetSpeed(float value) => currentSpeed = Mathf.Max(1f, value);
+    public void DebugSetAttackSpeed(float value) => currentAttackSpeed = Mathf.Max(0.1f, value);
+    public void DebugSetCritChance(float value) => currentCritChance = Mathf.Clamp01(value);
+    public void DebugSetCritMultiplier(float value) => currentCritMultiplier = Mathf.Max(1f, value);
+    public void DebugSetArmor(float value) => currentArmor = Mathf.Max(0f, value);
+    public void DebugSetDashCooldown(float value) => currentDashCooldown = Mathf.Max(0.1f, value);
     
     /// <summary>
     /// Get a formatted string of all current stats (for debug UI).

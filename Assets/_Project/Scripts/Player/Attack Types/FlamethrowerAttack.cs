@@ -5,10 +5,10 @@ using UnityEngine;
 public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
 {
     [Header("Flamethrower Settings")]
-    [SerializeField] private float damage = 5f; // Damage per tick
-    [SerializeField] private float range = 6f; // Effective range of the flamethrower
-    [SerializeField] private float coneAngle = 45f; // Degrees
-    [SerializeField] private float tickRate = 0.1f; // Damage every 0.1 seconds
+    [SerializeField] private float damage = 8f; // Damage per tick
+    [SerializeField] private float range = 4f; // Effective range of the flamethrower
+    [SerializeField] private float coneAngle = 60f; // Degrees
+    [SerializeField] private float tickRate = 0.15f; // Damage every 0.15 seconds
     [SerializeField] [Tooltip("Layer mask for entities that can be damaged. Should be set to 'Enemy' layer.")]
     private LayerMask damageMask;
     [SerializeField] [Tooltip("Layer mask for obstacles that block line of sight. Should exclude Player and Enemy layers.")]
@@ -39,6 +39,13 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     [SerializeField] private Transform firePoint;
     [SerializeField] private ParticleSystem flameParticles;
     
+    [Header("Status Effect")]
+    [SerializeField] private StatusEffectData fireStatusEffect;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Chance to apply status effect on each damage tick (0-1)")]
+    private float statusEffectChance = 1f;
+    [SerializeField] [Tooltip("Multiplier for status effect duration (scales with player stats if needed)")]
+    private float statusEffectDurationMultiplier = 1f;
+    
     private PlayerStats stats;
     private float nextTickTime;
     private readonly HashSet<IDamageable> enemiesHitThisFrame = new HashSet<IDamageable>();
@@ -64,6 +71,9 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     
     // Cached component lookups - maps collider instance ID to IDamageable
     private Dictionary<int, IDamageable> damageableCache = new Dictionary<int, IDamageable>(128);
+    
+    // Cached StatusEffectController lookups - maps collider instance ID to StatusEffectController
+    private Dictionary<int, StatusEffectController> statusEffectControllerCache = new Dictionary<int, StatusEffectController>(128);
     
     // Cached player collider to skip without GetComponent call
     private Collider2D playerCollider;
@@ -114,7 +124,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
         
         if (enemyLayer == -1)
         {
-            Debug.LogError("[FlamethrowerAttack] 'Enemy' layer not found! Create it in Project Settings > Tags and Layers.", this);
+            GameEvents.DebugWarning("[FlamethrowerAttack] 'Enemy' layer not found! Create it in Project Settings > Tags and Layers.", DebugCategory.Combat);
         }
         
         // Auto-configure if not set
@@ -123,22 +133,22 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             if (enemyLayer != -1)
             {
                 damageMask = 1 << enemyLayer;
-                Debug.Log($"[FlamethrowerAttack] DamageMask auto-configured to 'Enemy' layer only (LayerMask: {damageMask.value})", this);
+                GameEvents.DebugLog($"[FlamethrowerAttack] DamageMask auto-configured to 'Enemy' layer only (LayerMask: {damageMask.value})", DebugCategory.Combat);
             }
             else
             {
-                Debug.LogWarning("[FlamethrowerAttack] Cannot auto-configure DamageMask. Manually set to 'Enemy' layer in Inspector.", this);
+                GameEvents.DebugWarning("[FlamethrowerAttack] Cannot auto-configure DamageMask. Manually set to 'Enemy' layer in Inspector.", DebugCategory.Combat);
             }
         }
         
         // Safety check: ensure Player is NOT in damage mask
         if (playerLayer != -1 && ((damageMask.value & (1 << playerLayer)) != 0))
         {
-            Debug.LogError("[FlamethrowerAttack] DamageMask includes Player layer! Removing to prevent self-damage.", this);
+            GameEvents.DebugWarning("[FlamethrowerAttack] DamageMask includes Player layer! Removing to prevent self-damage.", DebugCategory.Combat);
             damageMask &= ~(1 << playerLayer);
         }
         
-        Debug.Log($"[FlamethrowerAttack] Final DamageMask: {damageMask.value} (Layers: {GetLayerNames(damageMask)})", this);
+        GameEvents.DebugLog($"[FlamethrowerAttack] Final DamageMask: {damageMask.value} (Layers: {GetLayerNames(damageMask)})", DebugCategory.Combat);
     }
     
     /// <summary>
@@ -162,42 +172,64 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             {
                 obstacleMask &= ~(1 << enemyLayer); // Exclude Enemy
             }
-            Debug.Log($"[FlamethrowerAttack] ObstacleMask auto-configured to exclude Player and Enemy layers (LayerMask: {obstacleMask.value})", this);
+            GameEvents.DebugLog($"[FlamethrowerAttack] ObstacleMask auto-configured to exclude Player and Enemy layers (LayerMask: {obstacleMask.value})", DebugCategory.Combat);
         }
         else
         {
             // Verify Player and Enemy are NOT in obstacle mask
             if (playerLayer != -1 && ((obstacleMask.value & (1 << playerLayer)) != 0))
             {
-                Debug.LogWarning($"[FlamethrowerAttack] ObstacleMask includes 'Player' layer! This will block line of sight. Removing Player layer from mask.", this);
+                GameEvents.DebugWarning($"[FlamethrowerAttack] ObstacleMask includes 'Player' layer! This will block line of sight. Removing Player layer from mask.", DebugCategory.Combat);
                 obstacleMask &= ~(1 << playerLayer);
             }
             if (enemyLayer != -1 && ((obstacleMask.value & (1 << enemyLayer)) != 0))
             {
-                Debug.LogWarning($"[FlamethrowerAttack] ObstacleMask includes 'Enemy' layer! This will block line of sight. Removing Enemy layer from mask.", this);
+                GameEvents.DebugWarning($"[FlamethrowerAttack] ObstacleMask includes 'Enemy' layer! This will block line of sight. Removing Enemy layer from mask.", DebugCategory.Combat);
                 obstacleMask &= ~(1 << enemyLayer);
             }
         }
         
-        Debug.Log($"[FlamethrowerAttack] Final DamageMask value: {damageMask.value} (Layers: {GetLayerNames(damageMask)})", this);
-        Debug.Log($"[FlamethrowerAttack] Final ObstacleMask value: {obstacleMask.value} (Layers: {GetLayerNames(obstacleMask)})", this);
+        GameEvents.DebugLog($"[FlamethrowerAttack] Final DamageMask value: {damageMask.value} (Layers: {GetLayerNames(damageMask)})", DebugCategory.Combat);
+        GameEvents.DebugLog($"[FlamethrowerAttack] Final ObstacleMask value: {obstacleMask.value} (Layers: {GetLayerNames(obstacleMask)})", DebugCategory.Combat);
     }
     
     void OnEnable()
     {
         GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
+        GameEvents.OnEnemyKilled += HandleEnemyKilled;
     }
     
     void OnDisable()
     {
         GameEvents.OnEnemyDamaged -= HandleEnemyDamaged;
+        GameEvents.OnEnemyKilled -= HandleEnemyKilled;
+        
+        // Stop any active attack when disabled to prevent stuck attacking
+        StopAttack();
     }
     
     void HandleEnemyDamaged(float amount, Vector2 hitPoint, Vector2 hitDirection)
     {
         if (enableDebugLogs && logDamageDealt)
         {
-            GameEvents.DebugLog($"[FlamethrowerAttack] Enemy damaged event received: {amount} damage at {hitPoint}");
+            GameEvents.DebugLog($"Enemy damaged event received: {amount} damage at {hitPoint}", DebugCategory.Combat);
+        }
+    }
+    
+    /// <summary>
+    /// Clear cached IDamageable reference when enemy is killed/pooled to prevent stale cache entries.
+    /// </summary>
+    void HandleEnemyKilled(Enemy enemy)
+    {
+        if (enemy != null)
+        {
+            var col = enemy.GetComponent<Collider2D>();
+            if (col != null)
+            {
+                int colId = col.GetInstanceID();
+                damageableCache.Remove(colId);
+                statusEffectControllerCache.Remove(colId);
+            }
         }
     }
     
@@ -259,10 +291,10 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             nextDebugLogTime = Time.time + debugLogInterval;
             if (logAttackInfo)
             {
-                GameEvents.DebugLog($"[FlamethrowerAttack] Origin: {origin}, Forward: {forward}, Range: {range}, DamageMask: {damageMask.value}");
-                GameEvents.DebugLog($"[FlamethrowerAttack] FirePoint position: {firePoint.position}, rotation: {firePoint.rotation.eulerAngles.z:F1}°");
-                GameEvents.DebugLog($"[FlamethrowerAttack] FirePoint.up (forward): {firePoint.up}, FirePoint.right: {firePoint.right}");
-                GameEvents.DebugLog($"[FlamethrowerAttack] Cone angle: {coneAngle}° (half-angle: {maxAngle:F1}°)");
+                GameEvents.DebugLog($"[FlamethrowerAttack] Origin: {origin}, Forward: {forward}, Range: {range}, DamageMask: {damageMask.value}", DebugCategory.Combat);
+                GameEvents.DebugLog($"[FlamethrowerAttack] FirePoint position: {firePoint.position}, rotation: {firePoint.rotation.eulerAngles.z:F1}°", DebugCategory.Combat);
+                GameEvents.DebugLog($"[FlamethrowerAttack] FirePoint.up (forward): {firePoint.up}, FirePoint.right: {firePoint.right}", DebugCategory.Combat);
+                GameEvents.DebugLog($"[FlamethrowerAttack] Cone angle: {coneAngle}° (half-angle: {maxAngle:F1}°)", DebugCategory.Combat);
             }
         }
 
@@ -281,11 +313,11 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
         int hitCount = Physics2D.OverlapCircle(origin, range, contactFilter, hitBuffer);
         if (shouldLog && logColliderCount)
         {
-            GameEvents.DebugLog($"[FlamethrowerAttack] OverlapCircle found {hitCount} colliders");
+            GameEvents.DebugLog($"[FlamethrowerAttack] OverlapCircle found {hitCount} colliders", DebugCategory.Combat);
             
             if (hitCount == 0)
             {
-                GameEvents.DebugLog($"[FlamethrowerAttack] No colliders found! Check: 1) Enemy has Collider2D, 2) DamageMask includes enemy layer, 3) Project Settings > Physics 2D > Queries Hit Triggers is enabled if using triggers");
+                GameEvents.DebugLog($"[FlamethrowerAttack] No colliders found! Check: 1) Enemy has Collider2D, 2) DamageMask includes enemy layer, 3) Project Settings > Physics 2D > Queries Hit Triggers is enabled if using triggers", DebugCategory.Combat);
             }
         }
         
@@ -302,7 +334,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             
             if (shouldLog && logColliderChecks)
             {
-                GameEvents.DebugLog($"[FlamethrowerAttack] Checking: {col.gameObject.name} on layer {LayerMask.LayerToName(col.gameObject.layer)} (index: {col.gameObject.layer})");
+                GameEvents.DebugLog($"[FlamethrowerAttack] Checking: {col.gameObject.name} on layer {LayerMask.LayerToName(col.gameObject.layer)} (index: {col.gameObject.layer})", DebugCategory.Combat);
             }
             
             // Use cached IDamageable lookup to avoid GetComponent every tick
@@ -317,7 +349,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             {
                 if (shouldLog && logRejections)
                 {
-                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} has no IDamageable component");
+                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} has no IDamageable component", DebugCategory.Combat);
                 }
                 continue;
             }
@@ -326,7 +358,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             {
                 if (shouldLog && logRejections)
                 {
-                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} is not alive");
+                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} is not alive", DebugCategory.Combat);
                 }
                 continue;
             }
@@ -350,11 +382,11 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             {
                 float distance = 1f / invDistance;
                 float angle = Mathf.Acos(Mathf.Clamp01(dot)) * Mathf.Rad2Deg;
-                GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name}:");
-                GameEvents.DebugLog($"  Target pos: {targetCenter}, Origin: {origin}");
-                GameEvents.DebugLog($"  ToTarget: {toTarget} (dist: {distance:F2})");
-                GameEvents.DebugLog($"  Forward: {forward}, DirToTarget: {dir}");
-                GameEvents.DebugLog($"  Angle: {angle:F1}° vs MaxAngle: {maxAngle:F1}° (cone total: {coneAngle}°)");
+                GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name}:", DebugCategory.Combat);
+                GameEvents.DebugLog($"  Target pos: {targetCenter}, Origin: {origin}", DebugCategory.Combat);
+                GameEvents.DebugLog($"  ToTarget: {toTarget} (dist: {distance:F2})", DebugCategory.Combat);
+                GameEvents.DebugLog($"  Forward: {forward}, DirToTarget: {dir}", DebugCategory.Combat);
+                GameEvents.DebugLog($"  Angle: {angle:F1}° vs MaxAngle: {maxAngle:F1}° (cone total: {coneAngle}°)", DebugCategory.Combat);
             }
             
             // Compare dot product to cached cosine (faster than angle comparison)
@@ -364,7 +396,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
                 if (shouldLog && logRejections)
                 {
                     float angle = Mathf.Acos(Mathf.Clamp01(dot)) * Mathf.Rad2Deg;
-                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} outside cone angle ({angle:F1} > {maxAngle:F1})");
+                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} outside cone angle ({angle:F1} > {maxAngle:F1})", DebugCategory.Combat);
                 }
                 continue;
             }
@@ -377,7 +409,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
                 {
                     if (shouldLog && logRejections)
                     {
-                        GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} blocked by {blockHit.collider.gameObject.name} (distance: {blockHit.distance:F2})");
+                        GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} blocked by {blockHit.collider.gameObject.name} (distance: {blockHit.distance:F2})", DebugCategory.Combat);
                     }
                     #if UNITY_EDITOR
                     if (drawDebug)
@@ -389,7 +421,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
                 }
                 else if (shouldLog && logColliderChecks)
                 {
-                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} has clear line of sight");
+                    GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} has clear line of sight", DebugCategory.Combat);
                 }
                 
                 #if UNITY_EDITOR
@@ -402,7 +434,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
 
             if (shouldLog && logColliderChecks)
             {
-                GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} PASSED all checks, adding to hit list");
+                GameEvents.DebugLog($"[FlamethrowerAttack] {col.gameObject.name} PASSED all checks, adding to hit list", DebugCategory.Combat);
             }
             enemiesHitThisFrame.Add(target);
         }
@@ -410,10 +442,11 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
         // Only process damage if we hit something
         if (enemiesHitThisFrame.Count > 0)
         {
-            float finalDamage = damage;
+            // Use PlayerStats for damage calculation (includes crit chance)
+            float finalDamage = stats != null ? stats.CalculateDamage() : damage;
             if (shouldLog && logDamageDealt)
             {
-                GameEvents.DebugLog($"[FlamethrowerAttack] Dealing {finalDamage} damage to {enemiesHitThisFrame.Count} targets");
+                GameEvents.DebugLog($"[FlamethrowerAttack] Dealing {finalDamage} damage to {enemiesHitThisFrame.Count} targets", DebugCategory.Combat);
             }
             
             // Cache firePoint values to avoid repeated property access
@@ -422,10 +455,52 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             
             foreach (IDamageable enemy in enemiesHitThisFrame)
             {
+                // Deal damage
                 enemy.TakeDamage(finalDamage, firePos, fireUp);
-                if (enableDebugLogs && logDamageDealt)
+    
+                // Apply fire status effect
+                if (fireStatusEffect != null)
                 {
-                    GameEvents.DebugLog($"[FlamethrowerAttack] Damaged: {(enemy as Component)?.gameObject.name ?? "unknown"}");
+                    // Try to apply status effect based on chance
+                    if (Random.value <= statusEffectChance)
+                    {
+                        // Get the Component reference from IDamageable
+                        var targetComponent = enemy as Component;
+                        if (targetComponent != null)
+                        {
+                            // Get collider instance ID for caching
+                            var targetCollider = targetComponent.GetComponent<Collider2D>();
+                            int colId = targetCollider != null ? targetCollider.GetInstanceID() : targetComponent.GetInstanceID();
+                            
+                            // Use cached StatusEffectController lookup
+                            if (!statusEffectControllerCache.TryGetValue(colId, out StatusEffectController statusController))
+                            {
+                                // StatusEffectController is on the same GameObject as Health (IDamageable)
+                                statusController = targetComponent.GetComponent<StatusEffectController>();
+                                statusEffectControllerCache[colId] = statusController; // Cache even null results
+                            }
+                            
+                            if (statusController != null)
+                            {
+                                // Apply effect with duration multiplier
+                                bool applied = statusController.ApplyEffect(fireStatusEffect, statusEffectDurationMultiplier);
+                                
+                                if (applied && shouldLog && logDamageDealt)
+                                {
+                                    GameEvents.DebugLog($"[FlamethrowerAttack] Applied {fireStatusEffect.EffectName} to {targetComponent.gameObject.name}", DebugCategory.Combat);
+                                }
+                            }
+                            else if (shouldLog && logRejections)
+                            {
+                                GameEvents.DebugLog($"[FlamethrowerAttack] {targetComponent.gameObject.name} has no StatusEffectController component", DebugCategory.Combat);
+                            }
+                        }
+                    }
+                }
+    
+                if (shouldLog && logDamageDealt)
+                {
+                    GameEvents.DebugLog($"[FlamethrowerAttack] Damaged: {(enemy as Component)?.gameObject.name ?? "unknown"}", DebugCategory.Combat);
                 }
             }
         }
@@ -458,7 +533,9 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     {
         if (col != null)
         {
-            damageableCache.Remove(col.GetInstanceID());
+            int colId = col.GetInstanceID();
+            damageableCache.Remove(colId);
+            statusEffectControllerCache.Remove(colId);
         }
     }
     
@@ -468,6 +545,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     public void ClearCache()
     {
         damageableCache.Clear();
+        statusEffectControllerCache.Clear();
     }
     
     /// <summary>

@@ -6,23 +6,24 @@ using UnityEngine.InputSystem;
 /// Responsibility: Read input → Calculate velocity → Move via physics
 /// Fires movement events for other systems to react to (animation, sfx, etc).
 /// </summary>
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IMovementModifiable
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 20f;
+    [SerializeField] private float moveSpeed = 8f;
     
     [Header("Dash Settings")]
-    [SerializeField] private float dashSpeed = 40f;
-    [SerializeField] private float dashDuration = 0.2f;
-    [SerializeField] private float dashCooldown = 0.5f;
-    [SerializeField] private float dashRecoveryTime = 0.05f;
+    [SerializeField] private float dashSpeed = 20f;
+    [SerializeField] private float dashDuration = 0.15f;
+    [SerializeField] private float dashCooldown = 0.8f;
+    [SerializeField] private float dashRecoveryTime = 0.1f;
 
     [Header("Knockback Settings")]
-    [SerializeField] private float knockbackSpeed = 12f;
-    [SerializeField] private float knockbackDuration = 0.15f;
+    [SerializeField] private float knockbackSpeed = 8f;
+    [SerializeField] private float knockbackDuration = 0.2f;
 
     private Rigidbody2D rb;
     private PlayerControls controls;
+    private PlayerStats stats;
     private Vector2 moveInput;
     private Vector2 dashDirection;
     private bool isInitialized = false;
@@ -48,11 +49,21 @@ public class PlayerMovement : MonoBehaviour
     private bool isCapsule = false;
     private float capsuleRadius = 0.5f;
     private float capsuleHeight = 2f;
+    private float speedMultiplier = 1f;
+    private float currentSpeed;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+        
+        // Get PlayerStats from PlayerController
+        var playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            stats = playerController.stats;
+        }
+        
         var cap = GetComponent<CapsuleCollider2D>();
         if (cap != null)
         {
@@ -113,7 +124,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDashInput(InputAction.CallbackContext context)
     {
-        if (Time.time >= lastDashTime + dashCooldown)
+        // Use PlayerStats dash cooldown if available, otherwise fall back to serialized value
+        float currentDashCooldown = stats != null ? stats.currentDashCooldown : dashCooldown;
+        if (Time.time >= lastDashTime + currentDashCooldown)
         {
             PerformDash();
         }
@@ -194,7 +207,10 @@ public class PlayerMovement : MonoBehaviour
     private void Move()
     {
         // Normal movement via velocity to ensure collision response
-        Vector2 desiredVelocity = moveInput * moveSpeed;
+        // Use PlayerStats speed if available, otherwise fall back to serialized value
+        currentSpeed = stats != null ? stats.currentSpeed : moveSpeed;
+        currentSpeed *= speedMultiplier;
+        Vector2 desiredVelocity = moveInput * currentSpeed;
 
         // If no input, zero velocity
         if (desiredVelocity.sqrMagnitude < 0.0001f)
@@ -214,7 +230,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (isCapsule)
         {
-            hit = Physics2D.CapsuleCast(castOrigin, new Vector2(capsuleRadius * 2f, capsuleHeight), CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
+            hit = Physics2D.CapsuleCast(castOrigin, new Vector2(capsuleRadius * 2f, capsuleHeight),
+                CapsuleDirection2D.Vertical, 0f, dir, checkDistance, obstacleMask);
             blocked = hit.collider != null && hit.distance > 0f; // Only block if we're not already overlapping
         }
         else
@@ -236,6 +253,12 @@ public class PlayerMovement : MonoBehaviour
         // by setting velocity and allowing physics to do its job
         rb.linearVelocity = desiredVelocity;
     }
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = multiplier;
+    }
+
     private void OnDestroy()
     {
         if (controls != null)

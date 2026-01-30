@@ -8,9 +8,11 @@ public class XPManager : MonoBehaviour {
     [SerializeField] private int currentLevel = 1;
     [SerializeField] private int xpToNextLevel = 100;
     [SerializeField] private float xpMultiplier = 1.5f; // How much XP increases per level
+    [SerializeField] private bool debugMode = false;
 
     [Header("Level Up Rewards")]
     [SerializeField] private float healPercentOnLevelUp = 0.1f; // 10% heal
+    
 
     private Health playerHealth;
 
@@ -36,25 +38,30 @@ public class XPManager : MonoBehaviour {
         GameEvents.OnEnemyKilled -= AwardXP;
     }
 
+    public void AddXP(int amount)
+    {
+        currentXP += amount;
+
+        // Fire event for UI
+        GameEvents.OnXPChanged?.Invoke(currentXP, xpToNextLevel);
+
+        // Check for level up
+        CheckLevelUp();
+    }
+
     private void AwardXP(Enemy enemy) {
         // Get XP value from enemy's data
         EnemyData data = enemy.EnemyData; // You'll need to add this getter
         if (data == null) {
-            Debug.LogWarning("Enemy has no data, can't award XP");
+            if (debugMode) {
+                GameEvents.DebugWarning("Enemy has no data, can't award XP", DebugCategory.XPAndLeveling);
+            }
             return;
         }
-
-        int xpGained = data.XPValue;
-        currentXP += xpGained;
-
-        // Check if leveled up
-        CheckLevelUp();
-
-        Debug.Log($"Gained {xpGained} XP! Total: {currentXP}/{xpToNextLevel}");
-
-        // Fire event so UI can update
-        GameEvents.XPChanged(currentXP, xpToNextLevel);
+        
+        AddXP(data.XPValue);
     }
+    
 
     private void CheckLevelUp() {
         while (currentXP >= xpToNextLevel) {
@@ -69,22 +76,22 @@ public class XPManager : MonoBehaviour {
         // Calculate next level requirement (exponential curve)
         xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * xpMultiplier);
 
-        Debug.Log($"LEVEL UP! Now level {currentLevel}. Next level requires {xpToNextLevel} XP.");
+        if (debugMode) GameEvents.DebugLog($"Leveled up to {currentLevel}! Next level at {xpToNextLevel} XP.", DebugCategory.XPAndLeveling);
 
         // Heal player
         HealPlayer();
 
         // Fire level up event
-        GameEvents.LevelUp(currentLevel);
+        GameEvents.OnLevelUp?.Invoke(currentLevel);
     }
 
     private void HealPlayer() {
         if (playerHealth != null) {
             float healAmount = playerHealth.MaxHP * healPercentOnLevelUp;
             playerHealth.Heal(healAmount);
-            Debug.Log($"Healed {healAmount} HP on level up!");
+            GameEvents.DebugLog($"Healed player for {healAmount} HP on level up.", DebugCategory.General);
         }
-    }
+    } 
 
     // Public getters for UI
     public int GetCurrentXP() => currentXP;

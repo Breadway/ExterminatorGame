@@ -61,7 +61,6 @@ public class PlayerController : MonoBehaviour {
         
         // Subscribe to game events
         GameEvents.OnLevelUp += OnLevelUp;
-        GameEvents.OnUpgradeChosen += ApplyUpgrade;
     }
     
     void OnDisable() {
@@ -71,7 +70,6 @@ public class PlayerController : MonoBehaviour {
         health.OnDied -= HandleDeath;
         
         GameEvents.OnLevelUp -= OnLevelUp;
-        GameEvents.OnUpgradeChosen -= ApplyUpgrade;
     }
     
     void FixedUpdate() {

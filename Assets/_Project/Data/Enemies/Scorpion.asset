@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Scorpion
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Scorpion
-  maxHealth: 30
-  moveSpeed: 20
-  XPValue: 30
-  attackDamage: 10
-  attackCooldown: 0.5
+  maxHealth: 25
+  moveSpeed: 7
+  XPValue: 15
+  attackDamage: 8
+  attackCooldown: 1.2
   prefab: {fileID: 0}
   MovementType: 0
   AttackType: 0

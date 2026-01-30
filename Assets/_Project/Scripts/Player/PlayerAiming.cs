@@ -60,7 +60,7 @@ public class PlayerAiming : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("PlayerAiming: No IWeaponAttack component found. WeaponRange will be 0.", this);
+            GameEvents.DebugWarning("PlayerAiming: No IWeaponAttack component found. WeaponRange will be 0.", DebugCategory.Input);
         }
     }
     

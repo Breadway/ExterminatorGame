@@ -68,7 +68,7 @@ public class PoolingSystem : MonoBehaviour
     {
         if (pools.ContainsKey(config.poolId))
         {
-            Debug.LogWarning($"Pool '{config.poolId}' already exists.");
+            GameEvents.DebugWarning($"Pool '{config.poolId}' already exists.", DebugCategory.Pooling);
             return;
         }
 
@@ -120,33 +120,49 @@ public class PoolingSystem : MonoBehaviour
     {
         if (!pools.TryGetValue(poolId, out var pool))
         {
-            Debug.LogWarning($"Pool '{poolId}' not found. Create it first or use Instantiate.");
+            GameEvents.DebugWarning($"Pool '{poolId}' not found. Create it first or use Instantiate.", DebugCategory.Pooling);
             return null;
         }
 
-        GameObject obj;
+        GameObject obj = null;
 
-        if (pool.Count > 0)
+        // Try to get a valid object from the pool, skipping any destroyed ones
+        while (pool.Count > 0 && obj == null)
         {
             obj = pool.Dequeue();
+            
+            // Check if object was destroyed (can happen if prefab reference was lost)
+            if (obj == null)
+            {
+                GameEvents.DebugWarning($"Found destroyed object in pool '{poolId}', skipping...", DebugCategory.Pooling);
+                continue;
+            }
         }
-        else
+
+        // If no valid object found, create a new one
+        if (obj == null)
         {
             var config = configLookup[poolId];
             if (!config.expandable)
             {
-                Debug.LogWarning($"Pool '{poolId}' is empty and not expandable.");
+                GameEvents.DebugWarning($"Pool '{poolId}' is empty and not expandable.", DebugCategory.Pooling);
                 return null;
             }
 
             // Check max size limit
             if (activeObjectToPoolId.Count >= config.maxSize)
             {
-                Debug.LogWarning($"Pool '{poolId}' reached max size ({config.maxSize}).");
+                GameEvents.DebugWarning($"Pool '{poolId}' reached max size ({config.maxSize}).", DebugCategory.Pooling);
                 return null;
             }
 
             obj = Instantiate(config.prefab);
+        }
+
+        if (obj == null)
+        {
+            GameEvents.DebugWarning($"Failed to get object from pool '{poolId}' - object is null!", DebugCategory.Pooling);
+            return null;
         }
 
         obj.transform.SetPositionAndRotation(position, rotation);

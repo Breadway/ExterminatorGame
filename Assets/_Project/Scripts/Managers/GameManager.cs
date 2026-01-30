@@ -36,14 +36,14 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 0f; // Pause the game
         if (!isVictory)
         {
-            Debug.Log("Game Over! Displaying Game Over Screen...");
+            GameEvents.DebugLog("Game Over! Displaying Game Over Screen...", DebugCategory.General);
             Time.timeScale = 0f;
             // Show Game Over UI
             gameState = GameState.GameOver;
         }
         else
         {
-            Debug.Log("Run Completed! Displaying Victory Screen...");
+            GameEvents.DebugLog("Run Completed! Displaying Victory Screen...", DebugCategory.General);
             // Show Victory UI
             gameState = GameState.Victory;
         }

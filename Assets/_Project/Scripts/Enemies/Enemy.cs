@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(EnemyAttack))]
 [RequireComponent(typeof(Rigidbody2D))]
-public class Enemy : MonoBehaviour, IPoolable {
+public class Enemy : MonoBehaviour, IPoolable, IMovementModifiable {
 
     [Header("Components")]
     [SerializeField] protected Health health;
@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviour, IPoolable {
     [Header("Data")]
     [SerializeField] private EnemyData enemyData;
     public EnemyData EnemyData { get => enemyData; set => enemyData = value; }
+    bool debugMode = false;
 
     // Cache for pooling
     private bool isInitialized = false;
@@ -29,6 +30,7 @@ public class Enemy : MonoBehaviour, IPoolable {
     void Awake() {
         CacheComponents();
         ConfigureRigidbody();
+        ApplyEnemyData();
     }
 
     private void ConfigureRigidbody()
@@ -54,6 +56,14 @@ public class Enemy : MonoBehaviour, IPoolable {
         
         isInitialized = true;
     }
+    
+    void ApplyEnemyData()
+    {
+        if (enemyData != null && health != null)
+        {
+            health.SetMaxHP(enemyData.maxHealth);
+        }
+    }
 
     void Start()
     {
@@ -63,7 +73,7 @@ public class Enemy : MonoBehaviour, IPoolable {
         }
         else
         {
-            Debug.LogWarning("Enemy missing EnemyData. Assign it on the prefab or via spawner before Initialize().", this);
+            GameEvents.DebugLog("Enemy has no EnemyData assigned.", DebugCategory.EnemyAI);
         }
     }
 
@@ -73,11 +83,11 @@ public class Enemy : MonoBehaviour, IPoolable {
 
         if (attack == null)
         {
-            Debug.LogWarning("Enemy missing EnemyAttack component.", this);
+            GameEvents.DebugLog("Enemy missing EnemyAttack component.", DebugCategory.EnemyAI);
         }
         else if (attackBehavior == null)
         {
-            Debug.LogWarning("Enemy missing IAttackBehaviour component.", this);
+            GameEvents.DebugLog("Enemy missing IAttackBehaviour component.", DebugCategory.EnemyAI);
         }
         else
         {
@@ -86,7 +96,7 @@ public class Enemy : MonoBehaviour, IPoolable {
 
         if (movement == null)
         {
-            Debug.LogWarning("Enemy missing IMovementBehavior component.", this);
+            GameEvents.DebugLog("Enemy missing IMovementBehavior component.", DebugCategory.EnemyAI);
         }
         else
         {
@@ -107,7 +117,7 @@ public class Enemy : MonoBehaviour, IPoolable {
     void HandleDamage(float amount, Vector2 hitPoint, Vector2 hitDirection) {
         // Fire GameEvent for damage tracking, VFX, audio, etc.
         GameEvents.EnemyDamaged(amount, hitPoint, hitDirection);
-        GameEvents.DebugLog($"[Enemy] {gameObject.name} took {amount} damage. HP: {health.CurrentHP}/{health.MaxHP}");
+        GameEvents.DebugLog($"[Enemy] {gameObject.name} took {amount} damage. HP: {health.CurrentHP}/{health.MaxHP}", DebugCategory.EnemyAI);
     }
     
     void HandleDeath() {
@@ -145,6 +155,14 @@ public class Enemy : MonoBehaviour, IPoolable {
         if (enemyData != null)
         {
             Initialize(enemyData);
+        }
+    }
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        if (movement != null)
+        {
+            movement.SetSpeedMultiplier(multiplier);
         }
     }
 

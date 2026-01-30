@@ -8,10 +8,10 @@ public class EventListener : MonoBehaviour {
 
     void Awake()
     {
-        onPlayerDiedHandler = () => Debug.Log("Player died event received in EventListener.");
-        onEnemyKilledHandler = (Enemy enemy) => Debug.Log("Enemy killed event received in EventListener.");
-        onLevelUpHandler = (int newLevel) => Debug.Log($"Level up event received in EventListener. New level: {newLevel}");
-        onXPChangedHandler = (int currentXP, int xpRequired) => Debug.Log($"XP changed event received in EventListener. XP: {currentXP}/{xpRequired}");
+        onPlayerDiedHandler = () => GameEvents.DebugLog("Player died event received in EventListener.", DebugCategory.General);
+        onEnemyKilledHandler = (Enemy enemy) => GameEvents.DebugLog("Enemy killed event received in EventListener.", DebugCategory.General);
+        onLevelUpHandler = (int newLevel) => GameEvents.DebugLog($"Level up event received in EventListener. New level: {newLevel}", DebugCategory.XPAndLeveling);
+        onXPChangedHandler = (int currentXP, int xpRequired) => GameEvents.DebugLog($"XP changed event received in EventListener. XP: {currentXP}/{xpRequired}", DebugCategory.XPAndLeveling);
     }
 
     void OnEnable()
