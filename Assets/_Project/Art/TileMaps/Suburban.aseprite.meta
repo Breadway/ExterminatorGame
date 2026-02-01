@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Suburban
     originalName: 
-    pivot: {x: 2, y: -7}
+    pivot: {x: 1, y: -7}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,7 +137,7 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 64
+      width: 128
       height: 32
     spriteID: 0d8e94eed805bce4a843075a1d1faece
     spriteBone: []
@@ -169,7 +169,7 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 224
-        width: 64
+        width: 128
         height: 32
       spriteId: 0d8e94eed805bce4a843075a1d1faece
     linkedCells: []
@@ -182,4 +182,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 256, y: 256}
-  previousTextureSize: {x: 128, y: 64}
+  previousTextureSize: {x: 256, y: 64}
