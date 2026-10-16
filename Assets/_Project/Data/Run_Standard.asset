@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2a936ce0f5c4716973a53e1a2c5b657, type: 3}
+  m_Name: Run_Standard
+  m_EditorClassIdentifier: Assembly-CSharp::RunData
+  RoomCount: 25
+  MidBossRoom: 12
+  MidBoss: {fileID: 11400000, guid: 788d645aa70db3ee5811872dec6d459c, type: 2}
+  FinalBoss: {fileID: 11400000, guid: b4f2842eb3b047aa29fc7c495a35c479, type: 2}
+  EnemyTable:
+  - {fileID: 11400000, guid: 076c7e7945d51b193be164e913f454f4, type: 2}
+  - {fileID: 11400000, guid: a009f280cc1c65ab1af90cbb9ca44368, type: 2}
+  - {fileID: 11400000, guid: d8f4f366bd93da251bef8d672d86a909, type: 2}
+  - {fileID: 11400000, guid: 4e613bfbee56c3b4dbbed717e0ee079d, type: 2}
+  - {fileID: 11400000, guid: b12bebb4a205120ada779b14b5478f9c, type: 2}
+  - {fileID: 11400000, guid: 4cf33e7a3ff3af637a7a664e495fbc81, type: 2}
+  - {fileID: 11400000, guid: 1c61ebd2dfb86d586a3df0b1532a2d0f, type: 2}
+  - {fileID: 11400000, guid: 60417801b21bbde7da195fca5e515050, type: 2}
+  - {fileID: 11400000, guid: 02431ab6baba6fa9daa99bc81d03b766, type: 2}
+  - {fileID: 11400000, guid: 04bacbb2594541e06b5235bc20b035a0, type: 2}
+  - {fileID: 11400000, guid: d81b5ca953e64654eb75ef76817a7c82, type: 2}
+  - {fileID: 11400000, guid: 491763e5052bc1196b74efca74c7afda, type: 2}
+  - {fileID: 11400000, guid: 7467b3d4fc14725eb8718b35e746f094, type: 2}
+  Layouts:
+  - {fileID: 11400000, guid: 71d125dcbca9d348687e4a3ecca8ea91, type: 2}
+  - {fileID: 11400000, guid: 406b7637d99a2dae5ba0f3662b6485c4, type: 2}
+  - {fileID: 11400000, guid: 6fc72091a217426d7b0d336ece9db296, type: 2}
+  - {fileID: 11400000, guid: a741905b01b76338f80efa89e701fae7, type: 2}
+  - {fileID: 11400000, guid: 21a98b1f3b1d047ec9f0e11dbd090302, type: 2}
+  BaseEnemies: 5
+  EnemiesPerRoom: 0.8
+  MaxEnemies: 55
+  HealthPerRoom: 0.08
+  SpeedPerRoom: 0.004
+  MaxSpeedBonus: 0.4
+  ModifierChance: 0.25
+  EliteChance: 0.25
+  ShopChance: 0.2
+  UnknownChance: 0.2
+  ShopHealFraction: 0.4
+  EndlessBossEvery: 5

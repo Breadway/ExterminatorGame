@@ -26,7 +26,7 @@ public class HealthBarUI : MonoBehaviour {
 
     private void UpdateHealthBar(float currentHP, float maxHP) {
         if (fillImage != null) {
-            float fillAmount = (float)currentHP / maxHP;
+            float fillAmount = maxHP > 0f ? Mathf.Clamp01(currentHP / maxHP) : 0f;
             fillImage.fillAmount = fillAmount;
         }
 

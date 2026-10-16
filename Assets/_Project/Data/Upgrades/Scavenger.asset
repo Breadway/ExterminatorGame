@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: scavenger
+  specialEffectDescription: +25% scrap and enemies sometimes drop healing.
   maxStacks: 2
   conflictingUpgrades: []
   requiredUpgrades: []

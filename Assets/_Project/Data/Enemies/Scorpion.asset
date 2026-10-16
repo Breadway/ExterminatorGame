@@ -13,11 +13,38 @@ MonoBehaviour:
   m_Name: Scorpion
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Scorpion
+  prefab: {fileID: 0}
+  sprite: {fileID: 21300000, guid: f6345b3fedb45c76bbf5acd4cc70e7ab, type: 3}
+  scale: 1
+  colliderRadius: 0.42
   maxHealth: 25
   moveSpeed: 7
   XPValue: 15
   attackDamage: 8
   attackCooldown: 1.2
-  prefab: {fileID: 0}
   MovementType: 0
   AttackType: 0
+  minWave: 1
+  spawnWeight: 2
+  damageReduction: 0
+  projectilePrefab: {fileID: 0}
+  preferredRange: 6
+  attackRange: 9
+  projectileSpeed: 9
+  projectileLifetime: 2.5
+  evolvesInto: {fileID: 0}
+  evolveAfterSeconds: 8
+  scrapValue: 1
+  spawnHazardOnDeath: 0
+  deathHazard: 0
+  deathHazardRadius: 1.4
+  deathHazardLifetime: 6
+  deathHazardDps: 0
+  isBoss: 0
+  summonType: {fileID: 0}
+  summonInterval: 0
+  summonCount: 3
+  volleyInterval: 0
+  volleyCount: 10
+  enrageBelowHealth: 0.35
+  enrageSpeedMultiplier: 1.4

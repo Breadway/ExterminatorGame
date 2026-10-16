@@ -26,6 +26,7 @@ public class PoolingSystem : MonoBehaviour
     private Dictionary<string, Queue<GameObject>> pools = new Dictionary<string, Queue<GameObject>>();
     private Dictionary<string, PoolConfig> configLookup = new Dictionary<string, PoolConfig>();
     private Dictionary<GameObject, string> activeObjectToPoolId = new Dictionary<GameObject, string>();
+    private readonly Dictionary<GameObject, string> objectToPoolId = new Dictionary<GameObject, string>();
     
     // Pre-allocated list to avoid allocations during pool operations
     private Transform poolContainer;
@@ -41,6 +42,8 @@ public class PoolingSystem : MonoBehaviour
 
         poolContainer = new GameObject("PooledObjects").transform;
         poolContainer.SetParent(transform);
+        // Instantiate under an inactive parent so prewarming never fires OnEnable.
+        poolContainer.gameObject.SetActive(false);
 
         InitializePools();
     }
@@ -66,12 +69,15 @@ public class PoolingSystem : MonoBehaviour
     /// </summary>
     public void CreatePool(PoolConfig config)
     {
+        if (config == null || config.prefab == null || string.IsNullOrWhiteSpace(config.poolId)) return;
         if (pools.ContainsKey(config.poolId))
         {
             GameEvents.DebugWarning($"Pool '{config.poolId}' already exists.", DebugCategory.Pooling);
             return;
         }
 
+        config.maxSize = Mathf.Max(1, config.maxSize);
+        config.initialSize = Mathf.Clamp(config.initialSize, 0, config.maxSize);
         pools[config.poolId] = new Queue<GameObject>(config.initialSize);
         configLookup[config.poolId] = config;
 
@@ -87,6 +93,7 @@ public class PoolingSystem : MonoBehaviour
     /// </summary>
     public void CreatePool(GameObject prefab, int initialSize = 20, bool expandable = true, int maxSize = 100)
     {
+        if (prefab == null) return;
         string poolId = prefab.name;
         if (pools.ContainsKey(poolId))
         {
@@ -109,6 +116,7 @@ public class PoolingSystem : MonoBehaviour
     {
         GameObject obj = Instantiate(config.prefab, poolContainer);
         obj.SetActive(false);
+        objectToPoolId[obj] = config.poolId;
         pools[config.poolId].Enqueue(obj);
         return obj;
     }
@@ -118,6 +126,7 @@ public class PoolingSystem : MonoBehaviour
     /// </summary>
     public GameObject Get(string poolId, Vector3 position, Quaternion rotation)
     {
+        if (string.IsNullOrEmpty(poolId)) return null;
         if (!pools.TryGetValue(poolId, out var pool))
         {
             GameEvents.DebugWarning($"Pool '{poolId}' not found. Create it first or use Instantiate.", DebugCategory.Pooling);
@@ -150,13 +159,14 @@ public class PoolingSystem : MonoBehaviour
             }
 
             // Check max size limit
-            if (activeObjectToPoolId.Count >= config.maxSize)
+            if (GetPoolStats(poolId).active >= config.maxSize)
             {
                 GameEvents.DebugWarning($"Pool '{poolId}' reached max size ({config.maxSize}).", DebugCategory.Pooling);
                 return null;
             }
 
-            obj = Instantiate(config.prefab);
+            obj = CreatePooledObject(config);
+            pool.Dequeue();
         }
 
         if (obj == null)
@@ -166,14 +176,13 @@ public class PoolingSystem : MonoBehaviour
         }
 
         obj.transform.SetPositionAndRotation(position, rotation);
-        obj.transform.SetParent(null);
-        obj.SetActive(true);
-
         activeObjectToPoolId[obj] = poolId;
 
         // Notify the object it was spawned from pool
         var poolable = obj.GetComponent<IPoolable>();
         poolable?.OnSpawnFromPool();
+        obj.transform.SetParent(null);
+        obj.SetActive(true);
 
         return obj;
     }
@@ -191,6 +200,7 @@ public class PoolingSystem : MonoBehaviour
     /// </summary>
     public GameObject Get(GameObject prefab, Vector3 position, Quaternion rotation)
     {
+        if (prefab == null) return null;
         string poolId = prefab.name;
         
         // Auto-create pool if it doesn't exist
@@ -219,16 +229,17 @@ public class PoolingSystem : MonoBehaviour
 
         if (!activeObjectToPoolId.TryGetValue(obj, out string poolId))
         {
+            // A second return of an already queued object must not destroy it.
+            if (objectToPoolId.ContainsKey(obj)) return;
             // Object wasn't from a pool, destroy it normally
             Destroy(obj);
             return;
         }
 
         // Notify the object it's being returned
+        activeObjectToPoolId.Remove(obj);
         var poolable = obj.GetComponent<IPoolable>();
         poolable?.OnReturnToPool();
-
-        activeObjectToPoolId.Remove(obj);
 
         obj.SetActive(false);
         obj.transform.SetParent(poolContainer);
@@ -299,7 +310,7 @@ public class PoolingSystem : MonoBehaviour
     /// <summary>
     /// Check if a pool exists
     /// </summary>
-    public bool HasPool(string poolId) => pools.ContainsKey(poolId);
+    public bool HasPool(string poolId) => !string.IsNullOrEmpty(poolId) && pools.ContainsKey(poolId);
 }
 
 /// <summary>

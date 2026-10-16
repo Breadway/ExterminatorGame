@@ -28,9 +28,10 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: executioner
+  specialEffectDescription: Finish wounded prey. Enemies below 30% HP take +50% damage;
+    non-bosses below 8% are executed.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

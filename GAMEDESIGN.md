@@ -5,7 +5,7 @@
 ### "Gritty Industrial Satire"
 The game visualizes the mundane horror of minimum-wage pest control in a world where bugs are dog-sized.
 
-*   **Visual Style:** **Lo-Fi Industrial (PSX/Early-PC)**. Low-poly models with flat shading or pixelated textures. "Crusty" aesthetics—rust, duct tape, stained concrete, and flickering fluorescent lights.
+*   **Visual Style:** **Lo-Fi Industrial (PSX/Early-PC)**. Low-poly models with flat shading or pixelated textures. "Crusty" aesthetics-rust, duct tape, stained concrete, and flickering fluorescent lights.
 *   **Color Palette (The 'Safety' Palette):**
     *   **Primary:** "Hazard Orange" & "Safety Yellow" (Player gear, UI warnings).
     *   **Secondary:** "Industrial Grey" & "Rust Red" (Environments, machinery).

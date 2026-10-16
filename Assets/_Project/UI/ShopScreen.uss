@@ -1,0 +1,136 @@
+/* ========================================
+   SHOP - company store counter. Reuses the upgrade card styles (.upgrade-card and friends).
+   ======================================== */
+
+.shop-sheet {
+    width: 1320px;
+    max-width: 97%;
+}
+
+.shop-body {
+    padding: 28px 40px 26px 40px;
+}
+
+.shop-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.shop-title {
+    font-size: 48px;
+}
+
+.funds-box {
+    align-items: flex-end;
+}
+
+.funds-value {
+    font-size: 46px;
+    -unity-font-style: bold;
+    color: var(--safety-yellow);
+}
+
+.shop-shelf {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 22px;
+    margin-bottom: 20px;
+}
+
+.shop-shelf .upgrade-card {
+    width: 270px;
+    min-height: 400px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.shop-shelf .card-name {
+    font-size: 25px;
+}
+
+.shop-shelf .card-desc {
+    font-size: 15px;
+}
+
+.shop-shelf .stat-line {
+    font-size: 19px;
+}
+
+/* price tag replaces the "[1] SIGN OFF" footer */
+.price-tag {
+    padding: 11px 16px;
+    font-size: 20px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    color: rgb(16, 16, 16);
+    background-color: var(--safety-yellow);
+}
+
+.price-tag.cant-afford {
+    background-color: var(--rust-red);
+    color: var(--text-primary);
+}
+
+.upgrade-card.sold {
+    opacity: 0.38;
+}
+
+.upgrade-card.sold .price-tag {
+    background-color: var(--concrete-grey);
+    color: var(--text-primary);
+}
+
+.upgrade-card.sold:hover {
+    translate: 0 0;
+    border-color: var(--concrete-grey);
+}
+
+.repair-card .card-strip {
+    background-color: var(--chem-green);
+}
+
+.repair-icon {
+    font-size: 64px;
+    -unity-font-style: bold;
+    color: var(--chem-green);
+    -unity-text-align: middle-center;
+    margin-top: 18px;
+}
+
+.shop-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shop-button {
+    font-size: 24px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    padding: 14px 32px;
+    margin: 0;
+    color: rgb(16, 16, 16);
+    background-color: var(--safety-yellow);
+    border-width: 0;
+    border-radius: 0;
+    transition-property: background-color, translate;
+    transition-duration: 0.1s;
+}
+
+.shop-button:hover {
+    background-color: var(--hazard-orange);
+    translate: 0 -3px;
+}
+
+.shop-button-alt {
+    background-color: rgb(46, 52, 58);
+    color: var(--text-primary);
+    border-width: 2px;
+    border-color: var(--concrete-grey);
+}
+
+.shop-button-alt:hover {
+    background-color: rgb(60, 66, 74);
+    border-color: var(--safety-yellow);
+}

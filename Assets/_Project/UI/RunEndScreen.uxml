@@ -1,0 +1,40 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="IndustrialTheme.uss" />
+    <ui:Style src="RunEndScreen.uss" />
+    <ui:VisualElement name="runend-root" class="screen-root industrial">
+        <ui:VisualElement name="runend-sheet" class="form-sheet runend-sheet">
+            <ui:VisualElement name="runend-tape-top" />
+            <ui:VisualElement class="runend-body">
+                <ui:Label name="runend-form" text="FORM 11-C  /  INCIDENT REPORT" class="form-line" />
+                <ui:Label name="runend-title" text="CONTRACT TERMINATED" class="form-title runend-title" />
+                <ui:Label name="runend-subtitle" text="THE INFESTATION IS NOT YOUR PROBLEM ANYMORE." class="form-subtitle" />
+                <ui:VisualElement class="divider runend-divider" />
+                <ui:VisualElement class="report-rows">
+                    <ui:VisualElement class="report-row">
+                        <ui:Label text="CLEARANCE LEVEL REACHED" class="report-key" />
+                        <ui:Label name="report-level" text="1" class="report-value" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="report-row">
+                        <ui:Label text="WAVES SURVIVED" class="report-key" />
+                        <ui:Label name="report-waves" text="0" class="report-value" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="report-row">
+                        <ui:Label text="HOSTILES EXTERMINATED" class="report-key" />
+                        <ui:Label name="report-kills" text="0" class="report-value" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="report-row">
+                        <ui:Label text="SCRAP RECOVERED" class="report-key" />
+                        <ui:Label name="report-scrap" text="0" class="report-value" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="report-row">
+                        <ui:Label text="REQUISITIONS ISSUED" class="report-key" />
+                        <ui:Label name="report-upgrades" text="0" class="report-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="runend-endless" text="[ REQUEST OVERTIME ]" class="runend-button runend-button-alt" />
+                <ui:Button name="runend-restart" text="[ FILE FOR REASSIGNMENT ]" class="runend-button" />
+            </ui:VisualElement>
+            <ui:VisualElement name="runend-tape-bottom" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

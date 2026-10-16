@@ -1,0 +1,80 @@
+/* ========================================
+   RUN END SCREEN - incident report (defeat) / commendation (victory)
+   ======================================== */
+
+.runend-sheet {
+    width: 760px;
+    max-width: 94%;
+}
+
+.runend-body {
+    padding: 34px 44px 38px 44px;
+}
+
+.runend-title {
+    color: var(--alarm-red);
+    margin-top: 4px;
+}
+
+.runend-sheet.victory .runend-title {
+    color: var(--chem-green);
+}
+
+.runend-divider {
+    margin-top: 22px;
+    margin-bottom: 14px;
+}
+
+.report-rows {
+    margin-bottom: 26px;
+}
+
+.report-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(80, 80, 85, 0.7);
+}
+
+.report-key {
+    font-size: 19px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+}
+
+.report-value {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: var(--safety-yellow);
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+}
+
+.runend-button {
+    font-size: 24px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    padding: 16px 20px;
+    margin: 0;
+    color: rgb(16, 16, 16);
+    background-color: var(--safety-yellow);
+    border-width: 0;
+    border-radius: 0;
+    transition-property: background-color, translate;
+    transition-duration: 0.1s;
+}
+
+.runend-button:hover {
+    background-color: var(--hazard-orange);
+    translate: 0 -3px;
+}
+
+.runend-button:active {
+    translate: 0 1px;
+}
+
+.runend-button-alt {
+    background-color: var(--chem-green);
+    margin-bottom: 10px;
+}

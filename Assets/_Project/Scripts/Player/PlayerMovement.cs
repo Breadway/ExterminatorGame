@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 /// Responsibility: Read input → Calculate velocity → Move via physics
 /// Fires movement events for other systems to react to (animation, sfx, etc).
 /// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour, IMovementModifiable
 {
     [Header("Movement Settings")]
@@ -16,6 +17,9 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
     [SerializeField] private float dashDuration = 0.15f;
     [SerializeField] private float dashCooldown = 0.8f;
     [SerializeField] private float dashRecoveryTime = 0.1f;
+
+    [Tooltip("Seconds of invulnerability at the start of a dash.")]
+    [SerializeField] private float dashInvulnerability = 0.22f;
 
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackSpeed = 8f;
@@ -51,11 +55,40 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
     private float capsuleHeight = 2f;
     private float speedMultiplier = 1f;
     private float currentSpeed;
+    private Health ownHealth;
+    private readonly System.Collections.Generic.Dictionary<string, float> speedModifiers = new System.Collections.Generic.Dictionary<string, float>();
+    private float timedSlowMultiplier = 1f;
+    private float timedSlowUntil;
+    public bool IsDashing => isDashing;
+
+    /// <summary>Named speed multipliers (foam armor, webs, acid) that stack without overwriting each other.</summary>
+    public void SetSpeedModifier(string source, float multiplier)
+    {
+        if (Mathf.Approximately(multiplier, 1f)) speedModifiers.Remove(source);
+        else speedModifiers[source] = Mathf.Clamp(multiplier, 0.05f, 3f);
+    }
+
+    /// <summary>A slow that wears off by itself; a stronger slow replaces a weaker one until it expires.</summary>
+    public void ApplyTimedSlow(float multiplier, float seconds)
+    {
+        if (Time.time < timedSlowUntil && multiplier > timedSlowMultiplier) { timedSlowUntil = Mathf.Max(timedSlowUntil, Time.time + seconds); return; }
+        timedSlowMultiplier = Mathf.Clamp(multiplier, 0.05f, 1f);
+        timedSlowUntil = Time.time + seconds;
+    }
+
+    private float ModifierProduct()
+    {
+        float m = 1f;
+        foreach (var v in speedModifiers.Values) m *= v;
+        if (Time.time < timedSlowUntil) m *= timedSlowMultiplier;
+        return m;
+    }
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+        ownHealth = GetComponent<Health>();
         
         // Get PlayerStats from PlayerController
         var playerController = GetComponent<PlayerController>();
@@ -86,7 +119,9 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
 
     private void OnEnable()
     {
-        if (!isInitialized)
+        // Create the controls once. Keyed on the object, not a flag: a script reload clears the
+        // object but can leave a flag set, which made OnEnable throw.
+        if (controls == null)
         {
             controls = new PlayerControls();
             isInitialized = true;
@@ -99,8 +134,18 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
         controls.Player.Dash.performed += OnDashInput;
     }
 
+    private void Start()
+    {
+        stats = GetComponent<PlayerController>()?.stats;
+    }
+
     private void OnDisable()
     {
+        moveInput = Vector2.zero;
+        isDashing = false;
+        isRecovering = false;
+        knockbackEndTime = 0f;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
         if (controls != null)
         {
             controls.Player.Move.performed -= OnMoveInput;
@@ -124,6 +169,7 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
 
     private void OnDashInput(InputAction.CallbackContext context)
     {
+        if (Time.timeScale <= 0f || isDashing) return;
         // Use PlayerStats dash cooldown if available, otherwise fall back to serialized value
         float currentDashCooldown = stats != null ? stats.currentDashCooldown : dashCooldown;
         if (Time.time >= lastDashTime + currentDashCooldown)
@@ -146,6 +192,8 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
         isDashing = true;
+        // The dash is the game's dodge: invulnerable for the first part of it, then exposed but moving fast
+        if (ownHealth != null) ownHealth.GrantInvulnerability(dashInvulnerability);
 
         GameEvents.OnPlayerDash?.Invoke(dashDirection);
     }
@@ -175,7 +223,7 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
 
         if (isRecovering)
         {
-            float t = Mathf.Clamp01(1f - (recoveryEndTime - Time.time) / dashRecoveryTime);
+            float t = dashRecoveryTime > 0f ? Mathf.Clamp01(1f - (recoveryEndTime - Time.time) / dashRecoveryTime) : 1f;
             Vector2 target = Vector2.zero;
             rb.linearVelocity = Vector2.Lerp(recoveryStartVelocity, target, t);
             if (Time.time >= recoveryEndTime)
@@ -209,7 +257,7 @@ public class PlayerMovement : MonoBehaviour, IMovementModifiable
         // Normal movement via velocity to ensure collision response
         // Use PlayerStats speed if available, otherwise fall back to serialized value
         currentSpeed = stats != null ? stats.currentSpeed : moveSpeed;
-        currentSpeed *= speedMultiplier;
+        currentSpeed *= speedMultiplier * (stats != null ? stats.SpeedBuff : 1f) * ModifierProduct();
         Vector2 desiredVelocity = moveInput * currentSpeed;
 
         // If no input, zero velocity

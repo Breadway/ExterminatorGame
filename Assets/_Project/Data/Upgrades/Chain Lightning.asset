@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: chain_lightning
+  specialEffectDescription: Hits arc to 2 nearby enemies for 40% damage.
   maxStacks: 0
   conflictingUpgrades: []
   requiredUpgrades: []

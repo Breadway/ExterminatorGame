@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeID: time_dilation_field
   upgradeName: Time Dilation Field
-  description: Experimental tech warps time around you. To you, the bugs move in slow motion.
+  description: Experimental tech warps time around you. To you, the bugs move in
+    slow motion.
   icon: {fileID: 0}
   type: 2
   rarity: 2
@@ -28,9 +29,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1.25
   cooldownReduction: 0.2
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: time_dilation
+  specialEffectDescription: Everything near you moves through syrup.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

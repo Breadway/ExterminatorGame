@@ -15,6 +15,18 @@ public class PlayerAttack : MonoBehaviour {
     private bool isFiring = false;
     private float nextFireTime = 0f;
     private IWeaponAttack currentWeapon;
+    private IHoldWeapon holdWeapon;
+
+    /// <summary>Make this the active weapon. Used by CharacterLoadout when a character is chosen.</summary>
+    public void SetWeapon(IWeaponAttack weapon)
+    {
+        if (currentWeapon != null) currentWeapon.StopAttack();
+        currentWeapon = weapon;
+        holdWeapon = weapon as IHoldWeapon;
+        isFiring = false;
+        if (weapon != null && stats != null) weapon.Initialize(stats);
+        if (weapon != null) GameEvents.WeaponEquipped(weapon.WeaponId);
+    }
     
     void Awake()
     {
@@ -49,8 +61,9 @@ public class PlayerAttack : MonoBehaviour {
 
     void OnEnable()
     {
-        // Only create controls once to avoid multiple input listeners
-        if (!isInitialized)
+        // Create the controls once. Keyed on the object, not a flag: a script reload clears the
+        // object but can leave a flag set, which made OnEnable throw.
+        if (controls == null)
         {
             controls = new PlayerControls();
             isInitialized = true;
@@ -62,6 +75,13 @@ public class PlayerAttack : MonoBehaviour {
         controls.Player.Attack.Enable();
         controls.Player.Attack.started += OnAttackStarted;
         controls.Player.Attack.canceled += OnAttackCanceled;
+    }
+
+    void Start()
+    {
+        // All Awake methods have completed, regardless of component execution order.
+        stats = playerController != null ? playerController.stats : null;
+        currentWeapon?.Initialize(stats);
     }
 
     void OnDisable()
@@ -84,10 +104,10 @@ public class PlayerAttack : MonoBehaviour {
     void Update()
     {
         // Handle simple auto-fire behavior when holding the attack
-        if (isFiring && Time.time >= nextFireTime)
+        if (isFiring && Time.timeScale > 0f && health != null && health.IsAlive && Time.time >= nextFireTime)
         {
             // Use PlayerStats attack speed if available, otherwise fall back to serialized value
-            float attackSpeed = stats != null ? stats.currentAttackSpeed : baseFireRate;
+            float attackSpeed = stats != null ? stats.currentAttackSpeed * stats.AttackSpeedBuff : baseFireRate;
             nextFireTime = Time.time + (attackSpeed > 0f ? 1f / attackSpeed : 0.5f);
             if (currentWeapon != null)
             {
@@ -95,7 +115,7 @@ public class PlayerAttack : MonoBehaviour {
             }
             else
             {
-                // Safe fallback: no weapon component found — record attempt
+                // Safe fallback: no weapon component found - record attempt
                 GameEvents.DebugLog("PlayerAttack: attack attempted (no weapon found)", DebugCategory.Input);
             }
         }
@@ -103,24 +123,23 @@ public class PlayerAttack : MonoBehaviour {
 
     void OnAttackStarted(InputAction.CallbackContext context)
     {
+        if (holdWeapon != null) { holdWeapon.BeginHold(); return; }
         isFiring = true;
-        if (currentWeapon != null)
-        {
-            currentWeapon.Attack();
-        }
-        else
-        {
-            GameEvents.DebugLog("PlayerAttack: Attack started (no weapon found)", DebugCategory.Input);
-        }
     }
 
     void OnAttackCanceled(InputAction.CallbackContext context)
     {
+        if (holdWeapon != null) { holdWeapon.ReleaseHold(); return; }
         isFiring = false;
         if (currentWeapon != null)
         {
             currentWeapon.StopAttack();
         }
+    }
+
+    void OnDestroy()
+    {
+        controls?.Dispose();
     }
 
 }

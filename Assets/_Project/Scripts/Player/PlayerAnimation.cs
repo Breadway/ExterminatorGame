@@ -1,275 +1,184 @@
 using UnityEngine;
 
 /// <summary>
-/// Handles player animation based on movement input and aim direction.
-/// Responsibility: Listen to movement/aim events → Determine animation state → Play appropriate animation
-/// Supports 8-directional movement animations.
+/// Drives the player's Animator and procedural polish. The Animator (Idle/Walk/Dash/Hurt/Death)
+/// comes from Exterminator > Build Animations. On top of the clips this adds squash and stretch,
+/// a landing squash after a dash, a hit flash, footstep sounds and horizontal flipping toward the aim.
+/// Without an Animator everything still works except the frame changes.
 /// </summary>
 public class PlayerAnimation : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    
+
     [Header("Animation Parameters")]
-    [Tooltip("Parameter name for horizontal movement (-1 to 1)")]
-    [SerializeField] private string moveXParam = "MoveX";
-    [Tooltip("Parameter name for vertical movement (-1 to 1)")]
-    [SerializeField] private string moveYParam = "MoveY";
-    [Tooltip("Parameter name for whether player is moving")]
     [SerializeField] private string isMovingParam = "IsMoving";
-    [Tooltip("Parameter name for aim horizontal direction (-1 to 1)")]
+    [SerializeField] private string moveXParam = "MoveX";
+    [SerializeField] private string moveYParam = "MoveY";
     [SerializeField] private string aimXParam = "AimX";
-    [Tooltip("Parameter name for aim vertical direction (-1 to 1)")]
     [SerializeField] private string aimYParam = "AimY";
-    
-    // Current state tracking
-    private Vector2 currentMoveDirection;
-    private Vector2 currentAimDirection;
-    private bool isMoving;
-    
-    // Animation direction enum for 5-directional (with sprite flipping for left/right)
-    public enum Direction5
-    {
-        Up,         // 0
-        UpDiagonal, // 1 (UpRight, flip for UpLeft)
-        Side,       // 2 (Right, flip for Left)
-        DownDiagonal, // 3 (DownRight, flip for DownLeft)
-        Down        // 4
-    }
-    
-    /// <summary>
-    /// Current movement direction as 5-directional enum.
-    /// </summary>
+
+    [Header("Polish")]
+    [SerializeField] private float stepInterval = 0.26f;
+    [SerializeField] private float flashSeconds = 0.09f;
+    [SerializeField] private float squashRecover = 14f;
+
+    public enum Direction5 { Up, UpDiagonal, Side, DownDiagonal, Down }
     public Direction5 CurrentMoveDirection5 { get; private set; } = Direction5.Down;
-    
-    /// <summary>
-    /// Current aim direction as 5-directional enum.
-    /// </summary>
     public Direction5 CurrentAimDirection5 { get; private set; } = Direction5.Down;
-    
-    /// <summary>
-    /// Whether the sprite should be flipped horizontally.
-    /// </summary>
-    public bool ShouldFlipSprite { get; private set; } = false;
-    
+    public bool ShouldFlipSprite { get; private set; }
+
+    private Vector2 moveDirection;
+    private Vector2 aimDirection = Vector2.down;
+    private bool isMoving;
+    private bool dead;
+    private float nextStep;
+    private float flashUntil;
+    private Vector3 baseScale;
+    private Vector2 squash = Vector2.one;
+    private Material flashMaterial;
+    private Material originalMaterial;
+    private bool hasAnimatorParams;
+
     void Awake()
     {
-        if (animator == null)
+        if (animator == null) animator = GetComponent<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        baseScale = transform.localScale;
+        if (spriteRenderer != null)
         {
-            animator = GetComponent<Animator>();
+            originalMaterial = spriteRenderer.sharedMaterial;
+            var shader = Shader.Find("GUI/Text Shader");
+            if (shader != null) flashMaterial = new Material(shader);
         }
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = GetComponent<SpriteRenderer>();
-        }
+        hasAnimatorParams = animator != null && animator.runtimeAnimatorController != null;
     }
-    
+
     void OnEnable()
     {
         GameEvents.OnPlayerMovementInput += HandleMovementInput;
         GameEvents.OnPlayerAimDirectionChanged += HandleAimDirectionChanged;
+        GameEvents.OnPlayerDash += HandleDash;
+        GameEvents.OnPlayerDamaged += HandleDamaged;
+        GameEvents.OnPlayerDied += HandleDied;
     }
-    
+
     void OnDisable()
     {
         GameEvents.OnPlayerMovementInput -= HandleMovementInput;
         GameEvents.OnPlayerAimDirectionChanged -= HandleAimDirectionChanged;
+        GameEvents.OnPlayerDash -= HandleDash;
+        GameEvents.OnPlayerDamaged -= HandleDamaged;
+        GameEvents.OnPlayerDied -= HandleDied;
+        if (spriteRenderer != null && originalMaterial != null) spriteRenderer.sharedMaterial = originalMaterial;
+        transform.localScale = baseScale;
     }
-    
-    private void HandleMovementInput(Vector2 moveInput)
+
+    // ---------------- events ----------------
+    private void HandleMovementInput(Vector2 input)
     {
-        currentMoveDirection = moveInput;
-        isMoving = moveInput.sqrMagnitude > 0.01f;
-        
+        moveDirection = input;
+        isMoving = input.sqrMagnitude > 0.01f;
         if (isMoving)
         {
-            var result = VectorToDirection5(moveInput);
-            CurrentMoveDirection5 = result.direction;
-            ShouldFlipSprite = result.flip;
+            var r = VectorToDirection5(input);
+            CurrentMoveDirection5 = r.direction;
         }
-        
-        UpdateAnimatorParameters();
-        UpdateMovementAnimation();
+        PushParameters();
     }
-    
-    private void HandleAimDirectionChanged(Vector2 aimDirection)
+
+    private void HandleAimDirectionChanged(Vector2 aim)
     {
-        currentAimDirection = aimDirection;
-        var result = VectorToDirection5(aimDirection);
-        CurrentAimDirection5 = result.direction;
-        ShouldFlipSprite = result.flip;
-        
-        UpdateAnimatorParameters();
-        UpdateAimAnimation();
+        aimDirection = aim;
+        var r = VectorToDirection5(aim);
+        CurrentAimDirection5 = r.direction;
+        ShouldFlipSprite = r.flip;
+        if (spriteRenderer != null) spriteRenderer.flipX = ShouldFlipSprite;
+        PushParameters();
     }
-    
-    private void UpdateAnimatorParameters()
+
+    private void HandleDash(Vector2 direction)
     {
-        if (animator == null) return;
-        
-        // Set movement parameters
-        animator.SetFloat(moveXParam, currentMoveDirection.x);
-        animator.SetFloat(moveYParam, currentMoveDirection.y);
+        Trigger("Dash");
+        squash = new Vector2(0.78f, 1.28f); // stretch along the dash, snap back after
+        GameEvents.PlaySound("dash");
+    }
+
+    private void HandleDamaged(float amount, float hp, float max)
+    {
+        Trigger("Hurt");
+        flashUntil = Time.unscaledTime + flashSeconds;
+        squash = new Vector2(1.25f, 0.8f);
+    }
+
+    private void HandleDied()
+    {
+        dead = true;
+        Trigger("Death");
+    }
+
+    // ---------------- per frame ----------------
+    void Update()
+    {
+        if (dead) return;
+
+        // Footsteps keyed to movement, not to the animation, so they stay in time with real speed
+        if (isMoving && Time.timeScale > 0f && Time.time >= nextStep)
+        {
+            nextStep = Time.time + stepInterval;
+            GameEvents.PlaySound("step_" + Random.Range(0, 2));
+        }
+
+        // Breathing squash while idle, springing back to rest after any impact
+        float breathe = isMoving ? 0f : Mathf.Sin(Time.time * 2.4f) * 0.012f;
+        squash = Vector2.Lerp(squash, new Vector2(1f - breathe, 1f + breathe), Time.unscaledDeltaTime * squashRecover);
+        transform.localScale = new Vector3(baseScale.x * squash.x, baseScale.y * squash.y, baseScale.z);
+
+        if (spriteRenderer != null && flashMaterial != null)
+        {
+            bool flashing = Time.unscaledTime < flashUntil;
+            spriteRenderer.sharedMaterial = flashing ? flashMaterial : originalMaterial;
+            spriteRenderer.color = flashing ? Color.white : spriteRenderer.color;
+        }
+    }
+
+    // ---------------- animator helpers ----------------
+    private void PushParameters()
+    {
+        if (!hasAnimatorParams) return;
         animator.SetBool(isMovingParam, isMoving);
-        
-        // Set aim parameters
-        animator.SetFloat(aimXParam, currentAimDirection.x);
-        animator.SetFloat(aimYParam, currentAimDirection.y);
+        animator.SetFloat(moveXParam, moveDirection.x);
+        animator.SetFloat(moveYParam, moveDirection.y);
+        animator.SetFloat(aimXParam, aimDirection.x);
+        animator.SetFloat(aimYParam, aimDirection.y);
     }
-    
-    /// <summary>
-    /// Convert a Vector2 direction to a 5-directional enum with flip flag.
-    /// </summary>
+
+    private void Trigger(string name)
+    {
+        if (hasAnimatorParams) animator.SetTrigger(name);
+    }
+
+    /// <summary>Convert a Vector2 direction to a 5-directional enum with a flip flag.</summary>
     public static (Direction5 direction, bool flip) VectorToDirection5(Vector2 direction)
     {
-        if (direction.sqrMagnitude < 0.01f)
-        {
-            return (Direction5.Down, false); // Default
-        }
-        
-        // Get angle in degrees (0 = right, 90 = up, etc.)
+        if (direction.sqrMagnitude < 0.01f) return (Direction5.Down, false);
+
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        
-        // Normalize to 0-360
         if (angle < 0) angle += 360f;
-        
-        bool flip = angle > 90f && angle < 270f; // Flip when pointing left
-        
-        // Determine direction (treat as right-facing, flip sprite for left)
-        // Up = 67.5 to 112.5 (no diagonals)
-        // UpDiagonal = 22.5 to 67.5 and 112.5 to 157.5
-        // Side = 337.5 to 22.5 and 157.5 to 202.5
-        // DownDiagonal = 202.5 to 247.5 and 292.5 to 337.5
-        // Down = 247.5 to 292.5
-        
-        if (angle >= 67.5f && angle < 112.5f)
-        {
-            return (Direction5.Up, false); // Up never flips
-        }
-        else if ((angle >= 22.5f && angle < 67.5f) || (angle >= 112.5f && angle < 157.5f))
-        {
-            return (Direction5.UpDiagonal, flip);
-        }
-        else if ((angle >= 337.5f || angle < 22.5f) || (angle >= 157.5f && angle < 202.5f))
-        {
-            return (Direction5.Side, flip);
-        }
-        else if ((angle >= 202.5f && angle < 247.5f) || (angle >= 292.5f && angle < 337.5f))
-        {
-            return (Direction5.DownDiagonal, flip);
-        }
-        else // 247.5 to 292.5
-        {
-            return (Direction5.Down, false); // Down never flips
-        }
+        bool flip = angle > 90f && angle < 270f;
+
+        if (angle >= 67.5f && angle < 112.5f) return (Direction5.Up, false);
+        if ((angle >= 22.5f && angle < 67.5f) || (angle >= 112.5f && angle < 157.5f)) return (Direction5.UpDiagonal, flip);
+        if (angle >= 337.5f || angle < 22.5f || (angle >= 157.5f && angle < 202.5f)) return (Direction5.Side, flip);
+        if ((angle >= 202.5f && angle < 247.5f) || (angle >= 292.5f && angle < 337.5f)) return (Direction5.DownDiagonal, flip);
+        return (Direction5.Down, false);
     }
-    
-    // ========================================
-    // ANIMATION STUBS - Implement when animations are ready
-    // ========================================
-    
-    /// <summary>
-    /// Update movement animation based on current direction.
-    /// TODO: Implement when 5-directional movement animations are ready.
-    /// </summary>
-    private void UpdateMovementAnimation()
-    {
-        // STUB: Play appropriate movement animation based on CurrentMoveDirection5
-        // Example implementation:
-        // switch (CurrentMoveDirection5)
-        // {
-        //     case Direction5.Up:
-        //         PlayAnimation("Walk_Up");
-        //         break;
-        //     case Direction5.UpDiagonal:
-        //         PlayAnimation("Walk_UpDiagonal");
-        //         break;
-        //     case Direction5.Side:
-        //         PlayAnimation("Walk_Side");
-        //         break;
-        //     case Direction5.DownDiagonal:
-        //         PlayAnimation("Walk_DownDiagonal");
-        //         break;
-        //     case Direction5.Down:
-        //         PlayAnimation("Walk_Down");
-        //         break;
-        // }
-        
-        // Alternative: Use blend tree with MoveX/MoveY parameters (already set in UpdateAnimatorParameters)
-    }
-    
-    /// <summary>
-    /// Update aim/attack animation based on current aim direction.
-    /// Applies sprite flipping when aiming left.
-    /// </summary>
-    private void UpdateAimAnimation()
-    {
-        // Apply sprite flipping based on aim direction
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.flipX = ShouldFlipSprite;
-        }
-    }
-    
-    /// <summary>
-    /// Play idle animation for the given direction.
-    /// TODO: Implement when idle animations are ready.
-    /// </summary>
-    public void PlayIdleAnimation(Direction5 direction)
-    {
-        // STUB: Play idle animation facing the specified direction
-        // animator?.Play($"Idle_{direction}");
-    }
-    
-    /// <summary>
-    /// Play attack animation for the given direction.
-    /// TODO: Implement when attack animations are ready.
-    /// </summary>
-    public void PlayAttackAnimation(Direction5 direction)
-    {
-        // STUB: Play attack animation facing the specified direction
-        // animator?.Play($"Attack_{direction}");
-    }
-    
-    /// <summary>
-    /// Play dash animation for the given direction.
-    /// TODO: Implement when dash animations are ready.
-    /// </summary>
-    public void PlayDashAnimation(Direction5 direction)
-    {
-        // STUB: Play dash animation facing the specified direction
-        // animator?.Play($"Dash_{direction}");
-    }
-    
-    /// <summary>
-    /// Play damage/hurt animation.
-    /// TODO: Implement when hurt animation is ready.
-    /// </summary>
-    public void PlayHurtAnimation()
-    {
-        // STUB: Play hurt animation
-        // animator?.SetTrigger("Hurt");
-    }
-    
-    /// <summary>
-    /// Play death animation.
-    /// TODO: Implement when death animation is ready.
-    /// </summary>
-    public void PlayDeathAnimation()
-    {
-        // STUB: Play death animation
-        // animator?.SetTrigger("Death");
-    }
-    
-    /// <summary>
-    /// Helper to play a named animation state.
-    /// </summary>
-    private void PlayAnimation(string stateName)
-    {
-        if (animator != null && !string.IsNullOrEmpty(stateName))
-        {
-            animator.Play(stateName);
-        }
-    }
+
+    // Kept for callers of the earlier stubs
+    public void PlayIdleAnimation(Direction5 direction) { }
+    public void PlayAttackAnimation(Direction5 direction) { }
+    public void PlayDashAnimation(Direction5 direction) { Trigger("Dash"); }
+    public void PlayHurtAnimation() { Trigger("Hurt"); }
+    public void PlayDeathAnimation() { Trigger("Death"); }
 }

@@ -136,6 +136,7 @@ public class UpgradeData : ScriptableObject {
     /// Check if this upgrade can be taken (based on restrictions).
     /// </summary>
     public bool CanBeTaken(PlayerStats stats) {
+        if (stats == null) return false;
         // Check max stacks
         if (maxStacks > 0 && stats.HasUpgrade(this)) {
             int currentStacks = 0;
@@ -146,13 +147,21 @@ public class UpgradeData : ScriptableObject {
         }
         
         // Check conflicting upgrades
-        foreach (UpgradeData conflict in conflictingUpgrades) {
-            if (stats.HasUpgrade(conflict)) return false;
+        if (conflictingUpgrades != null) foreach (UpgradeData conflict in conflictingUpgrades) {
+            if (conflict != null && stats.HasUpgrade(conflict)) return false;
+        }
+
+        // Exclusivity is symmetric even if only one asset declares the conflict.
+        foreach (UpgradeData applied in stats.AppliedUpgrades) {
+            if (applied == null || applied.conflictingUpgrades == null) continue;
+            foreach (UpgradeData conflict in applied.conflictingUpgrades) {
+                if (conflict == this) return false;
+            }
         }
         
         // Check required upgrades
-        foreach (UpgradeData required in requiredUpgrades) {
-            if (!stats.HasUpgrade(required)) return false;
+        if (requiredUpgrades != null) foreach (UpgradeData required in requiredUpgrades) {
+            if (required != null && !stats.HasUpgrade(required)) return false;
         }
         
         return true;

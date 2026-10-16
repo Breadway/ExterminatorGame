@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeID: emergency_protocols
   upgradeName: Emergency Protocols
-  description: Your suit's damage control systems activate automatically when things get rough.
+  description: Your suit's damage control systems activate automatically when things
+    get rough.
   icon: {fileID: 0}
   type: 1
   rarity: 1
@@ -28,9 +29,10 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: emergency_protocols
+  specialEffectDescription: Damage control activates automatically when things get
+    rough. Once per sector.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

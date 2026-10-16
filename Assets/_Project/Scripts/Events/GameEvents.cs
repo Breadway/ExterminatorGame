@@ -23,6 +23,12 @@ public static class GameEvents
 
     public static Action<Vector2> OnPlayerDash;
 
+    /// <summary>Parameters: wave number, planned enemy count. Listeners: HUD and room progression.</summary>
+    public static event Action<int, int> OnWaveStarted;
+
+    /// <summary>Parameters: completed wave number. Listeners: RoomManager and rewards.</summary>
+    public static event Action<int> OnWaveCleared;
+
     /// <summary>
     /// Fired when player selects an upgrade from the upgrade choice UI.   
     /// Parameters: chosen UpgradeData
@@ -348,6 +354,12 @@ public static class GameEvents
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     [System.Obsolete("Use DebugLog(message, category) instead for better filtering.")]
     public static void DebugLog(string message) { }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public static void DebugWarning(string message, DebugCategory category = DebugCategory.General) { }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public static void DebugError(string message, DebugCategory category = DebugCategory.General) { }
     #endif
     
     
@@ -355,31 +367,42 @@ public static class GameEvents
     // HELPER METHODS (Optional - for safer invocation)
     // ========================================
 
-    public static void StartRun() {
-        try {
-            OnRunStarted?.Invoke();
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnRunStarted listeners: {e.Message}");
+    // ========================================
+    // ISOLATED DISPATCH
+    // ========================================
+
+    /// <summary>
+    /// Invoke every subscriber separately so one that throws cannot stop the others. A plain
+    /// delegate Invoke aborts at the first exception, which silently broke wave clearing when an
+    /// earlier OnEnemyKilled listener failed. Failures are always logged, not gated by debug categories.
+    /// </summary>
+    private static void Dispatch(Delegate handlers, string eventName, params object[] args)
+    {
+        if (handlers == null) return;
+        foreach (var handler in handlers.GetInvocationList())
+        {
+            try { handler.DynamicInvoke(args); }
+            catch (Exception e)
+            {
+                var inner = e is System.Reflection.TargetInvocationException && e.InnerException != null ? e.InnerException : e;
+                Debug.LogError($"[GameEvents] {eventName} listener {handler.Method.DeclaringType?.Name}.{handler.Method.Name} threw: {inner}");
+            }
         }
     }
 
+    public static void StartRun() {
+        Dispatch(OnRunStarted, nameof(OnRunStarted));
+    }
+
     public static void EndRun(bool wasVictory) {
-        try {
-            OnRunEnded?.Invoke(wasVictory);
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnRunEnded listeners: {e.Message}");
-        }
+        Dispatch(OnRunEnded, nameof(OnRunEnded), wasVictory);
     }
     
     /// <summary>
     /// Safely invoke OnEnemyKilled with null check and error handling.
     /// </summary>
     public static void EnemyKilled(Enemy enemy) {
-        try {
-            OnEnemyKilled?.Invoke(enemy);
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnEnemyKilled listeners: {e.Message}");
-        }
+        Dispatch(OnEnemyKilled, nameof(OnEnemyKilled), enemy);
     }
     
     /// <summary>
@@ -408,22 +431,14 @@ public static class GameEvents
     /// Safely invoke OnLevelUp with null check and error handling.
     /// </summary>
     public static void LevelUp(int newLevel) {
-        try {
-            OnLevelUp?.Invoke(newLevel);
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnLevelUp listeners: {e.Message}");
-        }
+        Dispatch(OnLevelUp, nameof(OnLevelUp), newLevel);
     }
     
     /// <summary>
     /// Safely invoke OnRoomCleared with null check and error handling.
     /// </summary>
     public static void RoomCleared(int roomIndex) {
-        try {
-            OnRoomCleared?.Invoke(roomIndex);
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnRoomCleared listeners: {e.Message}");
-        }
+        Dispatch(OnRoomCleared, nameof(OnRoomCleared), roomIndex);
     }
     /// <summary>
     /// Safely invoke OnPlayerHealed with null check and error handling.   
@@ -440,11 +455,7 @@ public static class GameEvents
     /// Safely invoke OnPlayerDied with null check and error handling.  
     /// </summary>
     public static void PlayerDied() {   // Helper method
-        try {
-            OnPlayerDied?.Invoke();
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnPlayerDied listeners: {e.Message}");
-        }
+        Dispatch(OnPlayerDied, nameof(OnPlayerDied));
     }
 
     /// <summary>
@@ -470,19 +481,11 @@ public static class GameEvents
     }
 
     public static void EnemyDamaged(float amount, Vector2 hitPoint, Vector2 hitDirection) {
-        try {
-            OnEnemyDamaged?.Invoke(amount, hitPoint, hitDirection);
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnEnemyDamaged listeners: {e.Message}");
-        }
+        Dispatch(OnEnemyDamaged, nameof(OnEnemyDamaged), amount, hitPoint, hitDirection);
     }
 
     public static void UpgradeApplied(UpgradeData upgrade) {
-        try {
-            OnPlayerUpgradeApplied?.Invoke(upgrade);
-        } catch (Exception e) {
-            GameEvents.DebugError($"Error in OnPlayerUpgradeApplied listeners: {e.Message}");
-        }
+        Dispatch(OnPlayerUpgradeApplied, nameof(OnPlayerUpgradeApplied), upgrade);
     }
     
     /// <summary>
@@ -507,7 +510,138 @@ public static class GameEvents
         }
     }
     
-    // Add more helper methods as needed for frequently used events
+    public static void OfferUpgrades(int level, UpgradeData[] choices) {
+        OnUpgradeOffered?.Invoke(level, choices);
+    }
+
+    public static void ChangeGameState(GameState state) {
+        OnGameStateChanged?.Invoke(state);
+    }
+
+    public static void PauseGame(bool paused) {
+        OnGamePaused?.Invoke(paused);
+    }
+
+    // ---- Added for rooms, paths, meta progression ----
+
+    /// <summary>Parameters: live enemy count. Listeners: HUD.</summary>
+    public static event Action<int> OnEnemyCountChanged;
+
+    /// <summary>Parameters: room index, room definition. Listeners: HUD (room banner/modifier), audio.</summary>
+    public static event Action<int, RoomDefinition> OnRoomStarted;
+
+    /// <summary>Parameters: next room index, 2-3 room choices. Listeners: map screen.</summary>
+    public static event Action<int, RoomDefinition[]> OnMapOffered;
+
+    public static void MapOffered(int nextRoom, RoomDefinition[] options) { Dispatch(OnMapOffered, nameof(OnMapOffered), nextRoom, options); }
+
+    /// <summary>Raised after a run is won, so the player can continue into endless mode.</summary>
+    public static event Action OnEndlessAvailable;
+
+    /// <summary>Parameters: enemy hit, damage dealt. Listeners: UpgradeEffects (chain lightning), damage numbers.</summary>
+    public static event Action<Enemy, float> OnEnemyHit;
+
+    /// <summary>Raised when a boss enters the arena. Listeners: HUD boss bar, audio.</summary>
+    public static event Action<Enemy> OnBossSpawned;
+
+    /// <summary>Weapon gauge (heat, charge). Parameters: label, 0-1 value, in danger zone. Listeners: HUD.</summary>
+    public static event Action<string, float, bool> OnWeaponMeter;
+
+    /// <summary>Parameters: total scrap held, change. Listeners: HUD, lobby.</summary>
+    public static event Action<int, int> OnScrapChanged;
+
+    /// <summary>Parameters: strength 0-1. Listeners: ScreenShake.</summary>
+    public static event Action<float> OnScreenShake;
+
+    public static void EnemyHit(Enemy enemy, float amount) { Dispatch(OnEnemyHit, nameof(OnEnemyHit), enemy, amount); }
+    public static void BossSpawned(Enemy boss) { OnBossSpawned?.Invoke(boss); }
+    public static void WeaponMeter(string label, float value, bool danger) { OnWeaponMeter?.Invoke(label, value, danger); }
+    public static void ScrapChanged(int total, int delta) { OnScrapChanged?.Invoke(total, delta); }
+    public static void ScreenShake(float strength) { OnScreenShake?.Invoke(strength); }
+
+    // ---- Audio / weapon / feedback events ----
+
+    /// <summary>Weapon fired. Parameters: weapon id, origin, direction, power 0-1. Listeners: AudioManager, Fx, WeaponVisual.</summary>
+    public static event Action<string, Vector2, Vector2, float> OnWeaponFired;
+
+    /// <summary>A held weapon started or stopped (flame, foam, charge). Parameters: weapon id, held. Listeners: AudioManager, WeaponVisual.</summary>
+    public static event Action<string, bool> OnWeaponHeld;
+
+    /// <summary>Freeze frame. Parameters: seconds (real time), time scale during the freeze. Listeners: HitStop.</summary>
+    public static event Action<float, float> OnHitStop;
+
+    /// <summary>Camera zoom punch. Parameter: strength 0-1. Listeners: ScreenShake.</summary>
+    public static event Action<float> OnZoomPunch;
+
+    /// <summary>Shop opened or closed. Parameter: open. Listeners: AudioManager, HUD.</summary>
+    public static event Action<bool> OnShopToggled;
+
+    /// <summary>A lore document was opened. Parameter: document id. Listeners: document popup.</summary>
+    public static event Action<string> OnDocumentShown;
+
+    /// <summary>The document popup closed. Listeners: whoever paused for it.</summary>
+    public static event Action OnDocumentClosed;
+
+    public static void DocumentShown(string id) { Dispatch(OnDocumentShown, nameof(OnDocumentShown), id); }
+    public static void DocumentClosed() { Dispatch(OnDocumentClosed, nameof(OnDocumentClosed)); }
+
+    /// <summary>A weapon became active. Parameter: weapon id. Listeners: WeaponVisual (held sprite), HUD.</summary>
+    public static event Action<string> OnWeaponEquipped;
+    public static void WeaponEquipped(string id) { Dispatch(OnWeaponEquipped, nameof(OnWeaponEquipped), id); }
+
+    public static void PlaySound(string name, Vector2 position = default) { Dispatch(OnPlaySound, nameof(OnPlaySound), name, position); }
+    public static void PlayMusic(string name) { Dispatch(OnPlayMusic, nameof(OnPlayMusic), name); }
+    public static void WeaponFired(string id, Vector2 origin, Vector2 dir, float power = 0f) { Dispatch(OnWeaponFired, nameof(OnWeaponFired), id, origin, dir, power); }
+    public static void WeaponHeld(string id, bool held) { Dispatch(OnWeaponHeld, nameof(OnWeaponHeld), id, held); }
+    public static void HitStop(float seconds, float scale = 0.04f) { Dispatch(OnHitStop, nameof(OnHitStop), seconds, scale); }
+    public static void ZoomPunch(float strength) { Dispatch(OnZoomPunch, nameof(OnZoomPunch), strength); }
+    public static void ShopToggled(bool open) { Dispatch(OnShopToggled, nameof(OnShopToggled), open); }
+
+    /// <summary>True while an enemy is inside the Custodian's guard radius. Listeners: HUD warning.</summary>
+    public static event Action<bool> OnGuardBreach;
+
+    public static void GuardBreach(bool breached) { Dispatch(OnGuardBreach, nameof(OnGuardBreach), breached); }
+
+    public static void EnemyCountChanged(int count) { Dispatch(OnEnemyCountChanged, nameof(OnEnemyCountChanged), count); }
+    public static void RoomStarted(int index, RoomDefinition room) { OnRoomStarted?.Invoke(index, room); }
+    /// <summary>Raised when the player continues past the final room. Listeners: MetaProgression (start a new scrap tally).</summary>
+    public static event Action OnEndlessStarted;
+    public static void EndlessStarted() { OnEndlessStarted?.Invoke(); }
+    public static void EndlessAvailable() { OnEndlessAvailable?.Invoke(); }
+    public static void CurrencyEarned(int amount) { OnCurrencyEarned?.Invoke(amount); }
+
+    public static void BossDefeated(string bossName) {
+        try {
+            OnBossDefeated?.Invoke(bossName);
+        } catch (Exception e) {
+            GameEvents.DebugError($"Error in OnBossDefeated listeners: {e.Message}", DebugCategory.General);
+        }
+    }
+
+    public static void BossRoomEntered() {
+        OnBossRoomEntered?.Invoke();
+    }
+
+    public static void ShowNotification(string text) {
+        OnShowNotification?.Invoke(text);
+    }
+
+    public static void EnterRoom(int roomIndex) {
+        OnRoomEntered?.Invoke(roomIndex);
+    }
+
+    public static void WaveStarted(int wave, int enemyCount) {
+        OnWaveStarted?.Invoke(wave, enemyCount);
+    }
+
+    public static void WaveCleared(int wave) {
+        OnWaveCleared?.Invoke(wave);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticEvents() {
+        ClearAllListeners();
+    }
     
     
     // ========================================
@@ -520,6 +654,31 @@ public static class GameEvents
     /// Usually it's better to let each system manage its own subscriptions.
     /// </summary>
     public static void ClearAllListeners() {
+        OnPlayerMovementInput = null;
+        OnPlayerAimDirectionChanged = null;
+        OnPlayerDash = null;
+        OnHealthChanged = null;
+        OnWaveStarted = null;
+        OnWaveCleared = null;
+        OnEnemyCountChanged = null;
+        OnRoomStarted = null;
+        OnEndlessAvailable = null;
+        OnMapOffered = null;
+        OnEndlessStarted = null;
+        OnWeaponFired = null;
+        OnWeaponHeld = null;
+        OnWeaponEquipped = null;
+        OnHitStop = null;
+        OnZoomPunch = null;
+        OnShopToggled = null;
+        OnDocumentShown = null;
+        OnDocumentClosed = null;
+        OnEnemyHit = null;
+        OnBossSpawned = null;
+        OnWeaponMeter = null;
+        OnScrapChanged = null;
+        OnGuardBreach = null;
+        OnScreenShake = null;
         // Combat
         OnEnemyKilled = null;
         OnEnemyDamaged = null;
@@ -585,8 +744,10 @@ public enum GameState {
     Playing,
     Paused,
     UpgradeChoice,
+    Shop,
     GameOver,
     Victory,
-    Loading
+    Loading,
+    MapChoice,
+    Event
 }
-

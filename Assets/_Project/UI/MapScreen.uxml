@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="IndustrialTheme.uss" />
+    <ui:Style src="MapScreen.uss" />
+    <ui:VisualElement name="map-root" class="screen-root industrial">
+        <ui:VisualElement class="form-sheet map-sheet">
+            <ui:VisualElement name="map-tape-top" />
+            <ui:VisualElement class="map-body">
+                <ui:Label name="map-route" text="ROUTE PLANNING" class="form-line" />
+                <ui:Label text="CHOOSE NEXT SECTOR" class="form-title map-title" />
+                <ui:Label text="MANAGEMENT ACCEPTS NO RESPONSIBILITY FOR WRONG TURNS." class="form-subtitle" />
+                <ui:VisualElement name="map-row" class="map-row" />
+                <ui:Label text="PRESS 1, 2 OR 3 - OR CLICK A DESTINATION" class="form-line" />
+            </ui:VisualElement>
+            <ui:VisualElement name="map-tape-bottom" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

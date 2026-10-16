@@ -51,7 +51,7 @@ public class PlayerAiming : MonoBehaviour
         currentWeapon = GetComponent<IWeaponAttack>();
         if (currentWeapon == null)
         {
-            currentWeapon = GetComponent<IWeaponAttack>();
+            currentWeapon = GetComponentInChildren<IWeaponAttack>();
         }
         
         if (currentWeapon != null)
@@ -64,6 +64,13 @@ public class PlayerAiming : MonoBehaviour
         }
     }
     
+    /// <summary>Called when the active weapon changes so the range readout follows it.</summary>
+    public void RefreshWeapon(IWeaponAttack weapon)
+    {
+        currentWeapon = weapon;
+        WeaponRange = weapon != null ? weapon.WeaponRange : 0f;
+    }
+
     void Update()
     {
         UpdateAimDirection();
@@ -72,14 +79,17 @@ public class PlayerAiming : MonoBehaviour
     
     private void UpdateAimDirection()
     {
-        if (mainCamera == null) return;
+        if (mainCamera == null || firePoint == null || Time.timeScale <= 0f) return;
         
         // Get mouse screen position from input system
         if (Mouse.current == null) return;
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         
         // Convert to world position
-        MouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPos);
+        Ray ray = mainCamera.ScreenPointToRay(mouseScreenPos);
+        Plane gameplayPlane = new Plane(Vector3.forward, firePoint.position);
+        if (!gameplayPlane.Raycast(ray, out float distance)) return;
+        MouseWorldPosition = ray.GetPoint(distance);
         
         // Calculate direction from player to mouse
         Vector2 toMouse = MouseWorldPosition - (Vector2)firePoint.position;

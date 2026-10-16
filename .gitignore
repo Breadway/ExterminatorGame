@@ -108,3 +108,6 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 Assets/_Recovery/0 (4).unity.meta
 Assets/_Recovery/0 (4).unity
+
+# Local hygiene notes (not for commit)
+CLAUDE.md

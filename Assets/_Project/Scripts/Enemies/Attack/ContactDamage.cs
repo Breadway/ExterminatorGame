@@ -1,44 +1,44 @@
 using UnityEngine;
 
+/// <summary>
+/// Melee damage on touch. It polls the gap between colliders instead of using OnCollisionStay2D:
+/// Unity sends no stay callbacks once both bodies fall asleep, so an enemy standing still against
+/// the player (which is exactly what a chasing enemy does) would stop hurting them.
+/// </summary>
 public class ContactDamage : MonoBehaviour, IAttackBehaviour
 {
     private EnemyData enemyData;
     private float nextAttackTime = 0f;
-    private GameObject cachedTarget;
-    private Health cachedHealth;
-    
-    // Cached layer to avoid expensive LayerMask.NameToLayer() calls every frame
-    private static int playerLayer = -1;
-    
+    private Collider2D ownCollider;
+    private Health targetHealth;
+    private Collider2D targetCollider;
+    private Health ownHealth;
+    private const float TouchGap = 0.08f;
+
     void Awake()
     {
-        // Cache player layer once (static, shared across all instances)
-        if (playerLayer == -1)
-        {
-            playerLayer = LayerMask.NameToLayer("Player");
-        }
+        ownCollider = GetComponent<Collider2D>();
+        ownHealth = GetComponent<Health>();
     }
 
     public void Initialize(EnemyData enemyData)
     {
         this.enemyData = enemyData;
+        // A short grace period so a freshly spawned enemy cannot hit on its first frame
+        nextAttackTime = Time.time + 0.25f;
     }
 
     public void Attack(GameObject target)
     {
-        // Cache the health component to avoid repeated lookups while colliding.
-        if (target != cachedTarget)
-        {
-            cachedTarget = target;
-            cachedHealth = target.GetComponent<Health>();
-        }
+        if (target == null || enemyData == null || Time.timeScale <= 0f || Time.time < nextAttackTime) return;
+        var health = target.GetComponent<Health>();
+        if (health == null) return;
 
-        if (cachedHealth != null)
-        {
-            Vector2 hitPoint = target.transform.position;
-            Vector2 hitDirection = ((Vector2)target.transform.position - (Vector2)transform.position).normalized;
-            cachedHealth.TakeDamage(enemyData.attackDamage, hitPoint, hitDirection);
-        }
+        Vector2 hitPoint = target.transform.position;
+        Vector2 hitDirection = ((Vector2)target.transform.position - (Vector2)transform.position).normalized;
+        float mult = GetComponent<Enemy>()?.DamageMultiplier ?? 1f;
+        health.TakeDamage(enemyData.attackDamage * mult, hitPoint, hitDirection);
+        nextAttackTime = Time.time + Mathf.Max(0f, enemyData.attackCooldown);
     }
 
     public void StopAttack()
@@ -46,25 +46,31 @@ public class ContactDamage : MonoBehaviour, IAttackBehaviour
         // No continuous attack to stop for contact damage
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    /// <summary>Push back the next attack (mop stagger). Never shortens an existing delay.</summary>
+    public void DelayNextAttack(float seconds)
     {
-        if (collision.gameObject.layer != playerLayer)
-        {
-            return;
-        }
-        else if (nextAttackTime <= Time.time)
-        {
-            Attack(collision.gameObject);
-            nextAttackTime = Time.time + enemyData.attackCooldown;
-        }
+        if (seconds <= 0f) return;
+        nextAttackTime = Mathf.Max(nextAttackTime, Time.time + seconds);
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    void FixedUpdate()
     {
-        if (collision.gameObject == cachedTarget)
+        if (enemyData == null || Time.time < nextAttackTime || Time.timeScale <= 0f) return;
+        if (ownHealth != null && !ownHealth.IsAlive) return;
+
+        var player = PlayerController.Instance;
+        if (player == null) return;
+        if (targetCollider == null || targetCollider.gameObject != player.gameObject)
         {
-            cachedTarget = null;
-            cachedHealth = null;
+            targetCollider = player.GetComponent<Collider2D>();
+            targetHealth = player.GetComponent<Health>();
+        }
+        if (ownCollider == null || targetCollider == null || targetHealth == null || !targetHealth.IsAlive) return;
+
+        ColliderDistance2D gap = ownCollider.Distance(targetCollider);
+        if (gap.isOverlapped || gap.distance <= TouchGap)
+        {
+            Attack(player.gameObject);
         }
     }
 }

@@ -24,6 +24,9 @@ public class FlyingMovement : MonoBehaviour, IMovementBehavior
 
     private static Transform cachedPlayer;
     private bool isStopped = false;
+    private Collider2D ownCollider;
+    private Collider2D targetCollider;
+    private Transform colliderFor;
     
     // Pre-allocated buffer for overlap checks (avoid GC)
     private static readonly Collider2D[] separationBuffer = new Collider2D[16];
@@ -50,6 +53,7 @@ public class FlyingMovement : MonoBehaviour, IMovementBehavior
 
         target = cachedPlayer;
         rb = GetComponent<Rigidbody2D>();
+        ownCollider = GetComponent<Collider2D>();
         
         if (rb != null)
         {
@@ -72,6 +76,7 @@ public class FlyingMovement : MonoBehaviour, IMovementBehavior
 
     public void UpdateMovement()
     {
+        if (target == null && PlayerController.Instance != null) target = PlayerController.Instance.transform;
         if (target == null || rb == null || isStopped)
         {
             return;
@@ -82,8 +87,9 @@ public class FlyingMovement : MonoBehaviour, IMovementBehavior
         Vector2 direction = targetPos - currentPos;
         float distance = direction.magnitude;
 
-        // Stop when close enough to target
-        if (distance <= stoppingDistance)
+        // Stop when touching the target. A fixed centre distance sits inside both colliders, and a
+        // crowd of overlapping kinematic bodies shoves the player across the arena.
+        if (InContact(distance))
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -107,6 +113,19 @@ public class FlyingMovement : MonoBehaviour, IMovementBehavior
         }
     }
     
+    private bool InContact(float centreDistance)
+    {
+        if (colliderFor != target)
+        {
+            colliderFor = target;
+            targetCollider = target != null ? target.GetComponent<Collider2D>() : null;
+        }
+        if (ownCollider == null || targetCollider == null || !ownCollider.enabled) return centreDistance <= stoppingDistance;
+        if (centreDistance > 4f) return false; // far away: skip the exact test
+        ColliderDistance2D gap = ownCollider.Distance(targetCollider);
+        return gap.isOverlapped || gap.distance <= 0.03f;
+    }
+
     /// <summary>
     /// Calculate separation vector to steer away from nearby enemies.
     /// Uses a shared static buffer to avoid GC allocations.
@@ -162,4 +181,4 @@ public class FlyingMovement : MonoBehaviour, IMovementBehavior
             rb.linearVelocity = Vector2.zero;
         }
     }
-}  
+}

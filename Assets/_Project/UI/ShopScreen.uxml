@@ -1,0 +1,29 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="IndustrialTheme.uss" />
+    <ui:Style src="UpgradeScreen.uss" />
+    <ui:Style src="ShopScreen.uss" />
+    <ui:VisualElement name="shop-root" class="screen-root industrial">
+        <ui:VisualElement class="form-sheet shop-sheet">
+            <ui:VisualElement name="shop-tape-top" />
+            <ui:VisualElement class="shop-body">
+                <ui:VisualElement class="shop-header">
+                    <ui:VisualElement>
+                        <ui:Label text="BREAK ROOM  /  COMPANY STORE" class="form-line" />
+                        <ui:Label text="REQUISITIONS COUNTER" class="form-title shop-title" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="funds-box">
+                        <ui:Label text="SCRAP ON HAND" class="form-line" />
+                        <ui:Label name="shop-funds" text="0" class="funds-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label text="PRICES ARE FINAL. MANAGEMENT KEEPS THE CHANGE." class="form-subtitle" />
+                <ui:VisualElement name="shop-shelf" class="shop-shelf" />
+                <ui:VisualElement class="shop-footer">
+                    <ui:Button name="shop-reroll" text="[ RESTOCK 10 ]" class="shop-button shop-button-alt" />
+                    <ui:Button name="shop-leave" text="[ RETURN TO DUTY ]" class="shop-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="shop-tape-bottom" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

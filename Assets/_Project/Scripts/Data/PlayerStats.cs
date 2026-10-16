@@ -47,6 +47,63 @@ public class PlayerStats {
     
     
     // ========================================
+    // RUNTIME BUFFS (set by effects such as Adrenaline Surge, never saved)
+    // ========================================
+
+    private readonly Dictionary<string, Vector3> buffSources = new Dictionary<string, Vector3>();
+    public float SpeedBuff { get; private set; } = 1f;
+    public float AttackSpeedBuff { get; private set; } = 1f;
+    public float DamageBuff { get; private set; } = 1f;
+
+    /// <summary>Set a named temporary multiplier. Sources stack by multiplying, so two effects never overwrite each other.</summary>
+    public void SetBuff(string source, float speed, float attackSpeed, float damage) {
+        buffSources[source] = new Vector3(speed, attackSpeed, damage);
+        RecomputeBuffs();
+    }
+
+    public void ClearBuff(string source) {
+        if (buffSources.Remove(source)) RecomputeBuffs();
+    }
+
+    public void ClearAllBuffs() {
+        buffSources.Clear();
+        RecomputeBuffs();
+    }
+
+    private void RecomputeBuffs() {
+        float s = 1f, a = 1f, d = 1f;
+        foreach (var v in buffSources.Values) { s *= v.x; a *= v.y; d *= v.z; }
+        SpeedBuff = s; AttackSpeedBuff = a; DamageBuff = d;
+    }
+
+    /// <summary>Permanent bonuses bought in the lobby, applied on top of every recalculation.</summary>
+    private float metaHP, metaDamage, metaSpeed;
+
+    public void SetMetaBonuses(float hpFraction, float damageFraction, float speedFraction) {
+        metaHP = hpFraction;
+        metaDamage = damageFraction;
+        metaSpeed = speedFraction;
+        RecalculateStats();
+    }
+
+    private float foamArmor;
+
+    /// <summary>Temporary armor from foam. Lasts until the weapon changes or clears it.</summary>
+    public void SetFoamArmor(float value) {
+        foamArmor = Mathf.Max(0f, value);
+    }
+
+    /// <summary>How many applied upgrades carry this special effect id.</summary>
+    public int CountEffect(string effectId) {
+        if (string.IsNullOrEmpty(effectId)) return 0;
+        int count = 0;
+        foreach (UpgradeData u in appliedUpgrades) {
+            if (u != null && u.hasSpecialEffect && u.specialEffectID == effectId) count++;
+        }
+        return count;
+    }
+
+    // ========================================
     // UPGRADE TRACKING
     // ========================================
     
@@ -83,6 +140,16 @@ public class PlayerStats {
     }
     
     
+    /// <summary>Replace the base stats with a character's. Keeps applied upgrades and meta bonuses.</summary>
+    public void ApplyCharacter(CharacterData character) {
+        if (character == null) return;
+        baseMaxHP = character.maxHP;
+        baseDamage = character.damage;
+        baseSpeed = character.speed;
+        baseAttackSpeed = character.attackSpeed;
+        RecalculateStats();
+    }
+
     // ========================================
     // UPGRADE SYSTEM
     // ========================================
@@ -92,7 +159,7 @@ public class PlayerStats {
     /// Automatically recalculates all current stats.
     /// </summary>
     public void ApplyUpgrade(UpgradeData upgrade) {
-        if (upgrade == null) {
+        if (upgrade == null || !upgrade.CanBeTaken(this)) {
             GameEvents.DebugLog("Attempted to apply null upgrade", DebugCategory.PlayerStats);
             return;
         }
@@ -129,16 +196,29 @@ public class PlayerStats {
         currentArmor = baseArmor;
         currentDashCooldown = 2f; // Default dash cooldown
         
-        // Apply all upgrades
+        // Sum flat bonuses before multiplying so acquisition order cannot change a build.
+        float healthMultiplier = 1f;
+        float damageMultiplier = 1f;
         foreach (UpgradeData upgrade in appliedUpgrades) {
             ApplyUpgradeModifiers(upgrade);
+            healthMultiplier *= upgrade.healthMultiplier;
+            damageMultiplier *= upgrade.damageMultiplier;
         }
+        currentMaxHP *= healthMultiplier;
+        currentDamage *= damageMultiplier;
+        currentMaxHP *= 1f + metaHP;
+        currentDamage *= 1f + metaDamage;
+        currentSpeed *= 1f + metaSpeed;
         
         // Clamp values to reasonable ranges
         currentCritChance = Mathf.Clamp01(currentCritChance); // 0-100%
         currentSpeed = Mathf.Max(1f, currentSpeed); // Minimum speed
         currentAttackSpeed = Mathf.Max(0.1f, currentAttackSpeed); // Minimum attack speed
         currentDashCooldown = Mathf.Max(0.1f, currentDashCooldown); // Minimum cooldown
+        currentMaxHP = Mathf.Max(1f, currentMaxHP);
+        currentDamage = Mathf.Max(0f, currentDamage);
+        currentArmor = Mathf.Max(0f, currentArmor);
+        currentCritMultiplier = Mathf.Max(1f, currentCritMultiplier);
         
         GameEvents.DebugLog($"Stats recalculated: {GetStatsDebugString()}", DebugCategory.PlayerStats);
     }
@@ -160,10 +240,8 @@ public class PlayerStats {
         currentArmor += upgrade.armorBonus;
         
         // Multiplicative bonuses (percentages)
-        currentDamage *= upgrade.damageMultiplier;
         currentSpeed *= upgrade.speedMultiplier;
         currentAttackSpeed *= upgrade.attackSpeedMultiplier;
-        currentMaxHP *= upgrade.healthMultiplier;
         
         // Cooldown reduction (note: reduction, not multiplier)
         currentDashCooldown *= (1f - upgrade.cooldownReduction);
@@ -199,7 +277,7 @@ public class PlayerStats {
     /// Calculate final damage for an attack, including crit chance.
     /// </summary>
     public float CalculateDamage() {
-        float damage = currentDamage;
+        float damage = currentDamage * DamageBuff;
         
         // Roll for crit
         if (UnityEngine.Random.value < currentCritChance) {
@@ -216,13 +294,15 @@ public class PlayerStats {
     /// This gives diminishing returns (100 armor = 50% reduction, 200 = 66%, etc.)
     /// </summary>
     public float CalculateDamageReduction() {
-        return currentArmor / (currentArmor + 100f);
+        float armor = currentArmor + foamArmor;
+        return armor / (armor + 100f);
     }
     
     /// <summary>
     /// Apply armor damage reduction to incoming damage.
     /// </summary>
     public float ApplyArmorToDamage(float incomingDamage) {
+        if (incomingDamage <= 0f) return 0f;
         float reduction = CalculateDamageReduction();
         float finalDamage = incomingDamage * (1f - reduction);
         return Mathf.Max(1f, finalDamage); // Minimum 1 damage
@@ -302,11 +382,15 @@ public class PlayerStats {
     /// </summary>
     public void Deserialize(PlayerStatsData data, List<UpgradeData> allUpgrades) {
         appliedUpgrades.Clear();
+        if (data?.appliedUpgradeIDs == null || allUpgrades == null) {
+            RecalculateStats();
+            return;
+        }
         
         // Rebuild upgrades from IDs
         foreach (string upgradeID in data.appliedUpgradeIDs) {
-            UpgradeData upgrade = allUpgrades.Find(u => u.upgradeID == upgradeID);
-            if (upgrade != null) {
+            UpgradeData upgrade = allUpgrades.Find(u => u != null && u.upgradeID == upgradeID);
+            if (upgrade != null && upgrade.CanBeTaken(this)) {
                 appliedUpgrades.Add(upgrade);
             }
         }

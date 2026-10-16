@@ -6,7 +6,8 @@
             <ui:VisualElement class="panel-header-line" /> <!-- Decoration -->
             
             <ui:VisualElement name="health-container" class="stat-container">
-                <ui:Label text="EMPLOYEE VITALS" name="health-label" class="stat-label safety-label"/>
+                <ui:Label text="CONTRACTOR VITALS" name="health-label" class="stat-label safety-label"/>
+                <ui:Label text="!! GUARD BREACH !!" name="guard-warning" class="guard-warning"/>
                 <ui:VisualElement name="health-bar-container" class="bar-container">
                     <ui:VisualElement name="health-bar-bg" class="bar-background"/>
                     <ui:VisualElement name="health-bar-fill" class="bar-fill health-bar-fill"/>
@@ -45,6 +46,30 @@
                     <ui:Label text="0 / 100" name="xp-text" class="bar-text"/>
                 </ui:VisualElement>
             </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- BOSS BAR -->
+        <ui:VisualElement name="boss-panel" class="boss-panel">
+            <ui:Label text="CONTAINMENT BREACH" name="boss-name" class="boss-name"/>
+            <ui:VisualElement class="bar-container boss-bar-container">
+                <ui:VisualElement class="bar-background"/>
+                <ui:VisualElement name="boss-bar-fill" class="bar-fill boss-bar-fill"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- WEAPON METER (heat / charge / foam) -->
+        <ui:VisualElement name="weapon-meter" class="weapon-meter">
+            <ui:Label text="HEAT" name="weapon-meter-label" class="stat-label weapon-meter-label"/>
+            <ui:VisualElement class="bar-container weapon-meter-bar">
+                <ui:VisualElement class="bar-background"/>
+                <ui:VisualElement name="weapon-meter-fill" class="bar-fill weapon-meter-fill"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- ROOM BANNER -->
+        <ui:VisualElement name="room-banner" class="room-banner">
+            <ui:Label text="" name="room-banner-title" class="room-banner-title"/>
+            <ui:Label text="" name="room-banner-sub" class="room-banner-sub"/>
         </ui:VisualElement>
 
         <!-- NOTIFICATIONS -->

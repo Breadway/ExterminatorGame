@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2340859608664004754}
   - component: {fileID: 7990369292909864837}
   - component: {fileID: 8161052615171356842}
+  - component: {fileID: 3044216195293230503}
   m_Layer: 0
   m_Name: Fire
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 40.24992, y: 78.75406, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.4, y: 1.4, z: 1.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -80,10 +81,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 6
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0.2705882, b: 0, a: 1}
+  m_Sprite: {fileID: 347624450, guid: 76ef49f4b142958358af5bfd80562708, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -107,3 +108,23 @@ MonoBehaviour:
   autoReturnOnDisable: 1
   particleSystems: []
   enableDebugLogs: 1
+--- !u!114 &3044216195293230503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4496402545659835853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4522de2d8a8670509a3173762b508f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteFlipbook
+  frames:
+  - {fileID: 347624450, guid: 76ef49f4b142958358af5bfd80562708, type: 3}
+  - {fileID: -842950057, guid: 76ef49f4b142958358af5bfd80562708, type: 3}
+  - {fileID: 572702174, guid: 76ef49f4b142958358af5bfd80562708, type: 3}
+  - {fileID: 1675208331, guid: 76ef49f4b142958358af5bfd80562708, type: 3}
+  framesPerSecond: 12
+  randomizeStart: 1
+  pulse: 0.08

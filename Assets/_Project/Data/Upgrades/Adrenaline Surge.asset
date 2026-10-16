@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: adrenaline
+  specialEffectDescription: Below 35% HP: +30% move speed, +30% attack speed.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

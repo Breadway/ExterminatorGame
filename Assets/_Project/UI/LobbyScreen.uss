@@ -1,0 +1,178 @@
+/* ========================================
+   LOBBY - employee portal: choose a character, spend scrap, start a run
+   ======================================== */
+
+.lobby-sheet {
+    width: 1320px;
+    max-width: 97%;
+    max-height: 96%;
+}
+
+.lobby-body {
+    padding: 28px 36px 26px 36px;
+}
+
+.lobby-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 14px;
+}
+
+.scrap-box {
+    align-items: flex-end;
+}
+
+.scrap-value {
+    font-size: 46px;
+    -unity-font-style: bold;
+    color: var(--safety-yellow);
+}
+
+.lobby-columns {
+    flex-direction: row;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.lobby-col {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.section-title {
+    font-size: 20px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    color: var(--safety-yellow);
+    margin-bottom: 10px;
+}
+
+.item-list {
+    height: 400px;
+    flex-shrink: 0;
+}
+
+/* Rows and their text must never shrink to fit; the list scrolls instead. */
+.lobby-row,
+.lobby-row > Label,
+.row-top {
+    flex-shrink: 0;
+}
+
+/* ---- Row ---- */
+.lobby-row {
+    background-color: var(--card-bg);
+    border-width: 2px;
+    border-color: var(--concrete-grey);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    transition-property: border-color, background-color;
+    transition-duration: 0.1s;
+}
+
+.lobby-row:hover {
+    border-color: var(--safety-yellow);
+    background-color: rgb(30, 35, 40);
+}
+
+.lobby-row.selected {
+    border-color: var(--chem-green);
+}
+
+.lobby-row.locked {
+    opacity: 0.8;
+}
+
+.row-top {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.row-name {
+    font-size: 22px;
+    -unity-font-style: bold;
+}
+
+.row-tag {
+    font-size: 15px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    padding: 2px 8px;
+    color: rgb(16, 16, 16);
+    background-color: var(--text-dim);
+}
+
+.row-tag.owned { background-color: var(--chem-green); }
+.row-tag.cost { background-color: var(--safety-yellow); }
+.row-tag.cant-afford { background-color: var(--rust-red); color: var(--text-primary); }
+.row-tag.maxed { background-color: var(--chem-green); }
+
+.row-text {
+    font-size: 16px;
+    color: var(--text-dim);
+    white-space: normal;
+    margin-top: 4px;
+}
+
+.row-power {
+    font-size: 15px;
+    color: var(--chem-green);
+    white-space: normal;
+    margin-top: 6px;
+}
+
+.row-constraint {
+    font-size: 15px;
+    color: var(--alarm-red);
+    white-space: normal;
+    margin-top: 2px;
+}
+
+.level-pips {
+    flex-direction: row;
+    margin-top: 6px;
+}
+
+.pip {
+    width: 22px;
+    height: 7px;
+    margin-right: 4px;
+    background-color: rgb(50, 52, 56);
+}
+
+.pip.filled {
+    background-color: var(--safety-yellow);
+}
+
+.lobby-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.primary-button {
+    font-size: 28px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    padding: 14px 36px;
+    margin: 0;
+    color: rgb(16, 16, 16);
+    background-color: var(--safety-yellow);
+    border-width: 0;
+    border-radius: 0;
+    transition-property: background-color, translate;
+    transition-duration: 0.1s;
+}
+
+.primary-button:hover {
+    background-color: var(--hazard-orange);
+    translate: 0 -3px;
+}
+
+.primary-button:active {
+    translate: 0 1px;
+}

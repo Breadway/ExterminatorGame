@@ -1,4 +1,5 @@
 using UnityEngine;
+[RequireComponent(typeof(Health))]
 public class Destructible : MonoBehaviour {
     [Header("References")]
     private Health health;
@@ -31,9 +32,9 @@ public class Destructible : MonoBehaviour {
         }
         
         // Drop loot
-        if (lootDrops.Length > 0) {
+        if (lootDrops != null && lootDrops.Length > 0) {
             GameObject loot = lootDrops[Random.Range(0, lootDrops.Length)];
-            Instantiate(loot, transform.position, Quaternion.identity);
+            if (loot != null) Instantiate(loot, transform.position, Quaternion.identity);
         }
         
         // Destroy self

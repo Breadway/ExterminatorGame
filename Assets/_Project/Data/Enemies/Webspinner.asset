@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dd8bf08d360744c9393c5a8e9e34e5, type: 3}
+  m_Name: Webspinner
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  enemyName: Webspinner
+  prefab: {fileID: 4684692084416931639, guid: 3c23f6b38013b740aac72e290f7142fb, type: 3}
+  sprite: {fileID: 21300000, guid: d813825e21fb4a331b43184195cb827a, type: 3}
+  scale: 1.1
+  colliderRadius: 0.42
+  maxHealth: 30
+  moveSpeed: 5
+  XPValue: 24
+  attackDamage: 5
+  attackCooldown: 2
+  MovementType: 3
+  AttackType: 1
+  minWave: 5
+  spawnWeight: 1.1
+  damageReduction: 0
+  projectilePrefab: {fileID: 1973222880534198669, guid: ca489448a286879d4b861af291211bce, type: 3}
+  preferredRange: 6
+  attackRange: 9.5
+  projectileSpeed: 8.5
+  projectileLifetime: 2.4
+  evolvesInto: {fileID: 0}
+  evolveAfterSeconds: 8
+  scrapValue: 2
+  spawnHazardOnDeath: 0
+  deathHazard: 0
+  deathHazardRadius: 1.4
+  deathHazardLifetime: 6
+  deathHazardDps: 0
+  isBoss: 0
+  summonType: {fileID: 0}
+  summonInterval: 0
+  summonCount: 3
+  volleyInterval: 0
+  volleyCount: 10
+  enrageBelowHealth: 0.35
+  enrageSpeedMultiplier: 1.4

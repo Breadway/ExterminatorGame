@@ -20,7 +20,7 @@ MonoBehaviour:
   rarity: 0
   healthBonus: 0
   healthMultiplier: 1
-  damageBonus: 10
+  damageBonus: 6
   damageMultiplier: 1
   critChanceBonus: 0
   critDamageBonus: 0

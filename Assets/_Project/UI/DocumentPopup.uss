@@ -1,0 +1,43 @@
+/* Recovered document popup: a torn corporate memo on the terminal. */
+
+.document-sheet {
+    width: 640px;
+    max-width: 92%;
+}
+
+.document-body {
+    padding: 28px 36px 30px 36px;
+}
+
+.document-title {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: var(--safety-yellow);
+    margin-top: 6px;
+    margin-bottom: 12px;
+    white-space: normal;
+}
+
+.document-button {
+    font-size: 22px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    padding: 14px 20px;
+    margin: 0;
+    color: rgb(16, 16, 16);
+    background-color: var(--safety-yellow);
+    border-width: 0;
+    border-radius: 0;
+}
+
+.document-button:hover {
+    background-color: var(--hazard-orange);
+}
+
+.document-text {
+    font-size: 20px;
+    color: var(--text-primary);
+    white-space: normal;
+    margin-top: 14px;
+    margin-bottom: 22px;
+}

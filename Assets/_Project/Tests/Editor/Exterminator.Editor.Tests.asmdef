@@ -1,0 +1,5 @@
+{
+    "name": "Exterminator.Editor.Tests",
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"]
+}

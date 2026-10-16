@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="IndustrialTheme.uss" />
+    <ui:Style src="DocumentPopup.uss" />
+    <ui:VisualElement name="document-root" class="screen-root industrial">
+        <ui:VisualElement class="form-sheet document-sheet">
+            <ui:VisualElement name="document-tape-top" />
+            <ui:VisualElement class="document-body">
+                <ui:Label text="RECOVERED DOCUMENT" class="form-line" />
+                <ui:Label name="document-title" text="" class="document-title" />
+                <ui:VisualElement class="divider" />
+                <ui:Label name="document-text" text="" class="document-text" />
+                <ui:Button name="document-close" text="[ FILE IT AWAY ]" class="document-button" />
+            </ui:VisualElement>
+            <ui:VisualElement name="document-tape-bottom" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

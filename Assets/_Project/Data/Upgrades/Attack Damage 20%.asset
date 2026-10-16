@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1e6730355fd5741ab264ba4695428a, type: 3}
   m_Name: Attack Damage 20%
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
-  upgradeID: 
-  upgradeName: 
-  description: 
+  upgradeID: attack_damage_20
+  upgradeName: Overtime Pay
+  description: Hazard bonus. Management calls it motivation.
   icon: {fileID: 0}
   type: 0
   rarity: 0
   healthBonus: 0
   healthMultiplier: 1
   damageBonus: 0
-  damageMultiplier: 1
+  damageMultiplier: 1.2
   critChanceBonus: 0
   critDamageBonus: 0
   speedMultiplier: 1
@@ -31,6 +31,6 @@ MonoBehaviour:
   hasSpecialEffect: 0
   specialEffectID: 
   specialEffectDescription: 
-  maxStacks: 0
+  maxStacks: 4
   conflictingUpgrades: []
   requiredUpgrades: []

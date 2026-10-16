@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dd8bf08d360744c9393c5a8e9e34e5, type: 3}
+  m_Name: Fly
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  enemyName: Fly
+  prefab: {fileID: 2379069312763834964, guid: 64af763f6741537cf9ab7a22e3e619a3, type: 3}
+  sprite: {fileID: 21300000, guid: 1cab9c7103f7f52efb546b0b0dbe2700, type: 3}
+  scale: 0.7
+  colliderRadius: 0.26
+  maxHealth: 10
+  moveSpeed: 12
+  XPValue: 7
+  attackDamage: 5
+  attackCooldown: 0.8
+  MovementType: 1
+  AttackType: 0
+  minWave: 2
+  spawnWeight: 2
+  damageReduction: 0
+  projectilePrefab: {fileID: 0}
+  preferredRange: 6
+  attackRange: 9
+  projectileSpeed: 9
+  projectileLifetime: 2.5
+  evolvesInto: {fileID: 0}
+  evolveAfterSeconds: 8
+  scrapValue: 1
+  spawnHazardOnDeath: 0
+  deathHazard: 0
+  deathHazardRadius: 1.4
+  deathHazardLifetime: 6
+  deathHazardDps: 0
+  isBoss: 0
+  summonType: {fileID: 0}
+  summonInterval: 0
+  summonCount: 3
+  volleyInterval: 0
+  volleyCount: 10
+  enrageBelowHealth: 0.35
+  enrageSpeedMultiplier: 1.4

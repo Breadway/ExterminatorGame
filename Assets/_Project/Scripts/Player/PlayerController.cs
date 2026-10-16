@@ -47,6 +47,32 @@ public class PlayerController : MonoBehaviour {
         
         // Apply stats to health
         health.SetMaxHP(stats.currentMaxHP);
+        health.ResetHealth();
+    }
+
+    /// <summary>The selected character's id; weapons and constraints use it to decide whether they apply.</summary>
+    private string characterId = "firebug";
+    /// <summary>The selected character's id; weapons and constraints use it to decide whether they apply.</summary>
+    public string CharacterId => characterId;
+    public void SetCharacterId(string id) { if (!string.IsNullOrEmpty(id)) characterId = id; }
+
+    private float stunnedUntil;
+    public bool IsStunned => Time.time < stunnedUntil;
+
+    /// <summary>Freeze movement and attacking for a short time (weapon malfunctions).</summary>
+    public void Stun(float seconds) {
+        if (seconds <= 0f || movement == null) return;
+        stunnedUntil = Mathf.Max(stunnedUntil, Time.time + seconds);
+        movement.enabled = false;
+        shooting.enabled = false;
+        CancelInvoke(nameof(EndStun));
+        Invoke(nameof(EndStun), seconds);
+    }
+
+    void EndStun() {
+        if (health == null || !health.IsAlive) return;
+        movement.enabled = true;
+        shooting.enabled = true;
     }
 
     public void GetHealth(out Health outHealth) {
@@ -60,7 +86,8 @@ public class PlayerController : MonoBehaviour {
         health.OnDied += HandleDeath;
         
         // Subscribe to game events
-        GameEvents.OnLevelUp += OnLevelUp;
+        GameEvents.OnPlayerUpgradeApplied += ApplyUpgrade;
+        health.OnHealthChanged += HandleHealthChanged;
     }
     
     void OnDisable() {
@@ -69,7 +96,8 @@ public class PlayerController : MonoBehaviour {
         health.OnHealed -= HandleHealed;
         health.OnDied -= HandleDeath;
         
-        GameEvents.OnLevelUp -= OnLevelUp;
+        GameEvents.OnPlayerUpgradeApplied -= ApplyUpgrade;
+        health.OnHealthChanged -= HandleHealthChanged;
     }
     
     void FixedUpdate() {
@@ -96,13 +124,11 @@ public class PlayerController : MonoBehaviour {
         
         // Fire game event for other systems
         GameEvents.OnPlayerDamaged?.Invoke(amount, health.CurrentHP, health.MaxHP);
-        GameEvents.PlayerHealthChanged(health.CurrentHP, health.MaxHP);
     }
     
     void HandleHealed(float amount) {
         // Fire event for UI/audio
         GameEvents.PlayerHealed(amount);
-        GameEvents.PlayerHealthChanged(health.CurrentHP, health.MaxHP);
     }
     
     void HandleDeath() {
@@ -124,24 +150,19 @@ public class PlayerController : MonoBehaviour {
     
     // === PROGRESSION ===
     
-    void OnLevelUp(int newLevel) {
-        // Heal % on level up (from your GDD)
-        float healAmount = health.MaxHP * 0.2f; // 20% (adjust as needed)
-        health.Heal(healAmount);
-        
-        // Visual feedback
-        // Spawn level-up particles, play sound, etc.
-        // (These are handled by systems listening to GameEvents.OnLevelUp)
+    void HandleHealthChanged(float current, float max) {
+        GameEvents.PlayerHealthChanged(current, max);
     }
     
     void ApplyUpgrade(UpgradeData upgrade) {
-        // Apply upgrade to stats
-        stats.ApplyUpgrade(upgrade);
+        // UpgradeManager has already validated and recalculated the runtime stats.
+        if (upgrade == null) return;
+        float previousMax = health.MaxHP;
+        health.SetMaxHP(stats.currentMaxHP);
         
         // Update health if max HP changed
-        if (upgrade.healthBonus > 0) {
-            health.SetMaxHP(stats.currentMaxHP);
-            health.Heal(upgrade.healthBonus); // Heal the bonus amount
+        if (stats.currentMaxHP > previousMax) {
+            health.Heal(stats.currentMaxHP - previousMax);
         }
         
         // Update movement speed
@@ -151,6 +172,10 @@ public class PlayerController : MonoBehaviour {
         
         // Fire event for UI updates
         GameEvents.PlayerStatsChanged(stats);
+    }
+
+    void OnDestroy() {
+        if (Instance == this) Instance = null;
     }
     
     // === PUBLIC API (for other systems to call) ===

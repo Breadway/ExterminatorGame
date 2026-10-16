@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1439b63ec9615a99bb15bd01df316816, type: 3}
+  m_Name: Electrician
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterId: electrician
+  displayName: The Electrician
+  tagline: It's not a safety violation if it works.
+  tint: {r: 0.9, g: 0.95, b: 1, a: 1}
+  weaponId: cables
+  weaponName: Jumper Cables
+  powerName: The Circuit
+  powerText: Lightning chains between enemies, hitting harder each link.
+  constraintName: Overload
+  constraintText: Heat builds. At 100% you shock yourself and are stunned.
+  maxHP: 100
+  damage: 5
+  speed: 15
+  attackSpeed: 1.2
+  unlockedByDefault: 0
+  unlockCost: 250
+  extraComponents: []

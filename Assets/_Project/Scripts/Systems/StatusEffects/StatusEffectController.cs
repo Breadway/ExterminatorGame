@@ -16,6 +16,7 @@ public class StatusEffectController : MonoBehaviour {
     private Health health;
     private readonly Dictionary<StatusEffectType, ActiveStatusEffect> activeEffects = new Dictionary<StatusEffectType, ActiveStatusEffect>();
     private readonly List<StatusEffectType> effectsToRemove = new List<StatusEffectType>();
+    private readonly List<ActiveStatusEffect> updateSnapshot = new List<ActiveStatusEffect>();
     
     // Cached component references for modifiers
     private IMovementModifiable movementComponent;
@@ -44,14 +45,19 @@ public class StatusEffectController : MonoBehaviour {
         
         effectsToRemove.Clear();
         
-        foreach (var kvp in activeEffects) {
-            var effect = kvp.Value;
+        updateSnapshot.Clear();
+        updateSnapshot.AddRange(activeEffects.Values);
+        foreach (var effect in updateSnapshot) {
+            if (!isActiveAndEnabled || !health.IsAlive) return;
+            if (!activeEffects.TryGetValue(effect.Data.EffectType, out var current) || current != effect) continue;
             effect.UpdateTick(Time.deltaTime);
             
             // Handle damage ticks
             if (effect.Data.DamagePerTick > 0 && effect.ShouldTick()) {
                 float damage = effect.GetTotalDamagePerTick();
                 health.TakeDamage(damage, transform.position, Vector2.zero);
+                // Death can synchronously return this entity to a pool and clear effects.
+                if (!isActiveAndEnabled || !health.IsAlive) return;
                 
                 if (enableDebugLogs) {
                     GameEvents.DebugLog($"[StatusEffect] {effect.Data.EffectName} dealt {damage} damage to {gameObject.name}", DebugCategory.Combat);
@@ -65,7 +71,7 @@ public class StatusEffectController : MonoBehaviour {
             
             // Mark expired effects for removal
             if (effect.IsExpired) {
-                effectsToRemove.Add(kvp.Key);
+                effectsToRemove.Add(effect.Data.EffectType);
             }
         }
         
@@ -99,7 +105,8 @@ public class StatusEffectController : MonoBehaviour {
     /// Returns true if the effect was applied, false if immune or resisted.
     /// </summary>
     public bool ApplyEffect(StatusEffectData effectData, float durationMultiplier = 1f) {
-        if (effectData == null) return false;
+        if (effectData == null || !isActiveAndEnabled || !health.IsAlive ||
+            float.IsNaN(durationMultiplier) || float.IsInfinity(durationMultiplier)) return false;
         
         // Check immunity
         if (resistanceData != null && resistanceData.IsImmune(effectData.EffectType)) {
@@ -133,7 +140,7 @@ public class StatusEffectController : MonoBehaviour {
             }
             
             if (effectData.RefreshDurationOnReapply) {
-                existingEffect.RefreshDuration();
+                existingEffect.RefreshDuration(finalDuration);
             }
             
             RecalculateModifiers();
@@ -227,7 +234,8 @@ public class StatusEffectController : MonoBehaviour {
             var col = spreadHitBuffer[i];
             if (col == null || col.gameObject == gameObject) continue;
             
-            var targetController = col.GetComponent<StatusEffectController>();
+            var targetController = col.GetComponentInParent<StatusEffectController>();
+            if (targetController == this) continue;
             if (targetController != null && !targetController.HasEffect(effect.Data.EffectType)) {
                 targetController.ApplyEffect(effect.Data);
                 

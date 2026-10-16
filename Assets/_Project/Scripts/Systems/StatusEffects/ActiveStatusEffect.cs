@@ -25,12 +25,13 @@ public class ActiveStatusEffect {
         RemainingDuration = duration;
         initialDuration = duration;
         CurrentStacks = 1;
-        NextTickTime = Time.time + data.TickInterval;
+        NextTickTime = Time.time + Mathf.Max(0.01f, data.TickInterval);
         SpreadStartTime = Time.time + data.SpreadDelay;
         NextSpreadTime = SpreadStartTime;
     }
     
-    public void RefreshDuration() {
+    public void RefreshDuration(float duration = -1f) {
+        if (duration > 0f) initialDuration = duration;
         RemainingDuration = initialDuration;
     }
     
@@ -46,7 +47,7 @@ public class ActiveStatusEffect {
     
     public bool ShouldTick() {
         if (Time.time >= NextTickTime) {
-            NextTickTime = Time.time + Data.TickInterval;
+            NextTickTime = Time.time + Mathf.Max(0.01f, Data.TickInterval);
             return true;
         }
         return false;
@@ -55,7 +56,7 @@ public class ActiveStatusEffect {
     public bool ShouldSpread() {
         if (!HasSpreadWindow) return false;
         if (Time.time >= NextSpreadTime) {
-            NextSpreadTime = Time.time + Data.SpreadInterval;
+            NextSpreadTime = Time.time + Mathf.Max(0.01f, Data.SpreadInterval);
             return true;
         }
         return false;

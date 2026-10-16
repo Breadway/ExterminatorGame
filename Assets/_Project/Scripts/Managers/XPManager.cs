@@ -6,12 +6,12 @@ public class XPManager : MonoBehaviour {
     [Header("XP Settings")]
     [SerializeField] private int currentXP = 0;
     [SerializeField] private int currentLevel = 1;
-    [SerializeField] private int xpToNextLevel = 100;
-    [SerializeField] private float xpMultiplier = 1.5f; // How much XP increases per level
+    [SerializeField] private int xpToNextLevel = 60;
+    [SerializeField] private float xpMultiplier = 1.22f; // Tuned via tools/balance_model.py: level 10 lands ~room 10, 20 ~room 22
     [SerializeField] private bool debugMode = false;
 
     [Header("Level Up Rewards")]
-    [SerializeField] private float healPercentOnLevelUp = 0.1f; // 10% heal
+    [SerializeField] private float healPercentOnLevelUp = 0.12f; // 12% heal
     
 
     private Health playerHealth;
@@ -20,12 +20,16 @@ public class XPManager : MonoBehaviour {
         // Singleton pattern
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
+            return;
         } else {
             Instance = this;
         }
 
         // Get player health reference
         playerHealth = FindFirstObjectByType<PlayerController>()?.GetComponent<Health>();
+        xpToNextLevel = Mathf.Max(1, xpToNextLevel);
+        currentLevel = Mathf.Max(1, currentLevel);
+        xpMultiplier = Mathf.Max(1f, xpMultiplier);
     }
 
     void OnEnable() {
@@ -40,16 +44,16 @@ public class XPManager : MonoBehaviour {
 
     public void AddXP(int amount)
     {
-        currentXP += amount;
-
-        // Fire event for UI
-        GameEvents.OnXPChanged?.Invoke(currentXP, xpToNextLevel);
+        if (amount <= 0) return;
+        currentXP = (int)System.Math.Min(int.MaxValue, (long)currentXP + amount);
 
         // Check for level up
         CheckLevelUp();
+        GameEvents.XPChanged(currentXP, xpToNextLevel);
     }
 
     private void AwardXP(Enemy enemy) {
+        if (enemy == null) return;
         // Get XP value from enemy's data
         EnemyData data = enemy.EnemyData; // You'll need to add this getter
         if (data == null) {
@@ -59,7 +63,8 @@ public class XPManager : MonoBehaviour {
             return;
         }
         
-        AddXP(data.XPValue);
+        float multiplier = enemy.XPMultiplier * (MetaProgression.Instance != null ? MetaProgression.Instance.XPMultiplier() : 1f);
+        AddXP(Mathf.Max(1, Mathf.RoundToInt(data.XPValue * multiplier)));
     }
     
 
@@ -74,7 +79,8 @@ public class XPManager : MonoBehaviour {
         currentXP -= xpToNextLevel;
 
         // Calculate next level requirement (exponential curve)
-        xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * xpMultiplier);
+        xpToNextLevel = (int)System.Math.Min(int.MaxValue,
+            System.Math.Max(1d, System.Math.Round(xpToNextLevel * (double)xpMultiplier)));
 
         if (debugMode) GameEvents.DebugLog($"Leveled up to {currentLevel}! Next level at {xpToNextLevel} XP.", DebugCategory.XPAndLeveling);
 
@@ -82,10 +88,13 @@ public class XPManager : MonoBehaviour {
         HealPlayer();
 
         // Fire level up event
-        GameEvents.OnLevelUp?.Invoke(currentLevel);
+        GameEvents.LevelUp(currentLevel);
     }
 
     private void HealPlayer() {
+        if (playerHealth == null && PlayerController.Instance != null) {
+            PlayerController.Instance.GetHealth(out playerHealth);
+        }
         if (playerHealth != null) {
             float healAmount = playerHealth.MaxHP * healPercentOnLevelUp;
             playerHealth.Heal(healAmount);
@@ -97,4 +106,12 @@ public class XPManager : MonoBehaviour {
     public int GetCurrentXP() => currentXP;
     public int GetXPToNextLevel() => xpToNextLevel;
     public int GetCurrentLevel() => currentLevel;
+
+    void Start() {
+        GameEvents.XPChanged(currentXP, xpToNextLevel);
+    }
+
+    void OnDestroy() {
+        if (Instance == this) Instance = null;
+    }
 }

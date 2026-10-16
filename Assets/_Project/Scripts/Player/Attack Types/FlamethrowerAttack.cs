@@ -39,6 +39,13 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     [SerializeField] private Transform firePoint;
     [SerializeField] private ParticleSystem flameParticles;
     
+    [Header("Surface fire")]
+    [Tooltip("Chance per damage tick that a struck enemy leaves a burning patch (lasts 8 seconds).")]
+    [SerializeField] [Range(0f, 1f)] private float surfaceFireChance = 0.18f;
+    [SerializeField] private float surfaceFireRadius = 0.7f;
+    [SerializeField] private float surfaceFireSeconds = 8f;
+    [SerializeField] private float surfaceFireDps = 6f;
+
     [Header("Status Effect")]
     [SerializeField] private StatusEffectData fireStatusEffect;
     [SerializeField] [Range(0f, 1f)] [Tooltip("Chance to apply status effect on each damage tick (0-1)")]
@@ -80,10 +87,12 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     
     // IWeaponAttack.WeaponRange implementation
     public float WeaponRange => range;
+    public string WeaponId => "flamethrower";
     
     void Awake()
     {
-        stats = GetComponentInParent<PlayerController>().stats;
+        stats = GetComponentInParent<PlayerController>()?.stats;
+        if (firePoint == null) firePoint = transform;
         waitForFixed = new WaitForFixedUpdate();
         
         // coneAngle represents TOTAL cone width (e.g., 45° total)
@@ -257,9 +266,10 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
     
     public void Attack()
     {
-        if (attackCoroutine == null)
+        if (isActiveAndEnabled && Time.timeScale > 0f && attackCoroutine == null)
         {
             attackCoroutine = StartCoroutine(AttackLoop());
+            GameEvents.WeaponHeld(WeaponId, true);
         }
     }
 
@@ -270,7 +280,8 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             if (Time.time >= nextTickTime)
             {
                 PerformAttackTick();
-                nextTickTime = Time.time + tickRate;
+                float rate = stats != null ? Mathf.Max(0.2f, stats.currentAttackSpeed) : 1.2f;
+                nextTickTime = Time.time + Mathf.Max(0.01f, tickRate * 1.2f / rate);
             }
 
             yield return waitForFixed;
@@ -341,7 +352,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             int colId = col.GetInstanceID();
             if (!damageableCache.TryGetValue(colId, out IDamageable target))
             {
-                target = col.GetComponent<IDamageable>();
+                target = col.GetComponentInParent<IDamageable>();
                 damageableCache[colId] = target; // Cache even null results
             }
             
@@ -457,9 +468,21 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
             {
                 // Deal damage
                 enemy.TakeDamage(finalDamage, firePos, fireUp);
+
+                // Burning bodies scorch the ground, and the flame lights any fuel it touches
+                if (HazardField.Instance != null && enemy is Component fireTarget && fireTarget != null)
+                {
+                    Vector2 where = fireTarget.transform.position;
+                    HazardField.Instance.IgniteNear(where, surfaceFireRadius + 0.3f);
+                    if (Random.value < surfaceFireChance)
+                    {
+                        HazardField.Instance.Spawn(HazardKind.Fire, where, surfaceFireRadius, surfaceFireSeconds, surfaceFireDps, false, true);
+                    }
+                }
     
                 // Apply fire status effect
-                if (fireStatusEffect != null)
+                if (fireStatusEffect != null && enemy.IsAlive &&
+                    enemy is Component livingTarget && livingTarget != null && livingTarget.gameObject.activeInHierarchy)
                 {
                     // Try to apply status effect based on chance
                     if (Random.value <= statusEffectChance)
@@ -565,6 +588,7 @@ public class FlamethrowerAttack : MonoBehaviour, IWeaponAttack
         {
             StopCoroutine(attackCoroutine);
             attackCoroutine = null;
+            GameEvents.WeaponHeld(WeaponId, false);
         }
 
         if (flameParticles != null && flameParticles.isPlaying)

@@ -20,7 +20,7 @@ MonoBehaviour:
   rarity: 0
   healthBonus: 0
   healthMultiplier: 1
-  damageBonus: 5
+  damageBonus: 4
   damageMultiplier: 1
   critChanceBonus: 0
   critDamageBonus: 0
@@ -31,6 +31,6 @@ MonoBehaviour:
   hasSpecialEffect: 0
   specialEffectID: 
   specialEffectDescription: 
-  maxStacks: 0
+  maxStacks: 3
   conflictingUpgrades: []
   requiredUpgrades: []

@@ -34,6 +34,20 @@ public class GameplayHUDController : MonoBehaviour
     private Label roomValue;
     private Label enemiesValue;
     
+    // Boss bar, weapon meter, room banner (all optional in the UXML)
+    private VisualElement bossPanel;
+    private VisualElement bossFill;
+    private Label bossName;
+    private Enemy trackedBoss;
+    private VisualElement meterPanel;
+    private VisualElement meterFill;
+    private Label meterLabel;
+    private VisualElement bannerPanel;
+    private Label bannerTitle;
+    private Label bannerSub;
+    private float bannerTimer;
+    private Label guardWarning;
+
     // Notification
     private VisualElement notificationPanel;
     private Label notificationText;
@@ -73,18 +87,31 @@ public class GameplayHUDController : MonoBehaviour
         GameEvents.OnLevelUp += UpdateLevel;
         GameEvents.OnRoomEntered += UpdateRoom;
         GameEvents.OnRoomCleared += OnRoomCleared;
-        GameEvents.OnEnemyKilled += OnEnemyKilled;
+        GameEvents.OnEnemyCountChanged += OnEnemyCountChanged;
+        GameEvents.OnWaveStarted += OnWaveStarted;
+        GameEvents.OnBossSpawned += OnBossSpawned;
+        GameEvents.OnWeaponMeter += OnWeaponMeter;
+        GameEvents.OnRoomStarted += OnRoomStarted;
+        GameEvents.OnShowNotification += ShowNotification;
+        GameEvents.OnGuardBreach += OnGuardBreach;
     }
     
     void OnDisable()
     {
+        CancelInvoke(nameof(InitializeUI));
         // Unsubscribe from events
         GameEvents.OnHealthChanged -= UpdateHealth;
         GameEvents.OnXPChanged -= UpdateXP;
         GameEvents.OnLevelUp -= UpdateLevel;
         GameEvents.OnRoomEntered -= UpdateRoom;
         GameEvents.OnRoomCleared -= OnRoomCleared;
-        GameEvents.OnEnemyKilled -= OnEnemyKilled;
+        GameEvents.OnEnemyCountChanged -= OnEnemyCountChanged;
+        GameEvents.OnWaveStarted -= OnWaveStarted;
+        GameEvents.OnBossSpawned -= OnBossSpawned;
+        GameEvents.OnWeaponMeter -= OnWeaponMeter;
+        GameEvents.OnRoomStarted -= OnRoomStarted;
+        GameEvents.OnShowNotification -= ShowNotification;
+        GameEvents.OnGuardBreach -= OnGuardBreach;
     }
     
     void InitializeUI()
@@ -112,6 +139,17 @@ public class GameplayHUDController : MonoBehaviour
         notificationPanel = root.Q<VisualElement>("notification-panel");
         notificationText = root.Q<Label>("notification-text");
         
+        bossPanel = root.Q<VisualElement>("boss-panel");
+        bossFill = root.Q<VisualElement>("boss-bar-fill");
+        bossName = root.Q<Label>("boss-name");
+        meterPanel = root.Q<VisualElement>("weapon-meter");
+        meterFill = root.Q<VisualElement>("weapon-meter-fill");
+        meterLabel = root.Q<Label>("weapon-meter-label");
+        bannerPanel = root.Q<VisualElement>("room-banner");
+        bannerTitle = root.Q<Label>("room-banner-title");
+        bannerSub = root.Q<Label>("room-banner-sub");
+        guardWarning = root.Q<Label>("guard-warning");
+
         // Validate all elements exist
         if (healthBarFill == null || healthText == null || xpBarFill == null || 
             xpText == null || levelValue == null || roomValue == null || 
@@ -121,7 +159,17 @@ public class GameplayHUDController : MonoBehaviour
             return;
         }
         
-        // Initialize with default values
+        // Recover events emitted before the UIDocument finished initializing.
+        if (PlayerController.Instance != null) {
+            PlayerController.Instance.GetHealth(out Health health);
+            currentHealth = health.CurrentHP;
+            maxHealth = health.MaxHP;
+        }
+        if (XPManager.Instance != null) {
+            currentXP = XPManager.Instance.GetCurrentXP();
+            requiredXP = XPManager.Instance.GetXPToNextLevel();
+            currentLevel = XPManager.Instance.GetCurrentLevel();
+        }
         UpdateHealthBar();
         UpdateXPBar();
         UpdateLevelDisplay();
@@ -170,14 +218,55 @@ public class GameplayHUDController : MonoBehaviour
         ShowNotification("SECTOR CLEARED");
     }
     
-    private void OnEnemyKilled(Enemy enemy)
+    private void OnEnemyCountChanged(int count)
     {
-        // Decrement enemy counter
-        if (enemiesRemaining > 0)
-        {
-            enemiesRemaining--;
-            UpdateEnemiesDisplay();
-        }
+        enemiesRemaining = Mathf.Max(0, count);
+        UpdateEnemiesDisplay();
+    }
+
+    private void OnBossSpawned(Enemy boss)
+    {
+        trackedBoss = boss;
+        if (bossPanel == null || boss == null) return;
+        bossName.text = boss.EnemyData != null ? boss.EnemyData.enemyName.ToUpperInvariant() : "CONTAINMENT BREACH";
+        bossPanel.RemoveFromClassList("enraged");
+        bossPanel.AddToClassList("active");
+    }
+
+    private void OnWeaponMeter(string label, float value, bool danger)
+    {
+        if (meterPanel == null) return;
+        bool show = value > 0.001f || danger;
+        meterPanel.EnableInClassList("active", show);
+        if (!show) return;
+        meterLabel.text = label;
+        meterFill.style.width = Length.Percent(Mathf.Clamp01(value) * 100f);
+        meterPanel.EnableInClassList("danger", danger);
+    }
+
+    private void OnRoomStarted(int index, RoomDefinition room)
+    {
+        if (bannerPanel == null || room == null) return;
+        bannerTitle.text = Random.value < 0.04f ? LoreSystem.GlitchTitle(room.roomName) : room.roomName;
+        string sub = RoomModifiers.Label(room.modifier);
+        if (room.type == RoomType.Boss) sub = "BOSS ENCOUNTER";
+        else if (room.type == RoomType.Shop) sub = "RECOVER. REQUISITION. RETURN TO DUTY.";
+        else if (room.type == RoomType.Elite && string.IsNullOrEmpty(sub)) sub = "HIGH RISK";
+        string ev = RoomEventDirector.Label(room.eventId);
+        if (!string.IsNullOrEmpty(ev)) sub = string.IsNullOrEmpty(sub) ? ev : sub + "  -  " + ev;
+        bannerSub.text = sub;
+        bannerPanel.AddToClassList("visible");
+        bannerTimer = 2.6f;
+    }
+
+    private void OnGuardBreach(bool breached)
+    {
+        if (guardWarning == null) return;
+        guardWarning.EnableInClassList("active", breached);
+    }
+
+    private void OnWaveStarted(int wave, int count) {
+        SetEnemyCount(count);
     }
     
     
@@ -234,7 +323,11 @@ public class GameplayHUDController : MonoBehaviour
     private void UpdateRoomDisplay()
     {
         if (roomValue == null) return;
-        roomValue.text = $"{currentRoom} / 25";
+        var rooms = RoomManager.Instance;
+        if (rooms != null && rooms.IsActive)
+            roomValue.text = rooms.IsEndless ? $"{currentRoom} / INF" : $"{currentRoom} / {rooms.Run.RoomCount}";
+        else
+            roomValue.text = $"{currentRoom} / 25";
     }
     
     private void UpdateEnemiesDisplay()
@@ -262,10 +355,31 @@ public class GameplayHUDController : MonoBehaviour
     
     void Update()
     {
+        if (bannerTimer > 0f)
+        {
+            bannerTimer -= Time.unscaledDeltaTime;
+            if (bannerTimer <= 0f && bannerPanel != null) bannerPanel.RemoveFromClassList("visible");
+        }
+        if (trackedBoss != null && bossPanel != null)
+        {
+            var health = trackedBoss.Health;
+            if (health == null || !health.IsAlive || !trackedBoss.gameObject.activeInHierarchy)
+            {
+                bossPanel.RemoveFromClassList("active");
+                trackedBoss = null;
+            }
+            else
+            {
+                bossFill.style.width = Length.Percent(health.HealthPercent * 100f);
+                var data = trackedBoss.EnemyData;
+                if (data != null) bossPanel.EnableInClassList("enraged", health.HealthPercent <= data.enrageBelowHealth);
+            }
+        }
+
         // Handle notification timer
         if (notificationTimer > 0f)
         {
-            notificationTimer -= Time.deltaTime;
+            notificationTimer -= Time.unscaledDeltaTime;
             
             if (notificationTimer <= 0f && notificationPanel != null)
             {

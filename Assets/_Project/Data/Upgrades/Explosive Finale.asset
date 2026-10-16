@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: explode_on_kill
+  specialEffectDescription: Killed enemies explode, hurting everything nearby.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

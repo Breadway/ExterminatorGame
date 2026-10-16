@@ -4604,6 +4604,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ea2686d3c5f0954f8f201431bba5f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  health: {fileID: 0}
 --- !u!114 &9101573171086800671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4640,7 +4641,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4f09ec83e9bdbe4aa31baf61724c45a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAim
-  rotationLerpSpeed: 20
+  firePoint: {fileID: 0}
+  mainCamera: {fileID: 0}
+  instantAim: 1
+  aimSmoothSpeed: 15
 --- !u!114 &6091386526381425668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4654,8 +4658,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHP: 2
-  isInvulnerable: 1
+  isInvulnerable: 0
   canHeal: 1
+  damageReduction: 0
 --- !u!114 &4560044928686792398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4689,7 +4694,6 @@ MonoBehaviour:
   range: 9
   coneAngle: 45
   tickRate: 0.1
-  coneRadius: 1.5
   damageMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -4697,11 +4701,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   requireLineOfSight: 1
-  muzzleProbeDistance: 0
   drawDebug: 1
   debugDuration: 0.1
+  enableDebugLogs: 1
+  debugLogInterval: 0.5
+  logAttackInfo: 1
+  logColliderCount: 1
+  logColliderChecks: 0
+  logRejections: 0
+  logDamageDealt: 1
   firePoint: {fileID: 6744232802757697579}
   flameParticles: {fileID: 6090706316630747661}
+  fireStatusEffect: {fileID: 0}
+  statusEffectChance: 1
+  statusEffectDurationMultiplier: 1
 --- !u!1 &8587716125573115491
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,136 @@
+/* ========================================
+   UPGRADE SCREEN - "Performance Review" form with three requisition cards
+   ======================================== */
+
+.upgrade-sheet {
+    width: 1240px;
+    max-width: 96%;
+}
+
+.sheet-body {
+    padding: 34px 40px 30px 40px;
+    align-items: center;
+}
+
+.card-row {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 26px;
+}
+
+/* ---- Card ---- */
+.upgrade-card {
+    width: 340px;
+    min-height: 430px;
+    margin-left: 14px;
+    margin-right: 14px;
+    background-color: var(--card-bg);
+    border-width: 3px;
+    border-color: var(--concrete-grey);
+    transition-property: translate, border-color, background-color;
+    transition-duration: 0.12s;
+}
+
+.upgrade-card:hover {
+    translate: 0 -10px;
+    border-color: var(--safety-yellow);
+    background-color: rgb(30, 35, 40);
+}
+
+.card-strip {
+    height: 10px;
+    background-color: var(--concrete-grey);
+}
+
+.card-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px 0 16px;
+}
+
+.card-rarity {
+    font-size: 16px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    color: var(--text-dim);
+}
+
+.card-type {
+    font-size: 15px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    padding: 2px 9px;
+    color: rgb(16, 16, 16);
+    background-color: var(--text-dim);
+}
+
+.card-type-power { background-color: var(--hazard-orange); }
+.card-type-defense { background-color: var(--chem-green); }
+.card-type-utility { background-color: var(--safety-yellow); }
+
+.card-name {
+    font-size: 31px;
+    -unity-font-style: bold;
+    color: var(--text-primary);
+    white-space: normal;
+    padding: 12px 16px 0 16px;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+}
+
+.card-desc {
+    font-size: 17px;
+    color: var(--text-dim);
+    white-space: normal;
+    padding: 10px 16px 16px 16px;
+}
+
+.card-stats {
+    flex-grow: 1;
+    padding: 14px 16px 10px 16px;
+    border-top-width: 2px;
+    border-top-color: var(--concrete-grey);
+}
+
+.stat-line {
+    font-size: 22px;
+    -unity-font-style: bold;
+    margin-bottom: 5px;
+}
+
+.stat-up { color: var(--chem-green); }
+.stat-down { color: var(--alarm-red); }
+
+.stat-special {
+    font-size: 16px;
+    color: var(--toxic-purple);
+    white-space: normal;
+    margin-top: 6px;
+}
+
+.card-foot {
+    padding: 11px 16px;
+    font-size: 16px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    color: var(--text-dim);
+    background-color: rgba(0, 0, 0, 0.4);
+    border-top-width: 2px;
+    border-top-color: var(--concrete-grey);
+}
+
+.upgrade-card:hover .card-foot {
+    color: rgb(16, 16, 16);
+    background-color: var(--safety-yellow);
+    border-top-color: var(--safety-yellow);
+}
+
+/* ---- Rarity ---- */
+.rarity-rare { border-color: rgb(150, 122, 20); }
+.rarity-rare .card-strip { background-color: var(--safety-yellow); }
+.rarity-rare .card-rarity { color: var(--safety-yellow); }
+
+.rarity-epic { border-color: rgb(110, 40, 140); }
+.rarity-epic .card-strip { background-color: var(--toxic-purple); }
+.rarity-epic .card-rarity { color: var(--toxic-purple); }

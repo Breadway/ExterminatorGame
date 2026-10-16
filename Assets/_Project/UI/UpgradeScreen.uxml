@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="IndustrialTheme.uss" />
+    <ui:Style src="UpgradeScreen.uss" />
+    <ui:VisualElement name="upgrade-root" class="screen-root industrial">
+        <ui:VisualElement class="form-sheet upgrade-sheet">
+            <ui:VisualElement name="upgrade-tape-top" />
+            <ui:VisualElement class="sheet-body">
+                <ui:Label text="FORM 27-B  /  PERFORMANCE REVIEW" class="form-line" />
+                <ui:Label name="upgrade-title" text="CLEARANCE GRANTED" class="form-title" />
+                <ui:Label name="upgrade-subtitle" text="SELECT ONE EQUIPMENT REQUISITION" class="form-subtitle" />
+                <ui:VisualElement name="card-row" class="card-row" />
+                <ui:Label name="upgrade-footer" text="PRESS 1, 2 OR 3 - OR CLICK A FORM - TO SIGN OFF" class="form-line" />
+            </ui:VisualElement>
+            <ui:VisualElement name="upgrade-tape-bottom" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

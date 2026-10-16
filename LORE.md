@@ -1,6 +1,6 @@
 # 📜 LORE BIBLE: Biosphere Management Group
 
-> **DEVELOPER DOCUMENT — NOT PLAYER-FACING**
+> **DEVELOPER DOCUMENT - NOT PLAYER-FACING**
 > 
 > This document contains the complete lore of Hazard Pay. **None of this is delivered directly to players.** The story exists as environmental details, hidden collectibles, cryptic hints, and pieced-together fragments that reward curiosity without punishing players who skip it.
 
@@ -22,7 +22,7 @@
 - The Van, the equipment, the job
 
 **SHALLOW WATER (Casual observers notice):**
-- BMG logos on everything—equipment, vending machines, the bugs' containment tags
+- BMG logos on everything-equipment, vending machines, the bugs' containment tags
 - Weird corporate slogans on posters
 - Room names that hint at what happened ("Former Daycare," "Honeymoon Suite")
 
@@ -44,12 +44,12 @@
 
 | Players See | Players Can Discover (If Looking) |
 |-------------|-----------------------------------|
-| Room name: "Sector 7-RG" | Room name: "Former Daycare - Room 12" — wait, what? |
-| A vending machine sprite | Upgrade called "VitaJuice" — same name on the health pickup |
-| Contractor ID in UI: #0447 | Achievement: "First Day" — why does numbering start at 447? |
+| Room name: "Sector 7-RG" | Room name: "Former Daycare - Room 12" - wait, what? |
+| A vending machine sprite | Upgrade called "VitaJuice" - same name on the health pickup |
+| Contractor ID in UI: #0447 | Achievement: "First Day" - why does numbering start at 447? |
 | Fire-spitting roaches | Bestiary entry mentions "[REDACTED] exposure" |
 | Equipment that sparks (mechanic) | Upgrade description: "Warranty void. Prototype only." |
-| Death screen | "CONTRACTOR #0447 [UNRECOVERED]" — that word choice... |
+| Death screen | "CONTRACTOR #0447 [UNRECOVERED]" - that word choice... |
 
 ### Practical Lore Delivery (2D Pixel Art Constraints)
 
@@ -58,7 +58,7 @@
 - **Collectible Text Pickups:** Glowing pixel item → opens text popup with document fragment
 - **Bestiary/Codex Entries:** Unlocked by killing enemies. Written in corporate voice. Hints buried in fine print.
 - **Upgrade/Item Names & Descriptions:** Every upgrade has flavor text. Most is corporate fluff. Some is... odd.
-- **Achievement Names:** Cryptic titles that hint at lore. "Employee #447." "What Happened to Gary?" "The Thorne Protocol."
+- **Achievement Names:** Cryptic titles that hint at lore. "Contractor #0447." "What Happened to Gary?" "The Thorne Protocol."
 - **Death Screen Variations:** Different text each death. Mostly corporate. Occasionally glitches.
 - **Loading Screen Text:** Brief "tips" that are actually lore breadcrumbs.
 - **Character Select Flavor:** One-line descriptions that raise questions, don't answer them.
@@ -74,19 +74,19 @@
 
 These are intentionally never fully explained. Players piece together theories from text fragments:
 
-1. **The Contractor Numbers** — Your ID is #0447. Achievements reference earlier numbers. No explanation.
+1. **The Contractor Numbers** - Your ID is #0447. Achievements reference earlier numbers. No explanation.
 
-2. **The Verdantix Founder** — "Gary" mentioned in document fragments. His warnings always cut off.
+2. **The Verdantix Founder** - "Gary" mentioned in document fragments. His warnings always cut off.
 
-3. **Facility Omega** — Referenced in bestiary entries. Never a playable zone (or secret unlock?).
+3. **Facility Omega** - Referenced in bestiary entries. Never a playable zone (or secret unlock?).
 
-4. **The V-7 Variations** — Bestiary hints bugs are being *updated*, not just evolving.
+4. **The V-7 Variations** - Bestiary hints bugs are being *updated*, not just evolving.
 
-5. **Dr. Thorne's Notes** — If playing as Doc, some upgrade descriptions are written differently.
+5. **Dr. Thorne's Notes** - If playing as Doc, some upgrade descriptions are written differently.
 
-6. **The Interface Glitches** — Rare: death screen shows wrong number. Menu text changes briefly.
+6. **The Interface Glitches** - Rare: death screen shows wrong number. Menu text changes briefly.
 
-7. **BMG's True Business** — Document fragments suggest BMG *wanted* this. "Market creation."
+7. **BMG's True Business** - Document fragments suggest BMG *wanted* this. "Market creation."
 
 ---
 
@@ -124,14 +124,14 @@ Players who pay attention notice the names tell a story. Players who don't just 
 
 **Example Document Fragment:**
 ```
-[TORN — TOP MISSING]
+[TORN - TOP MISSING]
 ...recommend immediate termination of Phase 1 workforce.
 Liability exposure unacceptable. Suggest "contractor 
 transition program" per Legal's proposal.
 
 Note: Ensure no personnel files survive transition.
-Employee numbering to restart at 0447 per attached...
-[TORN — BOTTOM MISSING]
+Contractor numbering to restart at 0447 per attached...
+[TORN - BOTTOM MISSING]
 ```
 
 ### Character Background Integration
@@ -151,7 +151,7 @@ Employee numbering to restart at 0447 per attached...
 
 **The Van Terminal:**
 - Displays contractor ID number (players notice theirs is #0447+)
-- Occasionally glitches—old text, old names, corrupted data
+- Occasionally glitches-old text, old names, corrupted data
 - Loading screens have BMG slogans that change over time (get darker as game progresses?)
 
 **Upgrade Descriptions:**
@@ -167,27 +167,27 @@ Employee numbering to restart at 0447 per attached...
 
 ## 🕳️ THE FULL LORE (Developer Reference Only)
 
-*Everything below is the "truth" that players piece together—or theorize about without ever confirming.*
+*Everything below is the "truth" that players piece together-or theorize about without ever confirming.*
 
 ---
 
 ## 🏢 The World: What BMG Actually Is
 
-The year is 2026. America runs on three things: coffee, crippling debt, and **Biosphere Management Group (BMG)**—a pharmaceutical conglomerate so deeply embedded in daily life that most people don't notice it anymore, the same way fish don't notice water and wage slaves don't notice fluorescent lighting.
+The year is 2026. America runs on three things: coffee, crippling debt, and **Biosphere Management Group (BMG)**-a pharmaceutical conglomerate so deeply embedded in daily life that most people don't notice it anymore, the same way fish don't notice water and wage slaves don't notice fluorescent lighting.
 
 BMG doesn't just dominate markets. It *is* the market. The aspirin in your cabinet? BMG. The fertilizer on your lawn? BMG subsidiary. The cholesterol medication keeping your father alive? BMG, and they raised the price 340% last quarter because, quote, "shareholder value." The school lunch program? BMG Nutritional Solutions ("Growing Minds, Growing Margins™"). The water treatment plant? Contracted to BMG Municipal Services, which explains why everything tastes vaguely like liability waivers.
 
-Their logo—a stylized double helix wrapped around a dollar sign—appears on hospital gurneys, park benches, highway exit signs, and the coffee cups of senators. There are entire ZIP codes where BMG owns the police contract, the waste management franchise, AND the local news affiliate. Regulatory capture isn't a bug; it's the business model.
+Their logo-a stylized double helix wrapped around a dollar sign-appears on hospital gurneys, park benches, highway exit signs, and the coffee cups of senators. There are entire ZIP codes where BMG owns the police contract, the waste management franchise, AND the local news affiliate. Regulatory capture isn't a bug; it's the business model.
 
-**Sector Classification:** BMG carves its territory into numbered **Sectors**—geographic fiefdoms spanning city blocks, suburbs, and rural "resource zones." Within each Sector, **Deployment Zones** are designated by letter and function: R for Residential, I for Industrial, M for Municipal, X for "don't ask." Your work orders arrive as coordinate strings that translate human tragedy into corporate shorthand. "Sector 7-RG" means someone's basement has achieved sentience. "Sector 4-XQ" means you won't be coming back.
+**Sector Classification:** BMG carves its territory into numbered **Sectors**-geographic fiefdoms spanning city blocks, suburbs, and rural "resource zones." Within each Sector, **Deployment Zones** are designated by letter and function: R for Residential, I for Industrial, M for Municipal, X for "don't ask." Your work orders arrive as coordinate strings that translate human tragedy into corporate shorthand. "Sector 7-RG" means someone's basement has achieved sentience. "Sector 4-XQ" means you won't be coming back.
 
 **The Public Face:** BMG sponsors little league teams, funds hospital wings (named after executives), and runs heartwarming commercials featuring golden retrievers and diverse families smiling at salads. Their PR department won seven Clio Awards last year. Their legal department has a higher body count than most militaries.
 
-**The Shadow Infrastructure:** Behind the charity galas and the glossy annual reports, there's a second corporation—one that handles "reputation management" through methods that would make the CIA blush. Cleanup crews in unmarked vans. Research facilities that don't appear on any map. A dedicated "Narrative Adjustment" team that can make a three-alarm industrial disaster read as "minor equipment malfunction" by the evening news.
+**The Shadow Infrastructure:** Behind the charity galas and the glossy annual reports, there's a second corporation-one that handles "reputation management" through methods that would make the CIA blush. Cleanup crews in unmarked vans. Research facilities that don't appear on any map. A dedicated "Narrative Adjustment" team that can make a three-alarm industrial disaster read as "minor equipment malfunction" by the evening news.
 
 **Everyday Life in the BMG Economy:** Citizens don't buy products anymore; they subscribe to "wellness ecosystems." Health clinics push company-formulated treatments with names like "VitaBoost+" and "CardioGuard Premium" (side effects include: compliance). Vending machines dispense "Productivity Enhancers" that are definitely not just rebranded amphetamines. The fine print on a bag of chips now runs six pages.
 
-Meanwhile, a grey economy thrives in the margins—contractor forums trading intel over encrypted channels, black-market stabilizer rations, gear salvaged from colleagues who "didn't make it to orientation." For most citizens, the Crisis is a weird headline between celebrity gossip and sports scores. For contractors, it's Tuesday. It's always Tuesday.
+Meanwhile, a grey economy thrives in the margins-contractor forums trading intel over encrypted channels, black-market stabilizer rations, gear salvaged from colleagues who "didn't make it to orientation." For most citizens, the Crisis is a weird headline between celebrity gossip and sports scores. For contractors, it's Tuesday. It's always Tuesday.
 
 ### 🧬 The "Incident" (Internal Classification: VERDANT COLLAPSE)
 
@@ -203,7 +203,7 @@ Here's the thing about biochemistry: it doesn't care about shareholder value.
 
 Compound V-7 was designed to accelerate cellular growth in plants. It did this by hijacking mitochondrial function and overclocking metabolic pathways. The original Verdantix team had spent three years calibrating stabilizers to ensure the compound ONLY affected plant cells. BMG's cost-cutting removed those stabilizers. 
 
-The reformulated compound didn't discriminate. It integrated with anything that had mitochondria—which, as any high school biology student could tell you, is basically everything.
+The reformulated compound didn't discriminate. It integrated with anything that had mitochondria-which, as any high school biology student could tell you, is basically everything.
 
 The first mutations were almost cute: slightly larger aphids, unusually aggressive garden snails, a tomato plant that ate a sparrow. Farmers reported "frisky" livestock. Pest control calls spiked 400%. No one connected the dots because the dots were owned by different BMG subsidiaries that didn't share data.
 
@@ -211,9 +211,9 @@ Then the compound hit the aquifers.
 
 **The Elemental Problem:**
 
-V-7 doesn't just cause growth—it causes *adaptation*. The mutagen rewrites host biochemistry based on environmental chemical exposure, creating what the surviving Verdantix researchers called "phenotypic cascade events" and what everyone else calls "oh god why is that cockroach on fire."
+V-7 doesn't just cause growth-it causes *adaptation*. The mutagen rewrites host biochemistry based on environmental chemical exposure, creating what the surviving Verdantix researchers called "phenotypic cascade events" and what everyone else calls "oh god why is that cockroach on fire."
 
-- Roaches in grease-saturated restaurant kitchens developed **incendiary glands**—their bodies producing trace amounts of phosphorus compounds that ignite on contact with air
+- Roaches in grease-saturated restaurant kitchens developed **incendiary glands**-their bodies producing trace amounts of phosphorus compounds that ignite on contact with air
 - Spiders in industrial zones secreted **acidic webbing** after absorbing heavy metals from contaminated soil
 - Wasps near power infrastructure evolved **bioelectric organs** similar to electric eels, but somehow worse
 - Centipedes in freezer units developed **cryogenic circulatory systems** that radiate lethal cold
@@ -238,7 +238,7 @@ Someone finally did the math: it was cheaper to create a deniable extermination 
 
 **The Cover Story:**
 
-The public explanation, distributed through BMG-friendly media outlets, is that the infestation represents a "novel invasive species event" caused by—and this is real—"illegal exotic pet dumping exacerbated by climate migration patterns." 
+The public explanation, distributed through BMG-friendly media outlets, is that the infestation represents a "novel invasive species event" caused by-and this is real-"illegal exotic pet dumping exacerbated by climate migration patterns." 
 
 There's a dedicated team of "scientific consultants" (actors with lab coats) who appear on morning shows to explain that the giant fire-spitting roaches are "definitely not related to any agricultural products" and that concerned citizens should "trust the process and report unusual sightings to their local BMG Community Safety Liaison."
 
@@ -249,7 +249,7 @@ Most people believe it. People will believe almost anything if the alternative i
 
 ---
 
-**September 12, 2023 — THE ACQUISITION**
+**September 12, 2023 - THE ACQUISITION**
 BMG acquires Verdantix for $4.2 billion.
 - *Press Release:* "Ushering in a new era of sustainable abundance for generations to come."
 - *Internal Memo (leaked):* "Asset strip the safety division. Fire anyone with a conscience. Double production quotas. The stockholders are hungry and they don't eat vegetables."
@@ -257,7 +257,7 @@ BMG acquires Verdantix for $4.2 billion.
 
 ---
 
-**October 2023 — THE OPTIMIZATION**
+**October 2023 - THE OPTIMIZATION**
 New BMG management implements "efficiency improvements."
 - Safety team reduced from 47 to 3 (one quit, one was fired for "negativity," one is now in Division 8)
 - Quality control testing window reduced from 90 days to "whatever fits in a weekend"
@@ -266,7 +266,7 @@ New BMG management implements "efficiency improvements."
 
 ---
 
-**March 15, 2024 — COMMERCIAL ROLLOUT**
+**March 15, 2024 - COMMERCIAL ROLLOUT**
 "Verdant-X" (consumer-branded V-7) ships to Sector 4 agricultural belt.
 - Crop yields increase 200%
 - Stock price jumps 45%
@@ -275,7 +275,7 @@ New BMG management implements "efficiency improvements."
 
 ---
 
-**June 2024 — FIRST SIGNS**
+**June 2024 - FIRST SIGNS**
 Field reports begin trickling in. All are marked "LOW PRIORITY" by automated systems.
 - Pest control calls up 400% in treated zones
 - "Unusual insect aggression" noted in 17 counties
@@ -284,7 +284,7 @@ Field reports begin trickling in. All are marked "LOW PRIORITY" by automated sys
 
 ---
 
-**August 2, 2024 — THE BLACK FRIDAY INCIDENT**
+**August 2, 2024 - THE BLACK FRIDAY INCIDENT**
 A single mutated queen roach breaches the Sector 4 Distribution Center.
 - 14 employees lost (11 confirmed dead, 3 listed as "unrecovered")
 - The queen is described in the incident report as "approximately the size of a German Shepherd, with thermal-reactive mandibles"
@@ -294,7 +294,7 @@ A single mutated queen roach breaches the Sector 4 Distribution Center.
 
 ---
 
-**August-September 2024 — OPERATION CLEAN SWEEP**
+**August-September 2024 - OPERATION CLEAN SWEEP**
 Panicking executives authorize "controlled incineration" of affected agricultural zones.
 - 200,000 acres burned
 - Mutagenic particulate becomes airborne
@@ -304,7 +304,7 @@ Panicking executives authorize "controlled incineration" of affected agricultura
 
 ---
 
-**October 2024 — THE CHEMICAL ESCALATION**
+**October 2024 - THE CHEMICAL ESCALATION**
 BMG deploys experimental pesticide "NecroBane-X" (internal classification: "Bug Juice 2: Bug Harder")
 - Kills 90% of exposed insects within 72 hours
 - Surviving 10% display "aggressive evolutionary response"
@@ -313,7 +313,7 @@ BMG deploys experimental pesticide "NecroBane-X" (internal classification: "Bug 
 
 ---
 
-**November 11, 2024 — THE THANKSGIVING MASSACRE**
+**November 11, 2024 - THE THANKSGIVING MASSACRE**
 Coordinated infestation events across six major metropolitan areas.
 - Casualties: 847 confirmed, 2,000+ "displaced"
 - BMG stock drops 12% (rebounds within a week after PR offensive)
@@ -322,7 +322,7 @@ Coordinated infestation events across six major metropolitan areas.
 
 ---
 
-**December 2024 — THE PIVOT**
+**December 2024 - THE PIVOT**
 Emergency board meeting concludes that:
 1. Fixing the problem would cost approximately $340 billion
 2. Admitting fault would cost "everything, forever"
@@ -336,7 +336,7 @@ Division 8 is chartered. Recruitment begins immediately, targeting:
 
 ---
 
-**January 2026 — CURRENT DAY**
+**January 2026 - CURRENT DAY**
 Division 8 operates across 23 metropolitan sectors.
 - Contractor mortality rate: 67% (first 30 days)
 - Contractor retention rate: "Irrelevant per Legal"
@@ -356,7 +356,7 @@ The game's tone is communicated through **environment, not exposition**. Players
 - Industrial grime, not sleek sci-fi
 - Duct-taped equipment, peeling logos, flickering lights
 - Juxtaposition: cheerful corporate posters in blood-splattered rooms
-- The mundane made horrific: suburban homes, office cubicles, daycare centers—all infested
+- The mundane made horrific: suburban homes, office cubicles, daycare centers-all infested
 
 **Audio Tone:**
 - Minimal music during gameplay (tension, not drama)
@@ -371,7 +371,7 @@ Players should occasionally think "wait, what happened here?" without the game a
 
 ## 👤 Key Figures (Developer Reference)
 
-*These characters are referenced in documents and environmental details. Players piece together who they are—or don't.*
+*These characters are referenced in documents and environmental details. Players piece together who they are-or don't.*
 
 ---
 
@@ -379,7 +379,7 @@ Players should occasionally think "wait, what happened here?" without the game a
 
 **What Players Might Find:**
 - His face on motivational posters (always the same photo, suspiciously airbrushed)
-- His signature on liability waivers (always identical—printed, not signed)
+- His signature on liability waivers (always identical-printed, not signed)
 - News clippings praising "visionary leadership"
 - Conspiracy forum posts (in-game collectibles?) questioning if he's real
 
@@ -395,7 +395,7 @@ Players should occasionally think "wait, what happened here?" without the game a
 - Research notes in clinical handwriting (collectible documents)
 - References to "Facility Omega" and "Phase 2 trials"
 - If playing as Dr. Chen: occasional equipment with handwritten sticky notes. Recent dates. Watching.
-- Photos in a lab coat—but his face is always obscured or turned away
+- Photos in a lab coat-but his face is always obscured or turned away
 
 **The Mystery:** Thorne is clearly *involved* and clearly *watching*, but players never see him directly. His notes suggest he views the infestation as an experiment and contractors as test subjects. But some notes also suggest... guilt? Regret? Or is that just what he wants readers to think?
 
@@ -408,10 +408,10 @@ Players should occasionally think "wait, what happened here?" without the game a
 **What Players Might Find (Text-Based):**
 - Collectible: Military discharge papers (redacted, but "dishonorable" is visible)
 - Collectible: Voice logs from other contractors mentioning "the Commander"
-- Document: Mission briefing forms with his signature—getting shakier over time?
+- Document: Mission briefing forms with his signature-getting shakier over time?
 - Loading tip: "Commander Stone's prescription refills are auto-approved."
 
-**The Mystery:** Stone is the closest thing to a "handler" but players only see evidence of him, never him directly. Is he protecting contractors? Using them? Both? Text logs suggest he's not heartless—just hollowed out. Some logs cut off mid-sentence. What was he about to say?
+**The Mystery:** Stone is the closest thing to a "handler" but players only see evidence of him, never him directly. Is he protecting contractors? Using them? Both? Text logs suggest he's not heartless-just hollowed out. Some logs cut off mid-sentence. What was he about to say?
 
 ---
 
@@ -423,12 +423,12 @@ Players should occasionally think "wait, what happened here?" without the game a
 - Occasionally... glitches. Text that doesn't belong. Names. Dates. Apologies.
 
 **What Players Might Find:**
-- Documents referencing "A.M.I. Version 1.0" through "Version 7.2"—what happened to the other versions?
+- Documents referencing "A.M.I. Version 1.0" through "Version 7.2"-what happened to the other versions?
 - Error logs showing A.M.I. trying to access files it shouldn't
-- A single corrupted audio file: a human voice saying "I'm sorry, I didn't want—" before cutting to static
+- A single corrupted audio file: a human voice saying "I'm sorry, I didn't want-" before cutting to static
 - Code comments (if players somehow see them): "// TODO: remove personality module"
 
-**The Mystery:** Is A.M.I. just software? Or was it something else, once? Some documents reference a "human baseline" for the AI's responses. Whose baseline? Why "Asset Management"—is it managing *assets*, or is it *itself* an asset that was managed?
+**The Mystery:** Is A.M.I. just software? Or was it something else, once? Some documents reference a "human baseline" for the AI's responses. Whose baseline? Why "Asset Management"-is it managing *assets*, or is it *itself* an asset that was managed?
 
 **Implementation Note:** A.M.I. should be *functional*, not chatty. Brief text prompts. "CONTRACT ACCEPTED." "UPGRADE INSTALLED." "CONTRACTOR [UNRECOVERED]." Players who ignore it miss nothing. Players who pay attention notice the cracks.
 
@@ -438,15 +438,15 @@ Players should occasionally think "wait, what happened here?" without the game a
 
 **What Players Experience:**
 - Waivers. Everywhere. Fine print on equipment. Disclaimers on health packs.
-- Liability language that's almost funny—until you read it twice.
+- Liability language that's almost funny-until you read it twice.
 
 **What Players Might Find:**
 - Internal memos from Legal that are MORE horrifying than anything else
 - References to "acceptable casualty thresholds" and "narrative adjustment protocols"
-- A document that almost explains what Division 8 really is—but key paragraphs are blacked out
+- A document that almost explains what Division 8 really is-but key paragraphs are blacked out
 - Legal's address is listed as "Sub-Basement 7." No BMG building has a Sub-Basement 7 on any floor plan.
 
-**The Mystery:** Legal is omnipresent but invisible. They approved the contractor program. They drafted the waivers. They ensure no one can sue. But some documents suggest Legal isn't just covering up the problem—they *anticipated* it. Memos dated before the incident reference "post-event workforce solutions." How did they know?
+**The Mystery:** Legal is omnipresent but invisible. They approved the contractor program. They drafted the waivers. They ensure no one can sue. But some documents suggest Legal isn't just covering up the problem-they *anticipated* it. Memos dated before the incident reference "post-event workforce solutions." How did they know?
 
 ---
 
@@ -458,7 +458,7 @@ Players should occasionally think "wait, what happened here?" without the game a
 
 **Players choose a character. The game doesn't explain why they're here.**
 
-No opening cutscene. No tragic monologue. Players select "The Pyrotechnic" or "The Custodian" and start playing. The backstory exists—it's just hidden:
+No opening cutscene. No tragic monologue. Players select "The Pyrotechnic" or "The Custodian" and start playing. The backstory exists-it's just hidden:
 
 - Character select screen has rotating flavor text with subtle hints
 - Collectible text documents that reference them by name
@@ -483,7 +483,7 @@ No opening cutscene. No tragic monologue. Players select "The Pyrotechnic" or "T
 - Document: "Regional BBQ Finals Ends in Disaster: Three Injured"
 - Document fragment: "State of Texas vs. Ramirez"
 - Loading tip (Torch only): "Torch hasn't touched a grill since the incident."
-- Achievement description for "Flame Warden": "His warrant—stamped RESOLVED with BMG's signature."
+- Achievement description for "Flame Warden": "His warrant-stamped RESOLVED with BMG's signature."
 
 **Full Backstory (Developer Reference):**
 Marcus Ramirez was a three-time Texas state BBQ champion. His signature "Dragon's Breath Finish" involved an open butane torch. At the 2024 Regional Finals, a propane tank malfunction caused an explosion. Three judges hospitalized. One pavilion destroyed. One career ended.
@@ -534,7 +534,7 @@ When exterminators came to destroy the hive, they didn't come back. BMG offered 
 - Room name (school zones): "Clearwater High - Budget Meeting Room"
 
 **Full Backstory:**
-Eve Ortega was head custodian at Clearwater High for 22 years. Two years from retirement, the district cut her pension to fund a scoreboard. At 58, no one would hire her. BMG did—for "Facilities Maintenance" that turned out to involve giant bugs.
+Eve Ortega was head custodian at Clearwater High for 22 years. Two years from retirement, the district cut her pension to fund a scoreboard. At 58, no one would hire her. BMG did-for "Facilities Maintenance" that turned out to involve giant bugs.
 
 Twenty-two years of handling chaos gave her perfect spatial awareness. The bugs are easier than teenagers. And these ones she's allowed to hit.
 
@@ -579,7 +579,7 @@ The foam sprayer was designed for robots. Jamie is not a robot, but they're too 
 - Document: Original OSHA complaint with detailed safety violations
 - Document: Counter-complaint: "frivolous reporting, recommend termination"
 - Achievement "Code Violation" tracks OSHA violations witnessed
-- Loading tip: "Sparky's license—stamped REVOKED."
+- Loading tip: "Sparky's license-stamped REVOKED."
 
 **Full Backstory:**
 Victor Kowalski was a union electrician who reported his employer for running live wires through water pipes. OSHA investigated. Fines were issued. And Vic's name went on a blacklist.
@@ -600,7 +600,7 @@ Thirty years of perfect safety record. Three months behind on rent. BMG's recrui
 - Character select text: "Former BMG R&D. Emphasis on 'former.'"
 
 **Hidden Lore (Text Collectibles):**
-- Document: Verdantix safety reports—signed "S. Chen." With annotations questioning findings.
+- Document: Verdantix safety reports-signed "S. Chen." With annotations questioning findings.
 - Document: Internal memo - "Dr. Chen's concerns are noted. Production continues."
 - Achievement "Subject C" unlocks when playing Doc in Thorne's former lab zones
 - Bestiary entries (Doc only): unredacted versions reveal what she actually wrote
@@ -608,7 +608,7 @@ Thirty years of perfect safety record. Three months behind on rent. BMG's recrui
 **Full Backstory:**
 Dr. Sarah Chen was lead biochemist on the V-7 project. She raised safety concerns. Her supervisor, Dr. Thorne, told her to sign the revised reports or lose her visa, her career, her everything. She signed.
 
-When the mutations started, she tried to go public. BMG's legal team arrived with the reports bearing her signature—and a choice: Division 8 or prison. She's gathering evidence. Or just surviving. The line is blurry.
+When the mutations started, she tried to go public. BMG's legal team arrived with the reports bearing her signature-and a choice: Division 8 or prison. She's gathering evidence. Or just surviving. The line is blurry.
 
 Thorne watches. He sends her personalized briefings. He finds it "narratively satisfying."
 
@@ -618,7 +618,7 @@ Thorne watches. He sends her personalized briefings. He finds it "narratively sa
 
 ## 📖 Text-Based Lore Elements (Collectibles & UI)
 
-*These are the fragments players can find. Each raises questions without answering them. ALL delivered through text popups, UI, or menus—not visual props.*
+*These are the fragments players can find. Each raises questions without answering them. ALL delivered through text popups, UI, or menus-not visual props.*
 
 ### Collectible Document Categories
 
@@ -628,7 +628,7 @@ Thorne watches. He sends her personalized briefings. He finds it "narratively sa
 - Hint at larger conspiracy without explaining it
 
 **Personnel Files (Uncommon)**
-- Contractor records—IDs jumping from #0001 to #0447
+- Contractor records-IDs jumping from #0001 to #0447
 - Performance reviews for deceased contractors
 - Medical records with disturbing entries
 
@@ -648,7 +648,7 @@ Thorne watches. He sends her personalized briefings. He finds it "narratively sa
 ```
 ...recommend immediate transition from Phase 1 protocol.
 Liability exposure exceeds acceptable threshold.
-Employee numbering to restart at 0447 per attached...
+Contractor numbering to restart at 0447 per attached...
 [TORN]
 ```
 
@@ -696,7 +696,7 @@ the original patents. Check who filed them. Check...
 
 ## 🗺️ Map/Zone Design Notes
 
-*Storytelling through room names, zone progression, and collectible placement—not detailed visual props.*
+*Storytelling through room names, zone progression, and collectible placement-not detailed visual props.*
 
 ### Sector 7 (Suburbia)
 
@@ -713,7 +713,7 @@ the original patents. Check who filed them. Check...
 - Room names with dates that predate the official incident
 - Achievement "Early Adopters" for clearing all Suburbia zones
 
-### Sector 4 (Sewers) — Future
+### Sector 4 (Sewers) - Future
 
 **The Surface Story:** Bugs in the sewers. Classic exterminator territory.
 
@@ -724,12 +724,12 @@ the original patents. Check who filed them. Check...
 - Room name: "SECTOR 4-XQ - DO NOT ENTER" (but you can...)
 - Achievement "Unrecovered" for reaching Sector 4-XQ
 
-### Facility Omega — Future
+### Facility Omega - Future
 
 **The Surface Story:** Research lab breach. Clean it up.
 
 **The Hidden Story (Via Collectibles & Room Names):**
-- The facility isn't just studying bugs—it's MAKING them
+- The facility isn't just studying bugs-it's MAKING them
 - Room name (Doc only): "DR. CHEN'S FORMER LAB"
 - Collectible: Original research proposals vs. what was actually built
 - Document: Evidence of what BMG actually planned
@@ -751,7 +751,7 @@ the original patents. Check who filed them. Check...
 **LEVEL 2:**
 - Contractor numbers skip 446 people. What happened to them?
 - The bugs show signs of being *directed*, not random
-- Equipment is clearly prototype—contractors are test subjects
+- Equipment is clearly prototype-contractors are test subjects
 
 **LEVEL 3:**
 - BMG knew about V-7's effects before the acquisition
@@ -759,7 +759,7 @@ the original patents. Check who filed them. Check...
 - Sterling Voss may not be a real person
 
 **LEVEL 4:**
-- Facility Omega isn't just researching bugs—it's weaponizing them
+- Facility Omega isn't just researching bugs-it's weaponizing them
 - The infestation isn't spreading naturally. It's being cultivated.
 - Dr. Chen isn't the only "former researcher" in Division 8
 

@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeID: venom_rounds
   upgradeName: Venom Rounds
-  description: Coat your ammunition in potent toxins extracted from the very pests you exterminate.
+  description: Coat your ammunition in potent toxins extracted from the very pests
+    you exterminate.
   icon: {fileID: 0}
   type: 0
   rarity: 1
   healthBonus: 0
   healthMultiplier: 1
-  damageBonus: 8
+  damageBonus: 5
   damageMultiplier: 1.1
   critChanceBonus: 0
   critDamageBonus: 0
@@ -28,9 +29,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: venom_rounds
+  specialEffectDescription: Hits sometimes envenom. Poison stacks.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

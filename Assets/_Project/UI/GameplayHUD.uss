@@ -10,6 +10,8 @@
     --hazard-orange: rgb(255, 120, 0);
     --rust-red: rgb(140, 50, 40);
     --toxic-purple: rgb(180, 60, 220);
+    --alarm-red: rgb(235, 80, 70);
+    --chem-green: rgb(80, 215, 120);
     
     /* Industrial Colors */
     --concrete-grey: rgb(80, 80, 85);
@@ -146,6 +148,19 @@
     text-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
 }
 
+.guard-warning {
+    display: none;
+    font-size: 18px;
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    color: var(--alarm-red);
+    margin-top: 4px;
+}
+
+.guard-warning.active {
+    display: flex;
+}
+
 .level-value {
     font-size: 64px;
     color: var(--safety-yellow);
@@ -242,7 +257,7 @@
 
 .notification-text {
     font-size: 48px;
-    color: var(--rust-red); /* Alert Color */
+    color: var(--safety-yellow); /* Readable on the dark plate; rust red vanished into it */
     background-color: rgba(10, 10, 10, 0.9);
     border-color: var(--safety-yellow);
     border-width: 4px;
@@ -256,4 +271,109 @@
 
 .notification-panel.visible {
     opacity: 1;
+}
+
+/* ========================================
+   BOSS BAR / WEAPON METER / ROOM BANNER
+   ======================================== */
+.boss-panel {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    margin-top: 28px;
+    width: 620px;
+    display: none;
+    align-items: center;
+    background-color: var(--terminal-bg);
+    border-width: 3px;
+    border-color: var(--rust-red);
+    padding: 8px 18px 12px 18px;
+}
+
+.boss-panel.active {
+    display: flex;
+}
+
+.boss-name {
+    font-size: 20px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    color: var(--alarm-red);
+    margin-bottom: 4px;
+}
+
+.boss-bar-container {
+    width: 100%;
+    height: 22px;
+    border-color: var(--rust-red);
+}
+
+.boss-bar-fill {
+    background-color: var(--alarm-red);
+}
+
+.boss-panel.enraged {
+    border-color: var(--hazard-orange);
+}
+
+.weapon-meter {
+    position: absolute;
+    bottom: 150px;
+    left: 50%;
+    translate: -50% 0;
+    width: 320px;
+    display: none;
+}
+
+.weapon-meter.active {
+    display: flex;
+}
+
+.weapon-meter-label {
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.weapon-meter-bar {
+    height: 16px;
+}
+
+.weapon-meter-fill {
+    background-color: var(--safety-yellow);
+}
+
+.weapon-meter.danger .weapon-meter-fill {
+    background-color: var(--alarm-red);
+}
+
+.room-banner {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    translate: -50% -50%;
+    align-items: center;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.35s;
+}
+
+.room-banner.visible {
+    opacity: 1;
+}
+
+.room-banner-title {
+    font-size: 40px;
+    letter-spacing: 5px;
+    -unity-font-style: bold;
+    color: var(--safety-yellow);
+    text-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+}
+
+.room-banner-sub {
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--hazard-orange);
+    margin-top: 4px;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
 }

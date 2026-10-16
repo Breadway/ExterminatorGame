@@ -24,7 +24,7 @@ public class XPBarUI : MonoBehaviour {
 
     private void UpdateXPBar(int currentXP, int xpRequired) {
         if (fillImage != null) {
-            float fillAmount = (float)currentXP / xpRequired;
+            float fillAmount = xpRequired > 0 ? Mathf.Clamp01((float)currentXP / xpRequired) : 0f;
             fillImage.fillAmount = fillAmount;
         }
 

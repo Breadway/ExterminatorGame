@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: second_wind
+  specialEffectDescription: Once per run: survive a fatal hit with 40% HP.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

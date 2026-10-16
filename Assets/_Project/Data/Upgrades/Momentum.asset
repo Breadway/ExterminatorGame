@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1.05
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: momentum
+  specialEffectDescription: Keep moving and keep killing. Each kill fuels the next.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

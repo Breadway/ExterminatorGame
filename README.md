@@ -108,11 +108,13 @@ Each character has one overpowered mechanic balanced by a constraint:
 *See [PERFORMANCE.md](PERFORMANCE.md) for detailed metrics and optimizations.*
 
 ### What's Next (Phase 2 ⬅️ IN PROGRESS)
-- [ ] Room clearing and transitions
-- [ ] Upgrade selection UI (pick 1 of 3)
-- [ ] Path branches at levels 10/20
-- [ ] 15-20 varied room designs
-- [ ] First boss encounter
+- [x] Room clearing and transitions (generated arenas, wave per room)
+- [x] Upgrade selection UI (pick 1 of 3)
+- [x] Path branches at levels 10/20 (and 30 in endless)
+- [ ] 15-20 varied room designs (5 layouts plus random cover so far)
+- [x] First boss encounter (Brood Mother, The Queen)
+
+See CODE_HANDOFF.md for what was built beyond this list and what is still untested.
 
 ### TBD Questions
 - Movement speed tuning
@@ -274,19 +276,19 @@ Assets/
 
 ### Phase 2: Core Loop (Months 1-3) ⬅️ **CURRENT PHASE**
 **Deliverable**: Complete run with upgrades and boss
-- [ ] Room clearing and transitions
-- [ ] Upgrade system (1 of 3 choices)
-- [ ] Path progression (levels 10/20)
-- [ ] 15-20 varied rooms
-- [ ] First boss fight
+- [x] Room clearing and transitions
+- [x] Upgrade system (1 of 3 choices)
+- [x] Path progression (levels 10/20)
+- [ ] 15-20 varied rooms (5 layouts so far)
+- [x] First boss fight
 
 ### Phase 3: Content & Polish (Months 4-8)
 **Deliverable**: Replayable game with variety
-- [ ] Second character
-- [ ] 8-10 enemy types
-- [ ] Room modifiers (hazards, constraints)
-- [ ] Meta-progression (currency, unlocks)
-- [ ] Endless mode
+- [x] Second character (all five have weapons; only the Firebug is hand-tested)
+- [ ] 8-10 enemy types (6 plus 2 bosses so far)
+- [x] Room modifiers (swarm, frenzy, hardened, lean; no hazards yet)
+- [x] Meta-progression (currency, unlocks)
+- [x] Endless mode
 
 ### Phase 4: Polish & Showcase (Months 9-10)
 **Deliverable**: Presentable vertical slice
@@ -325,7 +327,7 @@ Assets/
 
 **4. Sparse Manager Use**
 - Managers coordinate high-level flow only
-- Managers DON'T do work—they tell other systems to act
+- Managers DON'T do work-they tell other systems to act
 - Target: 5-7 managers maximum
 
 ### Example: Event Flow for Enemy Death
@@ -360,9 +362,9 @@ Enemy.Die()
 ### Weekly Workflow
 
 **30-minute sync meetings**:
-1. **Review** (10min) — What worked? What blocked us?
-2. **Plan** (15min) — 2-3 tasks each, max 4 hours per task
-3. **Check-in** (5min) — Still on track? Still motivated?
+1. **Review** (10min) - What worked? What blocked us?
+2. **Plan** (15min) - 2-3 tasks each, max 4 hours per task
+3. **Check-in** (5min) - Still on track? Still motivated?
 
 ### Success Metrics (Monthly)
 Each month ask:
@@ -421,9 +423,9 @@ git push origin feature/task-name
 ❌ **Bad**: `"update"`, `"fix stuff"`, `"changes"`
 
 ### Task Guidelines
-- **Maximum 4 hours per task** — break larger work into sub-tasks
-- **Commit WIP code** — use `[WIP]` tag, don't wait for perfection
-- **Push regularly** — don't hold changes locally for days
+- **Maximum 4 hours per task** - break larger work into sub-tasks
+- **Commit WIP code** - use `[WIP]` tag, don't wait for perfection
+- **Push regularly** - don't hold changes locally for days
 
 ---
 
@@ -527,7 +529,7 @@ Each character has one overpowered mechanic balanced by a meaningful constraint.
 
 ## 📄 License & Contact
 
-**License**: Proprietary — All rights reserved (closed-source learning project)
+**License**: Proprietary - All rights reserved (closed-source learning project)
 
 **Questions or feedback**:
 - [GitHub Issues](https://github.com/[your-username]/exterminator-game/issues)
@@ -542,6 +544,6 @@ Each character has one overpowered mechanic balanced by a meaningful constraint.
 
 ---
 
-**Last Updated**: January 2026 | **Current Phase**: Month 1 — Foundation | **Next Milestone**: Functional combat loop
+**Last Updated**: January 2026 | **Current Phase**: Month 1 - Foundation | **Next Milestone**: Functional combat loop
 
 *"Exterminate with style. 🪲🔫"*

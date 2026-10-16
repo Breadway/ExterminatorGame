@@ -28,9 +28,9 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   cooldownReduction: 0
   armorBonus: 0
-  hasSpecialEffect: 0
-  specialEffectID: 
-  specialEffectDescription: 
+  hasSpecialEffect: 1
+  specialEffectID: lifesteal
+  specialEffectDescription: Heal 1 HP for every 6 enemies killed.
   maxStacks: 1
   conflictingUpgrades: []
   requiredUpgrades: []

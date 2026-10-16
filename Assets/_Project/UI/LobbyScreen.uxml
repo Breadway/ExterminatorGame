@@ -1,0 +1,42 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="IndustrialTheme.uss" />
+    <ui:Style src="LobbyScreen.uss" />
+    <ui:VisualElement name="lobby-root" class="screen-root industrial">
+        <ui:VisualElement class="form-sheet lobby-sheet">
+            <ui:VisualElement name="lobby-tape-top" />
+            <ui:VisualElement class="lobby-body">
+                <ui:VisualElement class="lobby-header">
+                    <ui:VisualElement>
+                        <ui:Label text="BMG PEST SOLUTIONS  /  CONTRACTOR PORTAL" class="form-line" />
+                        <ui:Label text="HAZARD PAY" class="form-title" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="scrap-box">
+                        <ui:Label text="SCRAP ON HAND" class="form-line" />
+                        <ui:Label name="lobby-scrap" text="0" class="scrap-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="divider" />
+                <ui:VisualElement class="lobby-columns">
+                    <ui:VisualElement class="lobby-col">
+                        <ui:Label text="ASSIGN CONTRACTOR" class="section-title" />
+                        <ui:ScrollView name="character-list" class="item-list" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lobby-col">
+                        <ui:Label text="EQUIPMENT REQUISITIONS" class="section-title" />
+                        <ui:ScrollView name="meta-list" class="item-list" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lobby-col">
+                        <ui:Label text="FIELD RECORDS" class="section-title" />
+                        <ui:ScrollView name="bestiary-list" class="item-list" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="divider" />
+                <ui:VisualElement class="lobby-footer">
+                    <ui:Label name="lobby-records" text="" class="form-line" />
+                    <ui:Button name="lobby-start" text="[ CLOCK IN ]" class="primary-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="lobby-tape-bottom" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

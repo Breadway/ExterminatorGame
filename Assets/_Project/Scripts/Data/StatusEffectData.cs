@@ -8,7 +8,8 @@ public enum StatusEffectType {
     Ice,
     Poison,
     Shock,
-    Bleed
+    Bleed,
+    Web
 }
 
 /// <summary>
